@@ -1,0 +1,161 @@
+---
+title: "Pteridophyte Flora of the Nectandra Reserve, Costa Rica"
+bibliography: "references.bib"
+mainfont: Times New Roman.ttf
+fontsize: 12pt
+mainfontoptions: 
+- BoldFont=Times New Roman Bold.ttf
+- ItalicFont=Times New Roman Italic.ttf
+- BoldItalicFont=Times New Roman Bold Italic.ttf
+output: 
+  bookdown::pdf_document2:
+    citation_package: none # Use pandoc default, otherwise csl can't be used for reference formatting
+    toc: no
+    number_sections: no
+    fig_caption: yes
+    keep_tex: no
+    latex_engine: xelatex
+    pandoc_args: [ "--csl", "journal-of-biogeography.csl"]
+    includes:
+      in_header: newphyt.sty
+header-includes: 
+  \usepackage{float}
+  \makeatletter\renewcommand*{\fps@figure}{H}\makeatother
+editor_options: 
+  chunk_output_type: console
+# nocite: | 
+#   @Vogel1968, @Wollenweber2000
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, results = "hide", cache = TRUE)
+
+library(drake)
+library(tidyverse)
+
+```
+
+<!-- Remove page numbers -->
+\pagenumbering{gobble}
+
+<!-- Set left justification -->
+\raggedright
+
+<!-- Don't indent -->
+\setlength{\parindent}{0ex}
+
+Joel H. Nitta^1,4^, Atsushi Ebihara^2^, and Alan R. Smith^3^
+
+^1^Department of Botany, National Museum of Natural History, Smithsonian Institute, Washington, D.C., 20013, U.S.A.
+
+^2^Department of Botany, National Museum of Nature and Science, 4-1-1 Amakubo, Tsukuba-shi, Ibaraki, 305-0005, Japan  
+
+^3^The University Herbarium, University of California, Berkeley, 1001 Valley Life Sciences Bldg. \#2465, Berkeley, CA 94720-2465, USA.
+
+^4^Author for correspondence (joelnitta@gmail.com)
+
+\clearpage
+
+## Abstract
+
+We provide a checklist and discussion of the pteridophytes of the Nectandra Cloud Forest Reserve, Costa Rica. We carried out surveys over three field seasons (2008, 2011, and 2013). We documented 177 taxa including 175 species and four intraspecific varieties, representing 69 genera and 20 families of pteridophytes. We compare the pteridophyte flora at Nectandra with other sites in Costa Rica. We find that Nectandra has an exceptionally rich pteridophyte flora for its area.
+
+***Keywords***---Costa Rica, Ferns, Flora, Pteridophyte. 
+
+\clearpage
+
+## Introduction
+
+Despite its small size (\SI{51100}{\square\kilo\meter}), Costa Rica is home to a remarkably high amount of biodiversity, and is ranked as one of the world's top 25 biodiversity hotspots [@Myers2000]. It is estimated that vascular plant species richness in Costa Rica exceeds \num{5000} spp. per \SI{10000}{\square\kilo\meter} [@Barthlott2005]. Accordingly, primary taxonomy is an important part of biological research in Costa Rica for the purposes of both documenting this biodiversity and informing conservation practices. 
+
+In addition to taxonomic diversity, measures of phylogenetic diversity (PD) provide another important perspective on biodiversity and should be taken into consideration for setting conservation priorities [@Faith1992]. Therefore, surveys documenting both species richness and molecular phylogenetic diversity are needed. Furthermore, molecular data can reveal aspects of biodiversity that may otherwise go unnoticed. For example, DNA barcoding surveys have revealed hidden biodiversity in the form of cryptic species in butterflies in Costa Rica [@Hajibabaei2006], and used to identify cryptic life-cycle stages in ferns [@Nitta2017]. However, a single DNA barcode marker is lacking in plants, and expert taxonomic knowledge is needed to correctly apply DNA barcodes for identification.
+
+Pteridophytes (\ie, ferns and lycophytes) are an important group of plants to study because many new species are still being discovered in the neotropics [@Almeida2016a] and they play important ecological roles in many ecosystems [\eg, @George1999; @Coomes2005; @Schuettpelz2006c; @Mueller-Dombois2013]. While the pteridophyte floras of some sites are particularly well studied, such as the Monteverde Cloud Forest Reserve [@Haber1990; @Bigelow1991] and Finca La Selva [@Grayum1987], other areas have received considerably less attention. We present here the results of surveys conducted over three field seasons on the pteridophyte flora of the recently established Nectandra Cloud Forest Reserve near San Ramon, Costa Rica. We also characterize the phylogenetic diversity at this site and compare it with other pteridophyte floras that have recently been the focus of DNA barcoding surveys.
+
+## Methods
+
+### Study Site
+
+The Nectandra Cloud Forest Reserve (hereafter, "Nectandra"; \ang{10;11;} N, \ang{84;31;}) is located at \SIrange{1000}{1200}{\meter} a.s.l. on the Atlantic slope of the Cordillera de T\'ilar\'an, \circa \SI{40}{\kilo\meter} south of the Monteverde Cloud Forest Reserve. It encompasses \SI{158}{\hectare} of premontane rainforest [@Holdridge1967], and is an important source of water for the local community [@Lennette2011]. Approximately three-quarters of Nectandra is primary forest with \textgreater98\% canopy cover; the remaining area comprises naturally regenerating former coffee and \textit{Dracaena} plantations. Two permanent streams and four seasonal drainages pass through the reserve and empty into the Balsa river. Most of the surrounding land is used for cattle pasture or other agriculture. It has a rich herptofauna [@Rovito2015] and is home to at least 189 spp. of bryophytes [@Norris2017].
+
+Climate at Nectandra is characterized by extremely high frequency of cloud cover throughout the year. Rainfall peaks during the wet season from November to February. Mean annual precipitation is \SIrange{3000}{3500}{\milli\meter\per\year}, with 80\% estimated fog-saturated days.
+
+### Field survey
+
+We carried out surveys of pteridophytes over three field seasons (January 2008, 2011, and 2013). Most specimens were collected along trails through the reserve. Epiphytes were collected from fallen trees or tree branches, or up to \circa \SI{2}{\meter} on tree trunks. Voucher specimens are deposited at UC and CR. Leaf tissue was preserved on silica gel for DNA extraction. 
+
+### Taxonomy
+
+We consulted relevant floras for species identification, including *Flora Mesoamericana* [@Moran1995] and @Lellinger1989. Genus-level and higher taxonomy follows Pteridophyte Phylogeny Group I [@PteridophytePhylogenyGroupI2016]. We provided synonyms for species names that differ from *Flora Mesoamericana* [@Moran1995].
+
+### Molecular phylogenetic analysis
+
+DNA was extracted with the DNEasy mini kit following the manufacturer's protocol. We amplified the plastid *rbcL* gene using the PCR primers and thermocycler settings of @Schuettpelz2007. We verified amplification success by gel electrophoresis in 1% TAE. We purified PCR products with Exo-STAR and conducted cycle sequencing using the Big Dye kit with two internal primers, ESRBCL654R and ESRBCL628F [@Schuettpelz2007] in addition to the amplification primers. 
+
+We imported the resulting AB1 trace files into Geneious, assembled contigs, and exported the consensus sequences in FASTA format. We generated an alignment using MAFFT and conducted phylogenetic analysis with RAxML on the CIPRES computing gateway.
+
+### Statistical analysis
+
+We constructed rarefaction-extraction curves using the iNEXT package [@Chao2014b] in R  v 3.6.0 [@RCoreTeam2019].
+
+To assess the utility of *rbcL* for species identification, we analyzed interspecific distances. We compared these with two other pteridophyte floras that have been the subject of DNA barcoding using *rbcL*, Japan [@Ebihara2010] and the islands of Moorea and Tahiti, French Polynesia [@Nitta2017].
+
+### Data accessibility
+
+Code to replicate all analyses, figures, and this manuscript are available at https://github.com/joelnitta/nectandra_ferns. Raw and processed data are openly available from the Dryad repository at http://doi.org/ADD_DOI_HERE_WHEN_ASSIGNED.
+
+## Results
+
+### Richness
+
+```{r col-numbers}
+loadd(specimens)
+
+taxa_count <-
+specimens %>%
+  select(family, genus, species, taxon, specimen) %>%
+  unique %>%
+  summarize_at(vars(everything()), n_distinct)
+
+top_families <-
+specimens %>%
+  select(family, genus, species, taxon) %>%
+  unique %>%
+  group_by(family) %>%
+  summarize(n = n()) %>%
+  arrange(desc(n))
+
+top_genera <-
+specimens %>%
+  select(family, genus, species, taxon) %>%
+  unique %>%
+  group_by(genus) %>%
+  summarize(n = n()) %>%
+  arrange(desc(n))
+```
+
+Our surveys resulted in `r taxa_count %>% pull(specimen)` individuals, representing `r taxa_count %>% pull(species)` species, `r taxa_count %>% pull(genus)` genera, and `r taxa_count %>% pull(family)` families of pteridophytes. 
+
+The genera with the most species include *`r top_genera %>% slice(1) %>% pull(genus)`* (`r top_genera %>% slice(1) %>% pull(n)` spp.), *`r top_genera %>% slice(2) %>% pull(genus)`* (`r top_genera %>% slice(2) %>% pull(n)` spp.), *`r top_genera %>% slice(3) %>% pull(genus)`* (`r top_genera %>% slice(3) %>% pull(n)` spp.), and *`r top_genera %>% slice(4) %>% pull(genus)`* (`r top_genera %>% slice(4) %>% pull(n)` spp.). The families with the most species include `r top_families %>% slice(1) %>% pull(family)` (`r top_families %>% slice(1) %>% pull(n)` spp.), `r top_families %>% slice(2) %>% pull(family)` (`r top_families %>% slice(2) %>% pull(n)` spp.), and `r top_families %>% slice(3) %>% pull(family)` (`r top_families %>% slice(3) %>% pull(n)` spp.).
+
+The collection curve did not reach an asymptote (\fig 1). Extrapolation of the curve indicates that the true species richness may approach \circa 215--280 spp.
+
+### Phylogenetic diversity
+
+## Discussion
+
+## Acknowledgements
+
+## Author Contribution
+
+## References
+<!-- Insert <div id="refs"></div> to place the refs here instead of at the end -->
+<div id="refs"></div>
+
+\clearpage
+
+<!-- Figure Legends -->
+
+\clearpage
+
+<!-- Figures -->
