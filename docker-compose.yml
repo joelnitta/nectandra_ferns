@@ -1,0 +1,9 @@
+version: "3"
+services:
+  rmd:
+    image: joelnitta/rmd:3.6.0
+    volumes:
+      - ".:/home/rstudio/nectandra"
+    environment:
+      DISABLE_AUTH: "true"
+    working_dir: /home/rstudio/nectandra
