@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+*.Rproj
 .drake/
 data_raw/
 references_raw.bib
