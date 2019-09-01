@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.drake/
+data_raw/
+references_raw.bib
+*.pdf
+*_cache/
