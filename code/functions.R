@@ -47,3 +47,45 @@ make_checklist <- function (specimens) {
     )
   
 }
+
+
+
+#' Define ggplot theme
+#' 
+#' BW theme with no gridlines, black axis text, main font size 11,
+#' axis ticks size 9.
+#'
+standard_theme2 <- function () {
+  ggplot2::theme_bw() + 
+    theme(
+      panel.grid.minor = ggplot2::element_blank(),
+      panel.grid.major = ggplot2::element_blank(),
+      axis.text.x = ggplot2::element_text(colour="black"),
+      axis.text.y = ggplot2::element_text(colour="black")
+    )
+}
+
+
+#' Make a richness extrapolation plot
+#'
+#' @param inext_out Results of iNEXT::iNEXT() on species'
+#' occurrences
+#'
+#' @return ggplot object
+make_inext_plot <- function(inext_out) {
+  
+  # create subset of observed points to add to plot as dots
+  observed_data <- inext_out$iNextEst[inext_out$iNextEst$method == "observed",]
+  
+  # make plot
+  ggplot (inext_out$iNextEst, aes(x=m, y=qD)) +
+    geom_ribbon(aes(ymin = qD.LCL, ymax = qD.UCL), fill = "grey70", alpha=0.2) +
+    geom_line(aes(linetype=method), size=0.8) +
+    scale_linetype_manual(values=c("dotted", "solid", "solid")) +
+    geom_point(data=observed_data, size=2.5) +
+    scale_y_continuous("Richness") +
+    scale_x_continuous("Number of individuals") +
+    standard_theme2() +
+    theme(legend.position="none", 
+          legend.title=element_blank())
+}

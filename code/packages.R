@@ -1,4 +1,5 @@
 library(ferncollectR)
 library(jntools)
 library(drake)
+library(iNEXT)
 library(tidyverse)

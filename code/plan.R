@@ -6,6 +6,12 @@ plan <- drake_plan(
 
   specimens = tidy_specimens(ferncollectR::collection_data$specimens, ppgi, taxonomy),
     
-  checklist = make_checklist(specimens)
-    
+  checklist = make_checklist(specimens),
+  
+  # Run iNEXT to generate interpolated/extrapolated species richness
+  # set endpoint (maximum number of individuals projected to collected) to 800
+  richness_estimate = count(specimens, taxon) %>%
+    pull(n) %>%
+    iNEXT(datatype="abundance", endpoint=800)
+  
 )
