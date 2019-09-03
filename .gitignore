@@ -4,7 +4,9 @@
 .Ruserdata
 *.Rproj
 .drake/
+data/
 data_raw/
+temp/
 references_raw.bib
 *.pdf
 *_cache/
