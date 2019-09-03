@@ -31,7 +31,12 @@ editor_options:
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, results = "hide", cache = TRUE)
 
 library(drake)
+library(scales)
 library(tidyverse)
+
+source(here::here("code/functions.R"))
+loadd(richness_estimate)
+loadd(min_distance_table)
 
 ```
 
@@ -88,17 +93,17 @@ We carried out surveys of pteridophytes over three field seasons (January 2008, 
 
 We consulted relevant floras for species identification, including *Flora Mesoamericana* [@Moran1995] and @Lellinger1989. Genus-level and higher taxonomy follows Pteridophyte Phylogeny Group I [@PteridophytePhylogenyGroupI2016]. We provided synonyms for species names that differ from *Flora Mesoamericana* [@Moran1995].
 
-### DNA sequencing
+### DNA sequencing and phylogenetic analysis
 
-DNA was extracted with the DNEasy mini kit following the manufacturer's protocol. We amplified the plastid *rbcL* gene using the PCR primers and thermocycler settings of @Schuettpelz2007. We verified amplification success by gel electrophoresis in 1% TAE. We purified PCR products with Exo-STAR and conducted cycle sequencing using the Big Dye kit with two internal primers, ESRBCL654R and ESRBCL628F [@Schuettpelz2007] in addition to the amplification primers. We imported the resulting AB1 trace files into Geneious, assembled contigs, and exported the consensus sequences in FASTA format. We generated an alignment using MAFFT.
+DNA was extracted with the DNEasy plant mini kit following the manufacturer's protocol (Qiagen). We amplified the plastid *rbcL* gene using the PCR primers and thermocycler settings of @Schuettpelz2007. We verified amplification success by gel electrophoresis in 1% TAE. We purified PCR products with Exo-STAR and conducted cycle sequencing using the Big Dye kit with two internal primers, ESRBCL654R and ESRBCL628F [@Schuettpelz2007] in addition to the amplification primers. We imported the resulting AB1 trace files into Geneious [@Kearse2012], assembled contigs, and exported the consensus sequences in FASTA format. We generated an alignment using MAFFT [@Katoh2002], and inferred a tree using RAxML [@Stamatakis2006] on the CIPRES cluster [@Miller2010].
 
 ### Statistical analysis
 
 To assess the completeness of sampling, we constructed rarefaction-extraction curves for species richness using the iNEXT package [@Chao2014b] in R v 3.6.0 [@RCoreTeam2019].
 
-We assessed the utility of *rbcL* for species identification by calculating interspecific distances. Species sharing identical *rbcL* sequences with at least one other species were considered failures, \ie not possible to identify with this marker.
+We assessed the utility of *rbcL* for species identification by calculating interspecific distances. Species sharing identical *rbcL* sequences with at least one other species (interspecific distance of zero) were considered failures, \ie not possible to identify with this marker. We treated subspecific taxa as distinct species for this purpose.
 
-To better characterize observed phylogenetic diversity, we compared the phylogenetic diversity of the pteridophytes of Nectandra with two other pteridophyte floras that have been the subject of DNA barcoding using *rbcL*, Japan [@Ebihara2010; @Ebihara2019] and the islands of Moorea and Tahiti, French Polynesia [@Nitta2017]. To ensure that phylogenetic distances were comparable across datasets, we generated a combined *rbcL* alignment for all species from the three sites together using MAFFT, and inferred a tree using RAxML on CIPRES. We then extracted the species for each site and calculated interspecific distances per site.
+To better characterize observed phylogenetic diversity, we compared the phylogenetic diversity of the pteridophytes of Nectandra with two other pteridophyte floras that have been the subject of DNA barcoding using *rbcL*, Japan [@Ebihara2010; @Ebihara2019b] and the islands of Moorea and Tahiti, French Polynesia [@Nitta2017]. To ensure that phylogenetic distances were comparable across datasets, we generated a combined *rbcL* alignment for all species from the three sites together using MAFFT [@Katoh2002]. We then extracted the species for each site and calculated minimum interspecific distances per site.
 
 ### Data accessibility
 
@@ -140,7 +145,9 @@ The genera with the most species include *`r top_genera %>% slice(1) %>% pull(ge
 
 The collection curve did not reach an asymptote (\fig \@ref(fig:richness-inext)). Extrapolation of the curve indicates that the true species richness may approach \circa 215--280 spp.
 
-### Phylogenetic diversity
+### Barcode analysis
+
+The pteridophyte flora of Nectandra includes `r min_distance_table %>% filter(dataset == "CR", is_zero == TRUE) %>% pull(n)` taxa (`r  min_distance_table %>% filter(dataset == "CR", is_zero == TRUE) %>% pull(percent) %>% percent`) that share identical *rbcL* sequences with at least one other taxon. This failure rate is higher than that of the pteridophytes of Moorea and Tahiti, but lower than Japan (\fig \@ref(fig:min-dist)).
 
 ## Discussion
 
@@ -158,7 +165,18 @@ The collection curve did not reach an asymptote (\fig \@ref(fig:richness-inext))
 
 \clearpage
 
-```{r richness-inext, out.height=2.5, out.width=2.5, fig.cap="Interpolation and extrapolation of species richness. Point indicates observed richness."}
+```{r richness-inext, fig.height=2.5, fig.width=2.5, fig.cap="Interpolation and extrapolation of species richness. Point indicates observed richness."}
 make_inext_plot(richness_estimate)
 ```
 
+```{r min-dist, fig.height=4.5, fig.width=7, fig.cap="Minimum interspecific distances for the pteridophyte floras of **a** Nectandra, **b** Moorea and Tahiti, **c** Japan (all species), and **d** Japan (sexual diploids only). Red bar indicates interspecific distance of zero, i.e., species that cannot be distinguished using *rbcL*."}
+ggplot(min_distance_table, aes(range, percent, fill = is_zero)) +
+  geom_col() +
+  scale_fill_manual(values = c("dark grey", "red")) +
+  scale_x_continuous(labels = scales::percent) +
+  scale_y_continuous(labels = scales::percent) +
+  standard_theme2() +
+  theme(legend.position = "none") +
+  facet_wrap(vars(dataset), ncol = 1) +
+  labs(x = "Genetic distance", y = "Relative frequency")
+```

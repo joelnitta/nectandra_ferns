@@ -1,3 +1,32 @@
+# Data wrangling ----
+
+#' Download Nitta et al 2017 Ecol Mono data zip file and 
+#' extract needed data files
+#'
+#' @param dl_path Name of file to download the zip file to.
+#' @param unzip_path Path to directory to put the unzipped
+#' contents (will be created if needed).
+#' @param ... Extra arguments; not used by this function, but
+#' meant for tracking with drake.
+#' @return Unzipped data files:
+#' - rbcL_clean_sporos.fasta: rbcL sequences of sporophytes from Moorea
+#'
+download_and_unzip_nitta_2017 <- function (dl_path, unzip_path, ...) {
+  
+  # Make sure the target directory exists
+  assertthat::assert_that(assertthat::is.dir(fs::path_dir(dl_path)))
+  
+  # Set url
+  url <- "https://datadryad.org/bitstream/handle/10255/dryad.132050/data_and_scripts.zip?sequence=1"
+  
+  # Download zip file
+  download.file(url, dl_path)
+  
+  # Unzip only needed data files to data/nitta_2017/
+  unzip(dl_path, "data_and_scripts/shared_data/rbcL_clean_sporos.fasta", exdir = unzip_path, junkpaths = TRUE)
+  
+}
+
 tidy_taxonomy <- function (taxonomy_data) {
   
   taxonomy_data %>%
@@ -38,6 +67,82 @@ tidy_specimens <- function (specimen_data, ppgi, taxonomy) {
   
 }
 
+#' Tidy taxonomic data of pteridophytes of Japan
+#'
+#' Data is from Japan Green list
+#'
+#' @param data 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+tidy_japan_names <- function (data) {
+  data %>%
+  select(taxon_id = ID20160331, scientific_name = `GreenList学名`,
+         endemic = `固有`, conservation_status = `RL2012`) %>%
+    mutate(taxon_id = as.character(taxon_id)) %>%
+    select(taxon_id, scientific_name)
+}
+
+#' Rename taxa in rbcL alignment of pteridophytes of Japan
+#' 
+#' Original names are formatted as a series of numbers 
+#' separated by underscore, e.g., 601_1. 
+#' The first number (601) is a family code, 
+#' and the second (1) is the taxon code.
+#' 
+#' This renames them to human-readable taxon names.
+#' 
+#' Uses parse_names_batch, which requires GNparser to be installed
+#' and on PATH
+#'
+#' @param japan_rbcL rbcL alignment with names as codes
+#' @param japan_taxa dataframe matching codes to species name
+#'
+rename_japan_rbcL <- function (japan_rbcL, japan_taxa) {
+  
+  # Make a table mapping dna taxon codes to scientific names
+  japan_names_table <-
+    tibble(taxon_id = names(japan_rbcL) %>%
+             str_split("_") %>%
+             map_chr(2)
+    ) %>%
+    left_join(japan_taxa) %>%
+    # Convert full name with authors to only taxon, no authors
+    assert(not_na, scientific_name) %>%
+    left_join(
+      parse_names_batch(.$scientific_name) %>% 
+        select(scientific_name = b, taxon = c)
+    ) %>%
+    assert(not_na, taxon) %>%
+    mutate(taxon = str_replace_all(taxon, " ", "_")) %>%
+    # Add JA so we know where it came from
+    mutate(taxon = paste0(taxon, "_JA"))
+  
+  # Rename DNA sequences with taxon names
+  names(japan_rbcL) <- japan_names_table$taxon
+  
+  japan_rbcL
+}
+
+rename_nectandra_rbcL <- function (nectandra_rbcL, nectandra_taxa) {
+  
+  nectandra_names_table <-
+    tibble(
+      genomicID = names(nectandra_rbcL)
+    ) %>%
+    left_join(nectandra_taxa) %>%
+    assert(not_na, taxon) %>%
+    mutate(taxon = str_replace_all(taxon, " ", "_")) %>%
+    mutate(taxon = paste0(taxon, "_CR"))
+  
+  purrr::set_names(nectandra_rbcL, nectandra_names_table$taxon)
+  
+}
+
+# Checklist ----
+
 make_checklist <- function (specimens) {
   
   specimens %>%
@@ -48,7 +153,163 @@ make_checklist <- function (specimens) {
   
 }
 
+# Barcode analysis ----
 
+#' Make a dataframe of minimum interspecific distances
+#' 
+#' We are assuming the dataframe only includes different
+#' species (no con-specifics)
+#' 
+#' Takes the alignment, calculates raw distances, then
+#' outputs the single smallest distance per species
+#' (in case of a tie, only a single value is returned)
+#' 
+#' @param aln DNA alignment (list of class DNAbin)
+#' @return tibble
+get_min_inter_dist <- function (aln) {
+  ape::dist.dna(aln, model = "raw", pairwise.deletion = TRUE) %>%
+    broom::tidy() %>%
+    dplyr::mutate_at(dplyr::vars(item1, item2), as.character) %>%
+    tidyr::gather(side, species, -distance) %>%
+    dplyr::group_by(species) %>%
+    dplyr::arrange(distance) %>%
+    dplyr::slice(1) %>%
+    dplyr::select(-side)
+}
+
+#' Bin minimum interspecific distances, with special bin for zeros
+#'
+#' @param data Tibble of minimum interspecific distances;
+#' output of get_min_inter_dist()
+#' @param width Bin width
+#'
+#' @return Tibble
+#' 
+bin_min_inter_dist <- function (data, width = 0.005) {
+  
+  zeros <- data %>% filter(distance == 0) %>% nrow %>%
+    tibble(range = 0, n = .)
+  
+  non_zeroes <-  data %>% filter(distance > 0)
+  
+  cut_width(non_zeroes$distance, width = width, boundary = width, closed = "left") %>%
+    table %>%
+    tidy %>%
+    set_names(c("range", "n")) %>%
+    mutate(range = str_split(range, ",") %>% 
+             map_chr(2) %>% 
+             str_remove("\\)") %>% str_remove("]")) %>% 
+    mutate(range = as.numeric(range)) %>%
+    bind_rows(zeros) %>%
+    mutate(is_zero = case_when(range == 0 ~ TRUE, TRUE ~ FALSE)) %>%
+    mutate(percent = n / sum(n))
+  
+}
+
+#' Get binned minimum interspecific distances from a particular dataset
+#'
+#' @param full_aln Alignment with species names tagged by their
+#' dataset, e.g. "_CR", "_JA"
+#' @param dataset_select The dataset to use to calculate
+#' minimum interspecific distances
+bin_min_inter_dist_by_dataset <- function(full_aln, dataset_select) {
+  full_aln[str_detect(rownames(full_aln), paste0("_", dataset_select)),] %>%
+    get_min_inter_dist %>%
+    bin_min_inter_dist %>%
+    mutate(dataset = dataset_select)
+}
+
+#' Calculate minimum interspecific distances across three
+#' rbcL datasets
+#'
+#' @param japan_rbcL rbcL sequences of pteridophytes of Japan
+#' @param moorea_rbcL rbcL sequences of pteridophytes of Moorea
+#' @param nectandra_rbcL rbcL sequences of pteridophytes of Nectandra
+#'
+#' @return Tibble
+#' 
+analyze_min_dist <- function(japan_rbcL, moorea_rbcL, nectandra_rbcL) {
+  
+  # Combine all rbcL sequences
+  rbcL_combined <- c(japan_rbcL, moorea_rbcL, nectandra_rbcL)
+  
+  # Make global alignment
+  rbcL_aln <- mafft(rbcL_combined, path = "/usr/local/bin/mafft")
+  
+  # Trim ends
+  rbcL_aln <- trimEnds(rbcL_aln, nrow(rbcL_aln) * 0.5)
+  
+  # Calculate minimum interspecific distances for each
+  # dataset separately and combine these into a single dataframe
+  map_df(c("JA", "FP", "CR"), ~bin_min_inter_dist_by_dataset(full_aln = rbcL_aln, dataset_select = .))
+}
+
+
+# Etc ----
+
+#' Parse species names in batch
+#' 
+#' Runs much faster for a large number of names.
+#' 
+#' Requires gnparser to be installed and on $PATH
+#'
+#' @param names Character vector of species names. 
+#' May include author, variety, etc. All names must be
+#' unique, with no NAs.
+#' @param check Logical; should a check be made that the
+#' results original name match the names of the input?
+#'
+#' @return Tibble
+#'
+#' @examples
+#' parse_names_batch("Amaurorhinus bewichianus (Wollaston,1860) (s.str.)")
+parse_names_batch <- function (names, check = TRUE) {
+  
+  assertthat::assert_that(is.character(names))
+  assertthat::assert_that(all(assertr::not_na(names)))
+  assertthat::assert_that(all(assertr::is_uniq(names)))
+  
+  temp_file <- fs::file_temp() %>% fs::path_ext_set("txt")
+  
+  temp_dir <- fs::path_dir(temp_file)
+  
+  temp_txt <- fs::path_file(temp_file)
+  
+  readr::write_lines(names, temp_file)
+  
+  args = c(
+    "-f",
+    "simple",
+    "-j",
+    "20",
+    temp_txt
+  )
+  
+  results <- 
+    processx::run(
+      command = "gnparser", args, wd = temp_dir) %>%
+    magrittr::extract("stdout") %>%
+    unlist() %>%
+    read_lines() %>%
+    stringr::str_split("\\|") %>% 
+    # Need to figure out what each column actually means
+    purrr::map(~purrr::set_names(., letters[1:7])) %>%
+    do.call(bind_rows, .) %>%
+    select(b:g)
+  
+  if (isTRUE(check)) {
+    # b contains the original name. Sometimes these can get out of order.
+    # Make sure they are in the same order as the input.
+    results <-
+      arrange(results, match(b,names)) %>%
+      assertr::verify(all(.$b == names))
+  }
+  
+  results
+  
+}
+
+# Plotting ----
 
 #' Define ggplot theme
 #' 
@@ -60,6 +321,19 @@ standard_theme2 <- function () {
     theme(
       panel.grid.minor = ggplot2::element_blank(),
       panel.grid.major = ggplot2::element_blank(),
+      axis.text.x = ggplot2::element_text(colour="black"),
+      axis.text.y = ggplot2::element_text(colour="black")
+    )
+}
+
+#' Define ggplot theme
+#' 
+#' BW theme with no gridlines, black axis text, main font size 11,
+#' axis ticks size 9.
+#'
+standard_theme3 <- function () {
+  ggplot2::theme_bw() + 
+    theme(
       axis.text.x = ggplot2::element_text(colour="black"),
       axis.text.y = ggplot2::element_text(colour="black")
     )
@@ -85,7 +359,7 @@ make_inext_plot <- function(inext_out) {
     geom_point(data=observed_data, size=2.5) +
     scale_y_continuous("Richness") +
     scale_x_continuous("Number of individuals") +
-    standard_theme2() +
+    standard_theme3() +
     theme(legend.position="none", 
           legend.title=element_blank())
 }
