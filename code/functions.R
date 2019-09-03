@@ -126,27 +126,33 @@ rename_japan_rbcL <- function (japan_rbcL, japan_taxa) {
   japan_rbcL
 }
 
-rename_nectandra_rbcL <- function (nectandra_rbcL, nectandra_taxa) {
+clean_taxonomy_data <- function (data) {
   
-  nectandra_names_table <-
-    tibble(
-      genomicID = names(nectandra_rbcL)
-    ) %>%
-    left_join(nectandra_taxa) %>%
-    assert(not_na, taxon) %>%
-    mutate(taxon = str_replace_all(taxon, " ", "_")) %>%
-    mutate(taxon = paste0(taxon, "_CR"))
-  
-  purrr::set_names(nectandra_rbcL, nectandra_names_table$taxon)
+  data %>%
+    janitor::clean_names() %>%
+    rename(specific_epithet = species) %>%
+    mutate(taxon = paste3(genus, specific_epithet, infrasp_name)) %>%
+    mutate(scientific_name = paste3(
+      genus,
+      specific_epithet,
+      author,
+      infrasp_rank,
+      infrasp_name,
+      var_author
+    )) %>%
+    select(taxon, scientific_name) %>%
+    mutate(scientific_name = stringr::str_trim(scientific_name))
   
 }
 
 # Checklist ----
 
-make_checklist <- function (specimens) {
+make_checklist <- function (specimens, sci_names, taxonomy) {
   
   specimens %>%
-    group_by(class, family, sci_name) %>%
+    left_join(sci_names, by = "taxon") %>%
+    left_join(taxonomy, by = "genus") %>%
+    group_by(class, family, scientific_name) %>%
     summarize(
       voucher = paste(specimen, collapse = ", ")
     )
@@ -156,9 +162,6 @@ make_checklist <- function (specimens) {
 # Barcode analysis ----
 
 #' Make a dataframe of minimum interspecific distances
-#' 
-#' We are assuming the dataframe only includes different
-#' species (no con-specifics)
 #' 
 #' Takes the alignment, calculates raw distances, then
 #' outputs the single smallest distance per species
@@ -170,11 +173,13 @@ get_min_inter_dist <- function (aln) {
   ape::dist.dna(aln, model = "raw", pairwise.deletion = TRUE) %>%
     broom::tidy() %>%
     dplyr::mutate_at(dplyr::vars(item1, item2), as.character) %>%
-    tidyr::gather(side, species, -distance) %>%
+    tidyr::gather(side, taxon, -distance) %>%
+    mutate(species = sp_name_only(taxon, sep = "_")) %>%
     dplyr::group_by(species) %>%
     dplyr::arrange(distance) %>%
     dplyr::slice(1) %>%
-    dplyr::select(-side)
+    dplyr::select(-side) %>%
+    dplyr::ungroup()
 }
 
 #' Bin minimum interspecific distances, with special bin for zeros
@@ -307,6 +312,45 @@ parse_names_batch <- function (names, check = TRUE) {
   
   results
   
+}
+
+
+#' Extract only the species name from a longer name.
+#' 
+#' It is assumed that the first two parts of the name are genus then
+#' specific epithet. No checking is done for this.
+#'
+#' @param taxon_name Taxon name, e.g. "Crepidomanes minutum var minutum".
+#' @param sep Character separating parts of the name.
+#'
+#' @return The first two parts of the name separated by space.
+#' @examples
+#' sp_name_only("Crepidomanes minutum var minutum")
+sp_name_only <- function (taxon_name, sep = " ") {
+  
+  assertthat::assert_that(is.character(taxon_name))
+  
+  str_split(taxon_name, sep) %>% 
+    map_chr(., ~magrittr::extract(., 1:2) %>% jntools::paste3(collapse = sep))
+}
+
+#' Extract only the genus name from a longer name.
+#' 
+#' It is assumed that the first part of the name is the genus.
+#' No checking is done for this.
+#'
+#' @param taxon_name Taxon name, e.g. "Crepidomanes minutum var minutum".
+#' @param sep Character separating parts of the name.
+#'
+#' @return The first two parts of the name separated by space.
+#' @examples
+#' genus_name_only("Crepidomanes minutum var minutum")
+genus_name_only <- function (taxon_name, sep = " ") {
+  
+  assertthat::assert_that(is.character(taxon_name))
+  
+  str_split(taxon_name, sep) %>% 
+    map_chr(., ~magrittr::extract(., 1))
 }
 
 # Plotting ----

@@ -5,11 +5,12 @@ plan <- drake_plan(
   # Load PPGI taxonomy
   ppgi = read_csv("data_raw/ppgi_taxonomy.csv"),
   
-  # Clean Nectandara taxonomy data
-  taxonomy = tidy_taxonomy(ferncollectR::taxonomy_data$species),
+  # Load Nectandara taxonomy data with scientific names including authors
+  sci_names = read_csv(file_in("data_raw/taxonomy.csv")) %>% 
+    clean_taxonomy_data,
 
-  # Clean Nectandra specimen data
-  specimens = tidy_specimens(ferncollectR::collection_data$specimens, ppgi, taxonomy),
+  # Load pre-processed Nectandra specimen data
+  specimens = read_csv(file_in("data/nectandra_specimens.csv")),
   
   # Download French Polynesia rbcL sequences
   nitta_2017_data = download_and_unzip_nitta_2017(
@@ -33,23 +34,21 @@ plan <- drake_plan(
   japan_rbcL = rename_japan_rbcL(japan_rbcL_raw, japan_taxa),
   
   # Load Nectandra rbcL sequences
-  nectandra_rbcL_raw = read.dna("data_raw/sporos_rbcL.phy") %>% as.list,
-  
-  # Rename Nectandra rbcL sequences
   # (also add "_CR" to end of name)
-  nectandra_rbcL = rename_nectandra_rbcL(
-    nectandra_rbcL_raw, ferncollectR::collection_data$seqids),
-    
+  nectandra_rbcL = read.dna("data/nectandra_rbcL.phy") %>% 
+    as.list %>%
+    set_names(., paste0(names(.), "_CR")),
+  
   # Checklist ----
   # Make species checklist
-  checklist = make_checklist(specimens),
+  checklist = make_checklist(specimens, sci_names, ppgi),
   
   # Collection curve ----
   # Run iNEXT to generate interpolated/extrapolated species richness
-  # set endpoint (maximum number of individuals projected to collected) to 800
+  # set endpoint (maximum number of individuals projected to collected) to 1000
   richness_estimate = count(specimens, taxon) %>%
     pull(n) %>%
-    iNEXT(datatype="abundance", endpoint=800),
+    iNEXT(datatype="abundance", endpoint=1000),
   
   # Barcode analysis ----
   
