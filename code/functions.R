@@ -126,6 +126,57 @@ rename_japan_rbcL <- function (japan_rbcL, japan_taxa) {
   japan_rbcL
 }
 
+
+#' Rename taxa in rbcL alignment of pteridophytes of Japan,
+#' and filter to only sexual diploid taxa
+#' 
+#' Original names are formatted as a series of numbers 
+#' separated by underscore, e.g., 601_1. 
+#' The first number (601) is a family code, 
+#' and the second (1) is the taxon code.
+#' 
+#' This renames them to human-readable taxon names.
+#' 
+#' Uses parse_names_batch, which requires GNparser to be installed
+#' and on PATH
+#'
+#' @param japan_rbcL rbcL alignment with names as codes
+#' @param japan_taxa dataframe matching codes to species name
+#'
+rename_japan_rbcL_sexdip <- function (japan_rbcL, japan_taxa, repro_data) {
+  
+  # Make a table mapping dna taxon codes to scientific names
+  # only 
+  japan_sexdip_names_table <-
+    tibble(
+      original_name = names(japan_rbcL),
+      taxon_id = names(japan_rbcL) %>%
+        str_split("_") %>%
+        map_chr(2)
+    ) %>%
+    left_join(japan_taxa) %>%
+    # Convert full name with authors to only taxon, no authors
+    assert(not_na, scientific_name) %>%
+    left_join(
+      parse_names_batch(.$scientific_name) %>% 
+        select(scientific_name = b, taxon = c)
+    ) %>%
+    assert(not_na, taxon) %>%
+    mutate(taxon = str_replace_all(taxon, " ", "_")) %>%
+    left_join(select(repro_data, taxon_id, sexual_diploid)) %>%
+    filter(sexual_diploid == 1) %>%
+    # Add JA so we know where it came from
+    mutate(taxon = paste0(taxon, "_JAsexdip"))
+  
+  # Subset sequences to only sexual diploids
+  japan_rbcL <- japan_rbcL[japan_sexdip_names_table$original_name]
+  
+  # Rename DNA sequences with taxon names
+  names(japan_rbcL) <- japan_sexdip_names_table$taxon
+  
+  japan_rbcL
+}
+
 clean_taxonomy_data <- function (data) {
   
   data %>%
@@ -218,7 +269,7 @@ bin_min_inter_dist <- function (data, width = 0.005) {
 #' @param dataset_select The dataset to use to calculate
 #' minimum interspecific distances
 bin_min_inter_dist_by_dataset <- function(full_aln, dataset_select) {
-  full_aln[str_detect(rownames(full_aln), paste0("_", dataset_select)),] %>%
+  full_aln[str_detect(rownames(full_aln), paste0("_", dataset_select, "$")),] %>%
     get_min_inter_dist %>%
     bin_min_inter_dist %>%
     mutate(dataset = dataset_select)
@@ -227,16 +278,18 @@ bin_min_inter_dist_by_dataset <- function(full_aln, dataset_select) {
 #' Calculate minimum interspecific distances across three
 #' rbcL datasets
 #'
-#' @param japan_rbcL rbcL sequences of pteridophytes of Japan
-#' @param moorea_rbcL rbcL sequences of pteridophytes of Moorea
 #' @param nectandra_rbcL rbcL sequences of pteridophytes of Nectandra
+#' @param moorea_rbcL rbcL sequences of pteridophytes of Moorea
+#' @param japan_rbcL rbcL sequences of pteridophytes of Japan
+#' @param japan_rbcL_sexdip rbcL sequences of pteridophytes of Japan,
+#' sexual diploids only
 #'
 #' @return Tibble
 #' 
-analyze_min_dist <- function(japan_rbcL, moorea_rbcL, nectandra_rbcL) {
+analyze_min_dist <- function(nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL_sexdip) {
   
   # Combine all rbcL sequences
-  rbcL_combined <- c(japan_rbcL, moorea_rbcL, nectandra_rbcL)
+  rbcL_combined <- c(japan_rbcL, moorea_rbcL, nectandra_rbcL, japan_rbcL_sexdip)
   
   # Make global alignment
   rbcL_aln <- mafft(rbcL_combined, path = "/usr/local/bin/mafft")
@@ -246,7 +299,8 @@ analyze_min_dist <- function(japan_rbcL, moorea_rbcL, nectandra_rbcL) {
   
   # Calculate minimum interspecific distances for each
   # dataset separately and combine these into a single dataframe
-  map_df(c("JA", "FP", "CR"), ~bin_min_inter_dist_by_dataset(full_aln = rbcL_aln, dataset_select = .))
+  map_df(c("CR", "FP", "JA", "JAsexdip"), 
+         ~bin_min_inter_dist_by_dataset(full_aln = rbcL_aln, dataset_select = .))
 }
 
 

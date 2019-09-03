@@ -101,7 +101,7 @@ DNA was extracted with the DNEasy plant mini kit following the manufacturer's pr
 
 To assess the completeness of sampling, we constructed rarefaction-extraction curves for species richness using the iNEXT package [@Chao2014b] in R v 3.6.0 [@RCoreTeam2019].
 
-We assessed the utility of *rbcL* for species identification by calculating interspecific distances. Species sharing identical *rbcL* sequences with at least one other species (interspecific distance of zero) were considered failures, \ie not possible to identify with this marker. We treated subspecific taxa as distinct species for this purpose.
+We assessed the utility of *rbcL* for species identification by calculating interspecific distances. Species sharing identical *rbcL* sequences with at least one other species (interspecific distance of zero) were considered failures, \ie not possible to identify with this marker.
 
 To better characterize observed phylogenetic diversity, we compared the phylogenetic diversity of the pteridophytes of Nectandra with two other pteridophyte floras that have been the subject of DNA barcoding using *rbcL*, Japan [@Ebihara2010; @Ebihara2019b] and the islands of Moorea and Tahiti, French Polynesia [@Nitta2017]. To ensure that phylogenetic distances were comparable across datasets, we generated a combined *rbcL* alignment for all species from the three sites together using MAFFT [@Katoh2002]. We then extracted the species for each site and calculated minimum interspecific distances per site.
 
@@ -111,19 +111,22 @@ Code to replicate all analyses, figures, and this manuscript are available at ht
 
 ## Results
 
-### Richness
+### Taxonomic survey
 
 ```{r col-numbers}
 loadd(specimens)
+loadd(ppgi)
 
 taxa_count <-
 specimens %>%
+  left_join(ppgi) %>%
   select(family, genus, species, taxon, specimen) %>%
   unique %>%
   summarize_at(vars(everything()), n_distinct)
 
 top_families <-
 specimens %>%
+  left_join(ppgi) %>%
   select(family, genus, species, taxon) %>%
   unique %>%
   group_by(family) %>%
@@ -132,6 +135,7 @@ specimens %>%
 
 top_genera <-
 specimens %>%
+  left_join(ppgi) %>%
   select(family, genus, species, taxon) %>%
   unique %>%
   group_by(genus) %>%
@@ -151,6 +155,8 @@ The pteridophyte flora of Nectandra includes `r min_distance_table %>% filter(da
 
 ## Discussion
 
+Several taxa were identified that do not match any described species. *Polyphlebium* sp1 (*Nitta 123* and *Nitta 2378*) matches in *rbcL* exactly with *Polyphlebium capillaceum*, but differs from this species by having expanded laminae (vs. laminae reduced a few cells on either side of the veins) and growing on rocks in stream beds (vs. growing epiphytically on tree ferns). *Campyloneurum* sp1 (*Nitta 2308*) matches in *rbcL* exactly with *Campyloneurum angustifolium*, but has narrower fronds. Both of these species are suspected to be hybrids with *P. capillaceum* and *C. angustifolium* as maternal progenitors, respectively. This is supported by observation of spores. *Polyphlebium* sp1 has 32 spores per sporangium, a condition that is often indicative of apogamy, which may allow hybrids to reproduce by spores and expand their range. *Campyloneurum* sp1 has clear, misshappen spores, supporting its status as an infertile hybrid. 
+
 ## Acknowledgements
 
 ## Author Contribution
@@ -165,12 +171,19 @@ The pteridophyte flora of Nectandra includes `r min_distance_table %>% filter(da
 
 \clearpage
 
-```{r richness-inext, fig.height=2.5, fig.width=2.5, fig.cap="Interpolation and extrapolation of species richness. Point indicates observed richness."}
+```{r richness-inext, fig.height=2.5, fig.width=2.5, fig.cap="Interpolation (solid line) and extrapolation (dashed line) of species richness. Point at transition from solid to dashed line indicates observed richness. Grey shading indicates 95% confidence interval."}
 make_inext_plot(richness_estimate)
 ```
 
 ```{r min-dist, fig.height=4.5, fig.width=7, fig.cap="Minimum interspecific distances for the pteridophyte floras of **a** Nectandra, **b** Moorea and Tahiti, **c** Japan (all species), and **d** Japan (sexual diploids only). Red bar indicates interspecific distance of zero, i.e., species that cannot be distinguished using *rbcL*."}
-ggplot(min_distance_table, aes(range, percent, fill = is_zero)) +
+min_distance_table %>%
+  mutate(dataset = case_when(
+    dataset == "CR" ~ "a",
+    dataset == "FP" ~ "b",
+    dataset == "JA" ~ "c",
+    dataset == "JAsexdip" ~ "d"
+  )) %>%
+ggplot(aes(range, percent, fill = is_zero)) +
   geom_col() +
   scale_fill_manual(values = c("dark grey", "red")) +
   scale_x_continuous(labels = scales::percent) +
@@ -178,5 +191,8 @@ ggplot(min_distance_table, aes(range, percent, fill = is_zero)) +
   standard_theme2() +
   theme(legend.position = "none") +
   facet_wrap(vars(dataset), ncol = 1) +
-  labs(x = "Genetic distance", y = "Relative frequency")
+  labs(x = "Genetic distance", y = "Relative frequency") +
+  theme(
+    strip.text = element_text(hjust = 0),
+    strip.background = element_blank())
 ```

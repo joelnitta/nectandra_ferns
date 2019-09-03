@@ -29,9 +29,18 @@ plan <- drake_plan(
   # Load table matching taxon codes to scientific names of Japanese pteridophytes
   japan_taxa = read_excel("data_raw/FernGreenListV1.01.xls") %>% tidy_japan_names(),
   
+  # Load data on reproductive mode for Japanese pteridophytes
+  repro_data = read_csv("data_raw/ESM1.csv") %>%
+    clean_names %>%
+    mutate(taxon_id = as.character(taxon_id)),
+  
   # Rename Japan rbcL alignment as taxon names
   # (also add "_JA" to end of name)
   japan_rbcL = rename_japan_rbcL(japan_rbcL_raw, japan_taxa),
+  
+  # Also make an alignment of Japan sexual-diploids only
+  japan_rbcL_sexdip = rename_japan_rbcL_sexdip(
+    japan_rbcL_raw, japan_taxa, repro_data),
   
   # Load Nectandra rbcL sequences
   # (also add "_CR" to end of name)
@@ -54,6 +63,7 @@ plan <- drake_plan(
   
   # Calculate minimum interspecific distances for the three
   # rbcL datasets and bin them by 0.05% sequence divergence
-  min_distance_table = analyze_min_dist(japan_rbcL, moorea_rbcL, nectandra_rbcL)
+  min_distance_table = analyze_min_dist(
+    nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL_sexdip)
   
 )
