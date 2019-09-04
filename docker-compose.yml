@@ -2,6 +2,8 @@ version: "3"
 services:
   rmd:
     image: joelnitta/nectandra_ferns:3.6.1
+    ports:
+      - "8787:8787"
     volumes:
       - ".:/home/rstudio/nectandra"
     environment:
