@@ -64,6 +64,12 @@ plan <- drake_plan(
   # Calculate minimum interspecific distances for the three
   # rbcL datasets and bin them by 0.05% sequence divergence
   min_distance_table = analyze_min_dist(
-    nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL_sexdip)
+    nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL_sexdip),
+  
+  # Render manuscript ----
+  ms = rmarkdown::render(
+    knitr_in(here("ms/nectandra_pteridos.Rmd")),
+    output_file = file_out(here("ms/nectandra_pteridos.pdf")),
+    quiet = TRUE)
   
 )

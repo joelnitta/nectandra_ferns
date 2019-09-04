@@ -24,20 +24,26 @@ header-includes:
 editor_options: 
   chunk_output_type: console
 # nocite: | 
-#   @Vogel1968, @Wollenweber2000
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, results = "hide", cache = TRUE)
 
-library(drake)
-library(scales)
-library(tidyverse)
-
-source(here::here("code/functions.R"))
+# Load objects build during analysis from drake cache
 loadd(richness_estimate)
 loadd(min_distance_table)
+loadd(specimens)
+loadd(ppgi)
+```
 
+```{r taxa-count}
+# Count number of taxa at Nectandra
+taxa_count <-
+specimens %>%
+  left_join(ppgi) %>%
+  select(family, genus, species, taxon, specimen) %>%
+  unique %>%
+  summarize_at(vars(everything()), n_distinct)
 ```
 
 <!-- Remove page numbers -->
@@ -113,21 +119,12 @@ Code to replicate all analyses, figures, and this manuscript are available at ht
 
 ### Taxonomic survey
 
-```{r col-numbers}
-loadd(specimens)
-loadd(ppgi)
-
-taxa_count <-
-specimens %>%
-  left_join(ppgi) %>%
-  select(family, genus, species, taxon, specimen) %>%
-  unique %>%
-  summarize_at(vars(everything()), n_distinct)
-
+```{r top-taxa}
+# Count families and genera with the most species
 top_families <-
 specimens %>%
   left_join(ppgi) %>%
-  select(family, genus, species, taxon) %>%
+  select(family, genus, species) %>%
   unique %>%
   group_by(family) %>%
   summarize(n = n()) %>%
@@ -136,12 +133,13 @@ specimens %>%
 top_genera <-
 specimens %>%
   left_join(ppgi) %>%
-  select(family, genus, species, taxon) %>%
+  select(family, genus, species) %>%
   unique %>%
   group_by(genus) %>%
   summarize(n = n()) %>%
   arrange(desc(n))
 ```
+
 
 Our surveys resulted in `r taxa_count %>% pull(specimen)` individuals, representing `r taxa_count %>% pull(species)` species, `r taxa_count %>% pull(genus)` genera, and `r taxa_count %>% pull(family)` families of pteridophytes. 
 
