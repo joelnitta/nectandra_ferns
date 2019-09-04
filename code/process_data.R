@@ -60,7 +60,7 @@ tibble(genomic_id = names(nectandra_rbcL)) %>%
   pull(accession)
 
 # Align sequences with MAFFT and trim ends
-nectandra_rbcL <- mafft(nectandra_rbcL, path = "/usr/local/bin/mafft") %>%
+nectandra_rbcL <- mafft(nectandra_rbcL, exec = "/usr/bin/mafft") %>%
   trimEnds(nrow(.) * 0.5)
 
 # Write out alignment in PHYLIP format for RAxML

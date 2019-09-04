@@ -292,7 +292,7 @@ analyze_min_dist <- function(nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL
   rbcL_combined <- c(japan_rbcL, moorea_rbcL, nectandra_rbcL, japan_rbcL_sexdip)
   
   # Make global alignment
-  rbcL_aln <- mafft(rbcL_combined, path = "/usr/local/bin/mafft")
+  rbcL_aln <- mafft(rbcL_combined, exec = "/usr/bin/mafft")
   
   # Trim ends
   rbcL_aln <- trimEnds(rbcL_aln, nrow(rbcL_aln) * 0.5)
