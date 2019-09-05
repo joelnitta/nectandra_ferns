@@ -66,6 +66,12 @@ plan <- drake_plan(
   min_distance_table = analyze_min_dist(
     nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL_sexdip),
   
+  # Phylogenetic analysis ----
+  
+  # Load Nectandra rbcL ML tree
+  # (output of running RAxML on rbcL alignment on CIPRES)
+  rbcL_tree = read_tree_in_zip("data/nectandra_rbcL_cipres.zip", "RAxML_bipartitions.result")
+  
   # Render manuscript ----
   ms = rmarkdown::render(
     knitr_in(here("ms/nectandra_pteridos.Rmd")),

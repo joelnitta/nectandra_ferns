@@ -196,6 +196,24 @@ clean_taxonomy_data <- function (data) {
   
 }
 
+#' Read in a tree file contained in a zipped archive
+#'
+#' @param zip_folder Path to zip file
+#' @param tree_file Name of nexus file within zip file
+#'
+#' @return List
+#' 
+read_tree_in_zip <- function (zip_folder, tree_file) {
+  
+  temp_dir <- tempdir()
+  
+  unzip(zip_folder, exdir = temp_dir)
+  
+  ape::read.tree(fs::path(temp_dir, tree_file))
+  
+}
+
+
 # Checklist ----
 
 make_checklist <- function (specimens, sci_names, taxonomy) {
