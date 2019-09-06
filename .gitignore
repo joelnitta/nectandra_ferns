@@ -12,3 +12,4 @@ references_raw.bib
 .DS_Store
 *.pdf
 *_cache/
+*.csv
