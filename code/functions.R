@@ -473,9 +473,133 @@ make_inext_plot <- function(inext_out) {
     geom_line(aes(linetype=method), size=0.8) +
     scale_linetype_manual(values=c("dotted", "solid", "solid")) +
     geom_point(data=observed_data, size=2.5) +
-    scale_y_continuous("Richness") +
-    scale_x_continuous("Number of individuals") +
+    scale_y_continuous("No. spp.") +
+    scale_x_continuous("No. individuals") +
     standard_theme3() +
     theme(legend.position="none", 
           legend.title=element_blank())
+}
+
+#' Print rbcL tree to pdf
+#'
+#' @param rbcL_tree Phylogenetic tree
+#' @param ppgi Taxonomy of pteridophytes following Pteridophyte Phylogeny Group I
+#' @param outfile Name of file to use to save tree pdf
+#'
+#' @return Nothing; externally, the tree will be written as a pdf
+#'
+plot_rbcL_tree <- function(rbcL_tree, ppgi, specimens, dna_acc, outfile) {
+  
+  # Extract tips into tibble and add taxonomy
+  tips <-
+    tibble(tip = rbcL_tree$tip.label) %>%
+    mutate(
+      species = sp_name_only(tip, sep = "_"),
+      genus = genus_name_only(tip, sep = "_")) %>%
+    left_join(dplyr::select(ppgi, genus, family, class)) %>%
+    mutate(genomicID = str_match(tip, "JNG.*$") %>% map_chr(1))
+  
+  # Identify lycophyte tips for rooting
+  lycos <- tips %>% filter(class == "Lycopodiopsida") %>% pull(tip)
+  
+  # Root on lycophytes
+  rbcL_tree <-
+    ape::root(rbcL_tree, outgroup = lycos) %>%
+    ape::ladderize(right = FALSE)
+  
+  # Reformat tip labels now that tip order has changed
+  new_tips <-
+    tibble(tip = rbcL_tree$tip.label) %>%
+    mutate(
+      species = sp_name_only(tip, sep = "_"),
+      genus = genus_name_only(tip, sep = "_")) %>%
+    left_join(dplyr::select(ppgi, genus, family, class)) %>%
+    mutate(genomicID = str_match(tip, "JNG.*$") %>% map_chr(1)) %>%
+    left_join(dplyr::select(dna_acc, genomicID, specimen_id = specimenID)) %>%
+    left_join(dplyr::select(specimens, specimen_id, specimen)) %>%
+    mutate(new_tip = paste(species, specimen) %>% str_remove_all("Nitta ") %>% str_replace_all("_", " "))
+  
+  rbcL_tree$tip.label <- new_tips$new_tip
+  
+  # Format bootstrap value: only print BS > 50
+  bs <-
+    rbcL_tree$node.label %>% 
+    parse_number
+  
+  bs <- case_when(bs > 50 ~ bs) %>% 
+    as.character() %>%
+    replace_na("")
+  
+  rbcL_tree$node.label <- bs
+  
+  # Output pdf
+  print_height = 0.114 * length(rbcL_tree$tip.label)
+  
+  pdf(file = outfile, width = 7, height = print_height)
+  plot(rbcL_tree, cex = 0.6, no.margin = TRUE)
+  # add node support values
+  nodelabels(rbcL_tree$node.label, adj=c(1.2, -0.3), frame="n", cex=0.35, font=1, col="darkgrey")
+  # add scale bar
+  add.scale.bar(x = 0, y = length(rbcL_tree$tip.label), cex=0.5)
+  dev.off()
+}
+
+#' Print rbcL tree to pdf
+#'
+#' @param rbcL_tree Phylogenetic tree
+#' @param ppgi Taxonomy of pteridophytes following Pteridophyte Phylogeny Group I
+#' @param outfile Name of file to use to save tree pdf
+#'
+#' @return Nothing; externally, the tree will be written as a pdf
+#'
+plot_rbcL_tree_families <- function(rbcL_tree, ppgi, outfile) {
+  
+  # Extract tips into tibble and add taxonomy
+  tips <-
+    tibble(tip = rbcL_tree$tip.label) %>%
+    mutate(
+      species = sp_name_only(tip, sep = "_"),
+      genus = genus_name_only(tip, sep = "_")) %>%
+    left_join(select(ppgi, genus, family, class))
+  
+  # Identify lycophyte tips for rooting
+  lycos <- tips %>% filter(class == "Lycopodiopsida") %>% pull(tip)
+  
+  # Root on lycophytes
+  rbcL_tree <-
+    ape::root(rbcL_tree, outgroup = lycos) %>%
+    ape::ladderize(right = FALSE)
+  
+  # Relabel as families only
+  # make tip tabel again now that tree is in different order
+  tips <-
+    tibble(tip = rbcL_tree$tip.label) %>%
+    mutate(
+      species = sp_name_only(tip, sep = "_"),
+      genus = genus_name_only(tip, sep = "_")) %>%
+    left_join(select(ppgi, genus, family, class))
+  
+  rbcL_tree$tip.label <- tips$family
+  
+  # Format bootstrap value: only print BS > 50
+  bs <-
+    rbcL_tree$node.label %>% 
+    parse_number
+  
+  bs <- case_when(bs > 50 ~ bs) %>% 
+    as.character() %>%
+    replace_na("")
+  
+  rbcL_tree$node.label <- bs
+  
+  # Output pdf
+  print_height = 0.114 * length(rbcL_tree$tip.label)
+  
+  pdf(file = outfile, width = 7, height = print_height)
+  plot(rbcL_tree, cex = 0.6, no.margin = TRUE)
+  # add node support values
+  nodelabels(rbcL_tree$node.label, adj=c(1.2, -0.3), frame="n", cex=0.35, font=1, col="darkgrey")
+  # add scale bar
+  add.scale.bar(x = 0, y = length(rbcL_tree$tip.label), cex=0.5)
+  dev.off()
 }

@@ -12,6 +12,9 @@ plan <- drake_plan(
   # Load pre-processed Nectandra specimen data
   specimens = read_csv(file_in("data/nectandra_specimens.csv")),
   
+  # Load DNA accession data
+  dna_acc = read_csv("data_raw/DNA_accessions.csv"),
+  
   # Download French Polynesia rbcL sequences
   nitta_2017_data = download_and_unzip_nitta_2017(
     dl_path = "data_raw/nitta_2017_data_and_scripts.zip",
@@ -48,9 +51,14 @@ plan <- drake_plan(
     as.list %>%
     set_names(., paste0(names(.), "_CR")),
   
+  # Load species richness and GPS locations of various protected
+  # sites in Costa Rica
+  cr_richness = read_csv("data_raw/costa_rica_richness.csv"),
+  
   # Checklist ----
-  # Make species checklist
-  checklist = make_checklist(specimens, sci_names, ppgi),
+  # Make species checklist, write out as SI
+  checklist = make_checklist(specimens, sci_names, ppgi) %>% 
+    write_csv(here("ms/table_S1.csv")),
   
   # Collection curve ----
   # Run iNEXT to generate interpolated/extrapolated species richness
@@ -70,7 +78,16 @@ plan <- drake_plan(
   
   # Load Nectandra rbcL ML tree
   # (output of running RAxML on rbcL alignment on CIPRES)
-  rbcL_tree = read_tree_in_zip("data/nectandra_rbcL_cipres.zip", "RAxML_bipartitions.result")
+  rbcL_tree = read_tree_in_zip("data/nectandra_rbcL_cipres.zip", "RAxML_bipartitions.result"),
+  
+  # Print out tree for SI
+  rbcL_tree_out = plot_rbcL_tree(
+    rbcL_tree,
+    ppgi,
+    specimens,
+    dna_acc,
+    file_out(here("ms/Fig_S1.pdf"))
+  ),
   
   # Render manuscript ----
   ms = rmarkdown::render(
