@@ -16,3 +16,16 @@ read_lines("ms/references.bib") %>%
     "R Core Team",
     "\\{R Core Team\\}") %>%
   write_lines("ms/references.bib")
+
+# Same for OET
+read_lines("ms/references.bib") %>%
+  str_replace(
+    "Organizaci",
+    "\\{Organizaci") %>%
+  write_lines("ms/references.bib")
+
+read_lines("ms/references.bib") %>%
+  str_replace(
+    "n para Estudios Tropicales",
+    "n para Estudios Tropicales\\}") %>%
+  write_lines("ms/references.bib")
