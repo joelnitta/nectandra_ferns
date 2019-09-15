@@ -62,9 +62,10 @@ tibble(genomic_id = names(nectandra_rbcL)) %>%
   mutate(accession = paste(taxon, genomic_id) %>% str_replace_all(" ", "_")) %>%
   pull(accession)
 
-# Align sequences with MAFFT and trim ends
+# Align sequences with MAFFT, trim ends, and remove any empty cells
 nectandra_rbcL <- mafft(nectandra_rbcL, exec = "/usr/bin/mafft") %>%
-  trimEnds(nrow(.) * 0.5)
+  trimEnds(nrow(.) * 0.5) %>%
+  deleteEmptyCells()
 
 # Write out alignment in PHYLIP format for RAxML
 write.phyDat(nectandra_rbcL, file = "data/nectandra_rbcL.phy")
