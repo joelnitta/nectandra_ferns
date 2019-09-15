@@ -3,7 +3,7 @@ plan <- drake_plan(
   # Data loading and cleaning ----
   
   # Load PPGI taxonomy
-  ppgi = read_csv("data_raw/ppgi_taxonomy.csv"),
+  ppgi = read_csv(file_in("data_raw/ppgi_taxonomy.csv")),
   
   # Load Nectandara taxonomy data with scientific names including authors
   sci_names = read_csv(file_in("data_raw/taxonomy.csv")) %>% 
@@ -13,7 +13,7 @@ plan <- drake_plan(
   specimens = read_csv(file_in("data/nectandra_specimens.csv")),
   
   # Load DNA accession data
-  dna_acc = read_csv("data_raw/DNA_accessions.csv"),
+  dna_acc = read_csv(file_in("data_raw/DNA_accessions.csv")),
   
   # Download French Polynesia rbcL sequences
   nitta_2017_data = download_and_unzip_nitta_2017(
@@ -27,13 +27,13 @@ plan <- drake_plan(
     purrr::set_names(., paste0(names(.), "_FP")),
   
   # Load Japan rbcL data with names formatted as codes
-  japan_rbcL_raw = read.nexus.data("data_raw/rbcl_mrbayes.nex") %>% as.DNAbin,
+  japan_rbcL_raw = read.nexus.data(file_in("data_raw/rbcl_mrbayes.nex")) %>% as.DNAbin,
   
   # Load table matching taxon codes to scientific names of Japanese pteridophytes
-  japan_taxa = read_excel("data_raw/FernGreenListV1.01.xls") %>% tidy_japan_names(),
+  japan_taxa = read_excel(file_in("data_raw/FernGreenListV1.01.xls")) %>% tidy_japan_names(),
   
   # Load data on reproductive mode for Japanese pteridophytes
-  repro_data = read_csv("data_raw/ESM1.csv") %>%
+  repro_data = read_csv(file_in("data_raw/ESM1.csv")) %>%
     clean_names %>%
     mutate(taxon_id = as.character(taxon_id)),
   
@@ -47,18 +47,18 @@ plan <- drake_plan(
   
   # Load Nectandra rbcL sequences
   # (also add "_CR" to end of name)
-  nectandra_rbcL = read.dna("data/nectandra_rbcL.phy") %>% 
+  nectandra_rbcL = read.dna(file_in("data/nectandra_rbcL.phy")) %>% 
     as.list %>%
     set_names(., paste0(names(.), "_CR")),
   
   # Load species richness and GPS locations of various protected
   # sites in Costa Rica
-  cr_richness = read_csv("data_raw/costa_rica_richness.csv"),
+  cr_richness = read_csv(file_in("data_raw/costa_rica_richness.csv")),
   
   # Checklist ----
   # Make species checklist, write out as SI
   checklist = make_checklist(specimens, sci_names, ppgi) %>% 
-    write_csv(here("ms/table_S1.csv")),
+    write_csv(file_out("ms/table_S1.csv")),
   
   # Collection curve ----
   # Run iNEXT to generate interpolated/extrapolated species richness
@@ -78,7 +78,9 @@ plan <- drake_plan(
   
   # Load Nectandra rbcL ML tree
   # (output of running RAxML on rbcL alignment on CIPRES)
-  rbcL_tree = read_tree_in_zip("data/nectandra_rbcL_cipres.zip", "RAxML_bipartitions.result"),
+  rbcL_tree = read_tree_in_zip(
+    file_in("data/nectandra_rbcL_cipres.zip"), 
+    "RAxML_bipartitions.result"),
   
   # Print out tree for SI
   rbcL_tree_out = plot_rbcL_tree(
@@ -86,7 +88,7 @@ plan <- drake_plan(
     ppgi,
     specimens,
     dna_acc,
-    file_out(here("ms/Fig_S1.pdf"))
+    file_out("ms/Fig_S1.pdf")
   ),
   
   # Render manuscript ----
