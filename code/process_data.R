@@ -1,7 +1,7 @@
 library(tidyverse)
 library(janitor)
 library(here)
-library(jntools)
+library(jntools) 
 library(ape)
 library(phangorn)
 library(ips)
@@ -18,15 +18,15 @@ specimens_raw %>%
   filter(is_gametophyte == 0) %>%
   filter(locality == "Nectandra Cloud Forest Preserve") %>% 
   mutate(coll_num = paste3(collection_number, subcollection_number, sep = "")) %>%
-  mutate(specimen = jntools::paste3(collector_lastname, coll_num)) %>%
+  mutate(specimen = paste3(collector_lastname, coll_num)) %>%
   select(specimen_id, specimen, 
          genus, species, contains("infraspecific"), certainty,
          site, observations,
          elevation_m, latitude, longitude,
          date_collected) %>%
   rename(specific_epithet = species, elevation = elevation_m) %>%
-  mutate(species = jntools::paste3(genus, specific_epithet)) %>%
-  mutate(taxon = jntools::paste3(genus, specific_epithet, infraspecific_name)) %>%
+  mutate(species = paste3(genus, specific_epithet)) %>%
+  mutate(taxon = paste3(genus, specific_epithet, infraspecific_name)) %>%
   # Remove one Didymoglossum specimen that was separated out from a single collection and
   # may or may not be a distinct species pending additional study.
   filter(taxon != "Didymoglossum sp")
