@@ -3,7 +3,8 @@ plan <- drake_plan(
   # Data loading and cleaning ----
   
   # Load PPGI taxonomy
-  ppgi = read_csv(file_in("data_raw/ppgi_taxonomy.csv")),
+  ppgi = read_csv(file_in("data_raw/ppgi_taxonomy.csv")) %>%
+    add_new_pterido_taxa,
   
   # Load Nectandara taxonomy data with scientific names including authors
   sci_names = read_csv(file_in("data_raw/taxonomy.csv")) %>% 
