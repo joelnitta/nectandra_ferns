@@ -26,7 +26,10 @@ specimens_raw %>%
          date_collected) %>%
   rename(specific_epithet = species, elevation = elevation_m) %>%
   mutate(species = jntools::paste3(genus, specific_epithet)) %>%
-  mutate(taxon = jntools::paste3(genus, specific_epithet, infraspecific_name))
+  mutate(taxon = jntools::paste3(genus, specific_epithet, infraspecific_name)) %>%
+  # Remove one Didymoglossum specimen that was separated out from a single collection and
+  # may or may not be a distinct species pending additional study.
+  filter(taxon != "Didymoglossum sp")
 
 write_csv(nectandra_specimens, "data/nectandra_specimens.csv")
 
