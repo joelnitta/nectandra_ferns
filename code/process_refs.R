@@ -17,6 +17,12 @@ read_lines("ms/references.bib") %>%
     "\\{R Core Team\\}") %>%
   write_lines("ms/references.bib")
 
+read_lines("ms/references.bib") %>%
+  str_replace(
+    "Pteridophyte Phylogeny Group I",
+    "\\{Pteridophyte Phylogeny Group I\\}") %>%
+  write_lines("ms/references.bib")
+
 # Same for OET
 read_lines("ms/references.bib") %>%
   str_replace(
