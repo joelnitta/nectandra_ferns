@@ -246,9 +246,26 @@ make_checklist <- function (specimens, sci_names, taxonomy) {
   specimens %>%
     left_join(sci_names, by = "taxon") %>%
     left_join(taxonomy, by = "genus") %>%
+    mutate(habit_simple = case_when(
+      str_detect(observations, regex("epipet", ignore_case = TRUE)) ~ "epipetric",
+      str_detect(observations, regex("on rocks", ignore_case = TRUE)) ~ "epipetric",
+      str_detect(observations, regex("epiphy", ignore_case = TRUE)) ~ "epiphytic",
+      str_detect(observations, regex("growing in bryophyte", ignore_case = TRUE)) ~ "epiphytic",
+      str_detect(observations, regex("terr", ignore_case = TRUE)) ~ "terrestrial",
+      str_detect(observations, regex("climbing", ignore_case = TRUE)) ~ "climbing",
+      str_detect(observations, regex("clambering", ignore_case = TRUE)) ~ "clambering"
+    )) %>%
+    mutate(scientific_name = case_when(
+      specific_epithet == "sp1" ~ paste(genus, specific_epithet),
+      TRUE ~ scientific_name
+    )) %>%
     group_by(class, family, scientific_name) %>%
     summarize(
-      voucher = paste(specimen, collapse = ", ")
+      voucher = paste(specimen, collapse = ", "),
+      habit = habit_simple %>% 
+        magrittr::extract(!is.na(.)) %>% 
+        unique %>% sort %>% paste(collapse = ", ") %>%
+        stringr::str_to_sentence()
     )
   
 }
