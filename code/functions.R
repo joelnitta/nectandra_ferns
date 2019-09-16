@@ -552,14 +552,10 @@ plot_rbcL_tree <- function(rbcL_tree, ppgi, specimens, dna_acc, outfile) {
   # Reformat tip labels now that tip order has changed
   new_tips <-
     tibble(tip = rbcL_tree$tip.label) %>%
-    mutate(
-      species = sp_name_only(tip, sep = "_"),
-      genus = genus_name_only(tip, sep = "_")) %>%
-    left_join(dplyr::select(ppgi, genus, family, class)) %>%
     mutate(genomicID = str_match(tip, "JNG.*$") %>% map_chr(1)) %>%
     left_join(dplyr::select(dna_acc, genomicID, specimen_id = specimenID)) %>%
-    left_join(dplyr::select(specimens, specimen_id, specimen)) %>%
-    mutate(new_tip = paste(species, specimen) %>% str_remove_all("Nitta ") %>% str_replace_all("_", " "))
+    left_join(dplyr::select(specimens, specimen_id, taxon, specimen)) %>%
+    mutate(new_tip = paste(taxon, specimen) %>% str_remove_all("Nitta ") %>% str_replace_all("_", " "))
   
   rbcL_tree$tip.label <- new_tips$new_tip
   
