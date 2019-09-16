@@ -11,6 +11,10 @@ drafts/
 renv/
 references_raw.bib
 .DS_Store
+*.grd
+*.gri
+*.vrt
+*.log
 *.pdf
 *_cache/
 *.csv
