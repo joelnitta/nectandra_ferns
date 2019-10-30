@@ -270,6 +270,31 @@ make_checklist <- function (specimens, sci_names, taxonomy) {
   
 }
 
+# Collection curve ----
+
+#' Estimate species richness using days of sampling as
+#' the sampling unit
+#'
+#' @param specimens Specimens dataframe
+#' @param endpoint Endpoint of extrapolation
+#'
+#' @return Tibble; output of iNEXT()
+#' 
+estimate_richness_by_date <- function (specimens, endpoint = 150) {
+  
+  specimens %>%
+    filter(!is.na(date_collected)) %>%
+    select(taxon, date_collected) %>%
+    unique %>%
+    mutate(abun = 1) %>%
+    pivot_wider(names_from = date_collected, values_from = abun) %>%
+    mutate_if(is.numeric, ~replace_na(., 0)) %>%
+    column_to_rownames("taxon") %>%
+    as.matrix %>%
+    iNEXT(datatype = "incidence_raw", endpoint = endpoint)
+
+  }
+
 # Barcode analysis ----
 
 #' Make a dataframe of minimum interspecific distances
@@ -510,13 +535,13 @@ make_inext_plot <- function(inext_out) {
   observed_data <- inext_out$iNextEst[inext_out$iNextEst$method == "observed",]
   
   # make plot
-  ggplot (inext_out$iNextEst, aes(x=m, y=qD)) +
+  ggplot (inext_out$iNextEst, aes(x=t, y=qD)) +
     geom_ribbon(aes(ymin = qD.LCL, ymax = qD.UCL), fill = "grey70", alpha=0.2) +
     geom_line(aes(linetype=method), size=0.8) +
     scale_linetype_manual(values=c("dotted", "solid", "solid")) +
     geom_point(data=observed_data, size=2.5) +
-    scale_y_continuous("No. spp.") +
-    scale_x_continuous("No. individuals") +
+    scale_y_continuous("Richness (no. spp.)") +
+    scale_x_continuous("Sampling units (days)") +
     standard_theme3() +
     theme(legend.position="none", 
           legend.title=element_blank())

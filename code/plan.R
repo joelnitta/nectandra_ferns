@@ -63,10 +63,11 @@ plan <- drake_plan(
   
   # Collection curve ----
   # Run iNEXT to generate interpolated/extrapolated species richness
-  # set endpoint (maximum number of individuals projected to collected) to 1000
-  richness_estimate = count(specimens, taxon) %>%
-    pull(n) %>%
-    iNEXT(datatype="abundance", endpoint=1000),
+  # using number of sampling days as the sampling unit
+  # set endpoint (maximum number of collection days) to 150
+  richness_estimate = estimate_richness_by_date(
+    specimens,
+    endpoint = 150),
   
   # Barcode analysis ----
   
