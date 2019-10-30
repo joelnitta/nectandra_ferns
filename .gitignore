@@ -18,3 +18,5 @@ references_raw.bib
 *.pdf
 *_cache/
 *.csv
+*.eps
+*.tiff
