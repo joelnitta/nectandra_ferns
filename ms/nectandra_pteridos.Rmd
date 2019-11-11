@@ -30,11 +30,15 @@ editor_options:
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, results = "hide", cache = TRUE)
 
 # Load objects build during analysis from drake cache
-loadd(richness_estimate)
-loadd(min_distance_table)
-loadd(specimens)
-loadd(ppgi)
-loadd(cr_richness)
+loadd(
+  list = c(
+    "richness_estimate",
+    "min_distance_table",
+    "specimens",
+    "ppgi",
+    "cr_richness"),
+  cache = nectandra_cache)
+
 ```
 
 ```{r taxa-count}
@@ -48,7 +52,7 @@ taxa_count <-
 ```
 
 <!-- Remove page numbers -->
-<!-- \pagenumbering{gobble} -->
+\pagenumbering{gobble}
 
 <!-- Set left justification -->
 \raggedright
@@ -94,7 +98,7 @@ Climate at Nectandra is characterized by extremely high frequency of cloud cover
 
 ### Field survey
 
-We carried out surveys of pteridophytes over three field seasons (January 2008, 2011, and 2013; `r specimens %>% filter(!is.na(date_collected)) %>% pull(date_collected) %>% n_distinct` days of sampling total). Most specimens were collected along trails through the reserve. Epiphytes were collected from fallen trees or tree branches, or up to \circa \SI{2}{\meter} on tree trunks. Voucher specimens are deposited at UC and CR. Leaf tissue was preserved on silica gel for DNA extraction. A permit for collection was issued by MINAET (ADD NUMBER). We observed spores of selected taxa with a standard compound light microscope.
+We carried out surveys of pteridophytes over three field seasons (January 2008, 2011, and 2013; `r specimens %>% filter(!is.na(date_collected)) %>% pull(date_collected) %>% n_distinct` days of sampling total). Most specimens were collected along trails through the reserve. Epiphytes were collected from fallen trees or tree branches, or up to \circa \SI{2}{\meter} on tree trunks. Permits for collection were obtained from the Costa Rican government (SINAC No. 04941 and Cites 2014-CR 1006/SJ (#S 1045)). The top set of voucher specimens were deposited at UC, with duplicates at GH and CR. Hebarium codes follow @Thiers2019. Leaf tissue was preserved on silica gel for DNA extraction. Spores of selected taxa were observed with a standard compound light microscope.
 
 ### Taxonomy
 
@@ -102,7 +106,7 @@ We consulted relevant floras for species identification, including *Flora Mesoam
 
 ### DNA sequencing and phylogenetic analysis
 
-DNA was extracted with the DNEasy plant mini kit following the manufacturer's protocol (Qiagen). We generally sampled one species per taxon for morphologically distinct taxa, and up to five specimens per taxon for taxa that are more difficult to identify using standard keys [@Moran1995; @Lellinger1989] and morphological characters. We amplified the plastid *rbcL* gene using the PCR primers and thermocycler settings of @Schuettpelz2007. We verified amplification success by gel electrophoresis in 1% TAE. We purified PCR products with Exo-STAR and conducted cycle sequencing using the Big Dye kit with two internal primers, ESRBCL654R and ESRBCL628F [@Schuettpelz2007] in addition to the amplification primers. We imported the resulting AB1 trace files into Geneious [@Kearse2012], assembled contigs, and exported the consensus sequences in FASTA format. We generated an alignment using MAFFT [@Katoh2002], and inferred a tree using RAxML [@Stamatakis2006] on the CIPRES cluster [@Miller2010]. We used the GTR model and assessed support with 1,000 bootstrap replicates.
+DNA was extracted with the DNEasy plant mini kit following the manufacturer's protocol (Qiagen). We generally sampled one species per taxon for morphologically distinct taxa, and up to five specimens per taxon for taxa that are more difficult to identify using standard keys [@Moran1995; @Lellinger1989] and morphological characters. We amplified the plastid *rbcL* gene using the PCR primers and thermocycler settings of @Schuettpelz2007. We verified amplification success by gel electrophoresis in 1% TAE. We purified PCR products with Exo-STAR and conducted cycle sequencing using the Big Dye kit with two internal primers, ESRBCL654R and ESRBCL628F [@Schuettpelz2007] in addition to the amplification primers. We imported the resulting AB1 trace files into Geneious [@Kearse2012], assembled contigs, and exported the consensus sequences in FASTA format. We generated an alignment using MAFFT [@Katoh2002], and inferred a tree using RAxML [@Stamatakis2006] on the CIPRES cluster [@Miller2010]. We used the GTR model and assessed support with 1,000 bootstrap replicates. Molecular analysis was authorized by Convenio Marco de CONAGEBIO R-CM-RN-001-2014-OT.
 
 ### Statistical analysis
 
@@ -116,7 +120,7 @@ To better characterize observed phylogenetic diversity, we compared the phylogen
 
 ### Data accessibility
 
-Code to replicate all analyses, figures, and this manuscript are available at https://github.com/joelnitta/nectandra_ferns. Raw and processed data are openly available from the Dryad repository at http://doi.org/ADD_DOI_HERE_WHEN_ASSIGNED. Newly generated sequences have been deposited in GenBank (ADD NUMBERS).
+Code to replicate all analyses, figures, and this manuscript are available at https://github.com/joelnitta/nectandra_ferns. Data are available from the Dryad repository at http://doi.org/ADD_DOI_HERE_WHEN_ASSIGNED. Newly generated sequences have been deposited in GenBank (ADD NUMBERS). Photos of voucher specimens available at https://www.fernsoftheworld.com/florulas/ADD_URL_HERE_WHEN_ASSIGNED.
 
 ## Results
 
