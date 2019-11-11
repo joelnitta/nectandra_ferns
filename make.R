@@ -23,5 +23,8 @@ pkgconfig::set_config("drake::strings_in_dots" = "literals")
 source("code/functions.R")
 source("code/plan.R")
 
+# Set cache
+nectandra_cache = new_cache("nectandra_cache")
+
 # Run analyses ----
-make(plan) 
+make(plan, cache = nectandra_cache) 
