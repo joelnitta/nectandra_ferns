@@ -55,6 +55,7 @@ install.packages(cran_packages)
 # Install github packages
 github_packages <- c(
   "joelnitta/jntools",
+  "joelnitta/gbfetch",
   "thomasp85/patchwork",
   "rstudio/gt",
   "r-lib/scales")

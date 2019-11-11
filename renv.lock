@@ -6,22 +6,6 @@
     "Version": "3.6.1",
     "Repositories": [
       {
-        "Name": "BioCsoft",
-        "URL": "https://bioconductor.org/packages/3.10/bioc"
-      },
-      {
-        "Name": "BioCann",
-        "URL": "https://bioconductor.org/packages/3.10/data/annotation"
-      },
-      {
-        "Name": "BioCexp",
-        "URL": "https://bioconductor.org/packages/3.10/data/experiment"
-      },
-      {
-        "Name": "BioCworkflows",
-        "URL": "https://bioconductor.org/packages/3.10/workflows"
-      },
-      {
         "Name": "CRAN",
         "URL": "https://cran.rstudio.com/"
       }
@@ -142,6 +126,18 @@
       "Source": "CRAN",
       "Hash": "c25fa7d5684fa7001ddfea3755243975"
     },
+    "WikidataR": {
+      "Package": "WikidataR",
+      "Version": "1.4.0",
+      "Source": "CRAN",
+      "Hash": "692dbe5413171f0250098587ec1cef8d"
+    },
+    "WikipediR": {
+      "Package": "WikipediR",
+      "Version": "1.5.0",
+      "Source": "CRAN",
+      "Hash": "a8b3289b160b9a757b17d2abedba3990"
+    },
     "XML": {
       "Package": "XML",
       "Version": "3.98-1.20",
@@ -225,6 +221,12 @@
       "Version": "1.2.0",
       "Source": "CRAN",
       "Hash": "9ef42c7a122fb0bc78563a7d1da7ba4e"
+    },
+    "bold": {
+      "Package": "bold",
+      "Version": "0.9.0",
+      "Source": "CRAN",
+      "Hash": "6e960f25cd7cb5274d1ea56c82cd63ee"
     },
     "bookdown": {
       "Package": "bookdown",
@@ -346,6 +348,12 @@
       "Source": "CRAN",
       "Hash": "2bc962d85f29df259cc1a6930727ce87"
     },
+    "crul": {
+      "Package": "crul",
+      "Version": "0.9.0",
+      "Source": "CRAN",
+      "Hash": "c60a262a6dcefd94ec24ecf9b4d41429"
+    },
     "curl": {
       "Package": "curl",
       "Version": "4.0",
@@ -466,6 +474,12 @@
       "Source": "CRAN",
       "Hash": "4d7e4a2ed5adadda6714eb7b9361213b"
     },
+    "foreach": {
+      "Package": "foreach",
+      "Version": "1.4.7",
+      "Source": "CRAN",
+      "Hash": "679941326860ea87464d7f010341fb05"
+    },
     "foreign": {
       "Package": "foreign",
       "Version": "0.8-71",
@@ -484,11 +498,36 @@
       "Source": "CRAN",
       "Hash": "dba7e43c4103d978cb7c95b97987cc68"
     },
+    "furrr": {
+      "Package": "furrr",
+      "Version": "0.1.0",
+      "Source": "CRAN",
+      "Hash": "ba787bdceee408b8f399c653fcee1601"
+    },
+    "future": {
+      "Package": "future",
+      "Version": "1.15.0",
+      "Source": "CRAN",
+      "Hash": "01f6cc831a7f6f76a1c2f52e5479b144"
+    },
     "gargle": {
       "Package": "gargle",
       "Version": "0.3.1",
       "Source": "CRAN",
       "Hash": "807701061d82db1187f4a858f548592b"
+    },
+    "gbfetch": {
+      "Package": "gbfetch",
+      "Version": "0.1.0",
+      "Source": "GitHub",
+      "Remotes": "joelnitta/jntools",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "gbfetch",
+      "RemoteUsername": "joelnitta",
+      "RemoteRef": "master",
+      "RemoteSha": "588b9bb1fb40177e95647277dac5920d2b76f3bb",
+      "Hash": "4871600da6c2683aef5eafb3a52122d7"
     },
     "generics": {
       "Package": "generics",
@@ -525,6 +564,12 @@
       "Version": "0.26.1",
       "Source": "CRAN",
       "Hash": "22ea14e8f582d4a83a273f24ac43e27e"
+    },
+    "globals": {
+      "Package": "globals",
+      "Version": "0.12.4",
+      "Source": "CRAN",
+      "Hash": "cf9ddd6b6fce90974d5bd9b5f80d08b0"
     },
     "glue": {
       "Package": "glue",
@@ -599,6 +644,12 @@
       "Source": "CRAN",
       "Hash": "8aa0ed21f14fc9645367e8bc305415f5"
     },
+    "httpcode": {
+      "Package": "httpcode",
+      "Version": "0.2.0",
+      "Source": "CRAN",
+      "Hash": "086b284f4d07df81e553943c16b60724"
+    },
     "httpuv": {
       "Package": "httpuv",
       "Version": "1.5.1",
@@ -647,6 +698,12 @@
       "Source": "CRAN",
       "Hash": "eeedf954ec443690f620eb9a9132a784"
     },
+    "iterators": {
+      "Package": "iterators",
+      "Version": "1.0.12",
+      "Source": "CRAN",
+      "Hash": "30ef58a17d970ae05c85793da79152d6"
+    },
     "janitor": {
       "Package": "janitor",
       "Version": "1.2.0",
@@ -662,8 +719,8 @@
       "RemoteRepo": "jntools",
       "RemoteUsername": "joelnitta",
       "RemoteRef": "master",
-      "RemoteSha": "a74587585e78a17a592e63c1d3762b9c24673ee5",
-      "Hash": "8ca33b66d1c9e0db43f88cee5ec5beec"
+      "RemoteSha": "3e615aafbdce0664c3659347c3a9b918dd4415b5",
+      "Hash": "3e71f80798f6d20d332f262932f2d87c"
     },
     "jsonlite": {
       "Package": "jsonlite",
@@ -718,6 +775,12 @@
       "Version": "1.0.3",
       "Source": "CRAN",
       "Hash": "2775f4b659ae90dbc70358c77db0a1bf"
+    },
+    "listenv": {
+      "Package": "listenv",
+      "Version": "0.7.0",
+      "Source": "CRAN",
+      "Hash": "7cdee13e292d057fce33553ea7eebbd7"
     },
     "littler": {
       "Package": "littler",
@@ -790,6 +853,12 @@
       "Version": "0.5.0",
       "Source": "CRAN",
       "Hash": "9111af6c6dec65538ebd3de6c0bae864"
+    },
+    "natserv": {
+      "Package": "natserv",
+      "Version": "0.3.0",
+      "Source": "CRAN",
+      "Hash": "5f727b3458e486fffb6a099f7e0aa45e"
     },
     "nlme": {
       "Package": "nlme",
@@ -995,6 +1064,12 @@
       "Source": "CRAN",
       "Hash": "830aa73278dce9beba583bfe57a5c015"
     },
+    "rentrez": {
+      "Package": "rentrez",
+      "Version": "1.2.2",
+      "Source": "CRAN",
+      "Hash": "f8b15c21561e045343cf409556d2afc4"
+    },
     "renv": {
       "Package": "renv",
       "Version": "0.7.0-22",
@@ -1012,6 +1087,12 @@
       "Version": "0.3.0",
       "Source": "CRAN",
       "Hash": "e5c16307a512cdaea9adddacde0671af"
+    },
+    "reshape": {
+      "Package": "reshape",
+      "Version": "0.8.8",
+      "Source": "CRAN",
+      "Hash": "6d92a971c653c24317b6ad3a402f390c"
     },
     "reshape2": {
       "Package": "reshape2",
@@ -1031,6 +1112,12 @@
       "Source": "CRAN",
       "Hash": "b2b0e27c127bbdda469512f8b127a085"
     },
+    "ritis": {
+      "Package": "ritis",
+      "Version": "0.8.0",
+      "Source": "CRAN",
+      "Hash": "c1898e83e2f396fde4a6aa5a31ba29e3"
+    },
     "rlang": {
       "Package": "rlang",
       "Version": "0.4.0",
@@ -1049,6 +1136,18 @@
       "Source": "CRAN",
       "Hash": "4e1a1179c8b35736748b673e045cc3b9"
     },
+    "rncl": {
+      "Package": "rncl",
+      "Version": "0.8.3",
+      "Source": "CRAN",
+      "Hash": "f31d9767f3cc0fa3f84b2417ed517604"
+    },
+    "rotl": {
+      "Package": "rotl",
+      "Version": "3.0.10",
+      "Source": "CRAN",
+      "Hash": "905fc7425cad9433165ad4f28b9fc61d"
+    },
     "roxygen2": {
       "Package": "roxygen2",
       "Version": "6.1.1",
@@ -1066,6 +1165,12 @@
       "Version": "1.3-2",
       "Source": "CRAN",
       "Hash": "5382761b8b318da6dd3fb0f6dae3c43a"
+    },
+    "rredlist": {
+      "Package": "rredlist",
+      "Version": "0.5.0",
+      "Source": "CRAN",
+      "Hash": "db2cd18a24070afe4f9039f0f2fd18b8"
     },
     "rsconnect": {
       "Package": "rsconnect",
@@ -1169,6 +1274,12 @@
       "Source": "CRAN",
       "Hash": "5c861a2766fb272f515b7704dcbe08d6"
     },
+    "solrium": {
+      "Package": "solrium",
+      "Version": "1.1.4",
+      "Source": "CRAN",
+      "Hash": "7038e28917d232290b28972420c6248a"
+    },
     "sourcetools": {
       "Package": "sourcetools",
       "Version": "0.1.7",
@@ -1229,6 +1340,12 @@
       "Source": "CRAN",
       "Hash": "9ecf6bee5958b8977bd1db3131978a71"
     },
+    "taxize": {
+      "Package": "taxize",
+      "Version": "0.9.9",
+      "Source": "CRAN",
+      "Hash": "34268e0562d09ecb3c8d391bf435aba7"
+    },
     "testit": {
       "Package": "testit",
       "Version": "0.9",
@@ -1271,6 +1388,12 @@
       "Source": "CRAN",
       "Hash": "11c9260eb54db1f55e7573844c2ae8ed"
     },
+    "triebeard": {
+      "Package": "triebeard",
+      "Version": "0.3.0",
+      "Source": "CRAN",
+      "Hash": "51b180ff55459cac3e8480bf843008ad"
+    },
     "tufte": {
       "Package": "tufte",
       "Version": "0.5",
@@ -1282,6 +1405,12 @@
       "Version": "0.1.5",
       "Source": "CRAN",
       "Hash": "dc333dae167fd4e587ba1cce180d7bdb"
+    },
+    "urltools": {
+      "Package": "urltools",
+      "Version": "1.7.3",
+      "Source": "CRAN",
+      "Hash": "f2615bf96d245f3bd4a28f2ec92be023"
     },
     "usethis": {
       "Package": "usethis",
@@ -1331,11 +1460,23 @@
       "Source": "CRAN",
       "Hash": "c025d25de1a83dfdd0160f9c79c2684b"
     },
+    "wikitaxa": {
+      "Package": "wikitaxa",
+      "Version": "0.3.0",
+      "Source": "CRAN",
+      "Hash": "ec092ea225f47ea8a5877da1e0ba87d7"
+    },
     "withr": {
       "Package": "withr",
       "Version": "2.1.2",
       "Source": "CRAN",
       "Hash": "7c9aef08038f47e6c1532ed574a0e087"
+    },
+    "worrms": {
+      "Package": "worrms",
+      "Version": "0.4.0",
+      "Source": "CRAN",
+      "Hash": "85ae8bfb2a22f729d079e67ab67ba3bd"
     },
     "writexl": {
       "Package": "writexl",
@@ -1384,6 +1525,12 @@
       "Version": "0.1.0",
       "Source": "CRAN",
       "Hash": "45d65588b02d47970fc84adecb2ee664"
+    },
+    "zoo": {
+      "Package": "zoo",
+      "Version": "1.8-6",
+      "Source": "CRAN",
+      "Hash": "6a408ac88994695f76d7b4f7f19c4006"
     }
   }
 }
