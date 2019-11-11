@@ -1,3 +1,7 @@
+# This script takes various raw data files that include many more specimens
+# and data columns than those needed for just this project and filters
+# and cleans them. Processed data files are written to "data/".
+
 library(tidyverse)
 library(janitor)
 library(here)
