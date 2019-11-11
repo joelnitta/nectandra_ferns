@@ -45,6 +45,7 @@ cran_packages <- c(
   "kableExtra",
   "raster",
   "readxl",
+  "writexl",
   "rmarkdown",
   "scico",
   "tidyverse")

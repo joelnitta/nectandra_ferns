@@ -6,6 +6,22 @@
     "Version": "3.6.1",
     "Repositories": [
       {
+        "Name": "BioCsoft",
+        "URL": "https://bioconductor.org/packages/3.10/bioc"
+      },
+      {
+        "Name": "BioCann",
+        "URL": "https://bioconductor.org/packages/3.10/data/annotation"
+      },
+      {
+        "Name": "BioCexp",
+        "URL": "https://bioconductor.org/packages/3.10/data/experiment"
+      },
+      {
+        "Name": "BioCworkflows",
+        "URL": "https://bioconductor.org/packages/3.10/workflows"
+      },
+      {
         "Name": "CRAN",
         "URL": "https://cran.rstudio.com/"
       }
@@ -53,6 +69,12 @@
       "Version": "1.0.0",
       "Source": "CRAN",
       "Hash": "2b2b6ea2111e1e57e192765d5013a3c5"
+    },
+    "DT": {
+      "Package": "DT",
+      "Version": "0.9",
+      "Source": "CRAN",
+      "Hash": "3713a75ea5f5bbc25579b20cbb7843f3"
     },
     "KernSmooth": {
       "Package": "KernSmooth",
@@ -318,11 +340,23 @@
       "Source": "CRAN",
       "Hash": "d308ead32010b8e4d76c4690427da50b"
     },
+    "crosstalk": {
+      "Package": "crosstalk",
+      "Version": "1.0.0",
+      "Source": "CRAN",
+      "Hash": "2bc962d85f29df259cc1a6930727ce87"
+    },
     "curl": {
       "Package": "curl",
       "Version": "4.0",
       "Source": "CRAN",
       "Hash": "7dc1d02a04a75510424d2c7404fadfa7"
+    },
+    "cyclocomp": {
+      "Package": "cyclocomp",
+      "Version": "1.1.0",
+      "Source": "CRAN",
+      "Hash": "66c27586ae3622762fd7c5abf1903f71"
     },
     "data.table": {
       "Package": "data.table",
@@ -395,6 +429,12 @@
       "Version": "0.4.0",
       "Source": "CRAN",
       "Hash": "cd87b0162287f0da225edfaa2fd3a20c"
+    },
+    "fastmap": {
+      "Package": "fastmap",
+      "Version": "1.0.1",
+      "Source": "CRAN",
+      "Hash": "7a0d4ec0aa0299e3907f8f4f982e33b4"
     },
     "fastmatch": {
       "Package": "fastmatch",
@@ -1297,6 +1337,12 @@
       "Source": "CRAN",
       "Hash": "7c9aef08038f47e6c1532ed574a0e087"
     },
+    "writexl": {
+      "Package": "writexl",
+      "Version": "1.1",
+      "Source": "CRAN",
+      "Hash": "b310cdec9c732bf5265155e0c896f0e1"
+    },
     "xfun": {
       "Package": "xfun",
       "Version": "0.9",
@@ -1308,6 +1354,12 @@
       "Version": "1.2.2",
       "Source": "CRAN",
       "Hash": "22fa8b694a7ffcec094bfb94a405595d"
+    },
+    "xmlparsedata": {
+      "Package": "xmlparsedata",
+      "Version": "1.0.3",
+      "Source": "CRAN",
+      "Hash": "241feddd658b6c638b6c1b964928ed64"
     },
     "xopen": {
       "Package": "xopen",
