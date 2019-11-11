@@ -1,9 +1,13 @@
 # Data wrangling ----
 
-#' Download Nitta et al 2017 Ecol Mono data zip file and 
-#' extract needed data files
+#' Unzip Nitta et al 2017 Ecol Mono data zip file and 
+#' extract needed data files.
+#' 
+#' The dryad data zip file should be downloaded from 
+#' https://datadryad.org/stash/dataset/doi:10.5061/dryad.df59g
+#' (click on "Download dataset")
 #'
-#' @param dl_path Name of file to download the zip file to.
+#' @param dryad_zip_file Path to the data zip file downloaded from Dryad.
 #' @param unzip_path Path to directory to put the unzipped
 #' contents (will be created if needed).
 #' @param ... Extra arguments; not used by this function, but
@@ -11,19 +15,39 @@
 #' @return Unzipped data files:
 #' - rbcL_clean_sporos.fasta: rbcL sequences of sporophytes from Moorea
 #'
-download_and_unzip_nitta_2017 <- function (dl_path, unzip_path, ...) {
+unzip_nitta_2017 <- function (dryad_zip_file, exdir, ...) {
   
-  # Make sure the target directory exists
-  assertthat::assert_that(assertthat::is.dir(fs::path_dir(dl_path)))
+  # Dryad data are nested: a zip file inside a zip file.
+  # Unzip the first one in a temporary directory, then the one we want into data_raw.
+  temp_dir <- tempdir()
+  unzip(dryad_zip_file, "data_and_scripts.zip", exdir = temp_dir)
+  unzip(fs::path(temp_dir, "data_and_scripts.zip"), "data_and_scripts/shared_data/rbcL_clean_sporos.fasta", exdir = exdir, junkpaths = TRUE)
+  # Cleanup
+  fs::file_delete(fs::path(temp_dir, "data_and_scripts.zip"))
   
-  # Set url
-  url <- "https://datadryad.org/bitstream/handle/10255/dryad.132050/data_and_scripts.zip?sequence=1"
+}
+
+#' Unzip Ebihara and Nitta 2017 Ecol Mono data zip file and 
+#' extract needed data files.
+#' 
+#' The dryad data zip file should be downloaded from 
+#' https://datadryad.org/stash/dataset/doi:10.5061/dryad.df59g
+#' (click on "Download dataset")
+#'
+#' @param dryad_zip_file Path to the data zip file downloaded from Dryad.
+#' @param unzip_path Path to directory to put the unzipped
+#' contents (will be created if needed).
+#' @param ... Extra arguments; not used by this function, but
+#' meant for tracking with drake.
+#' @return Unzipped data files:
+#' - rbcL_clean_sporos.fasta: rbcL sequences of sporophytes from Moorea
+#'
+unzip_ebihara_2019 <- function (dryad_zip_file, exdir, ...) {
   
-  # Download zip file
-  download.file(url, dl_path)
-  
-  # Unzip only needed data files to data/nitta_2017/
-  unzip(dl_path, "data_and_scripts/shared_data/rbcL_clean_sporos.fasta", exdir = unzip_path, junkpaths = TRUE)
+  # Unzip only the needed files
+  unzip(dryad_zip_file, "rbcl_mrbayes.nex", exdir = exdir)
+  unzip(dryad_zip_file, "FernGreenListV1.01E.xls", exdir = exdir)
+  unzip(dryad_zip_file, "ESM1.csv", exdir = exdir)
   
 }
 
@@ -79,8 +103,8 @@ tidy_specimens <- function (specimen_data, ppgi, taxonomy) {
 #' @examples
 tidy_japan_names <- function (data) {
   data %>%
-  select(taxon_id = ID20160331, scientific_name = `GreenList学名`,
-         endemic = `固有`, conservation_status = `RL2012`) %>%
+  select(taxon_id = ID20160331, scientific_name = `GreenList Name`,
+         endemic = Endemism, conservation_status = RL2012) %>%
     mutate(taxon_id = as.character(taxon_id)) %>%
     select(taxon_id, scientific_name)
 }

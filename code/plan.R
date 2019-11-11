@@ -16,25 +16,39 @@ plan <- drake_plan(
   # Load DNA accession data
   dna_acc = read_csv(file_in("data_raw/DNA_accessions.csv")),
   
-  # Download French Polynesia rbcL sequences
-  nitta_2017_data = download_and_unzip_nitta_2017(
-    dl_path = "data_raw/nitta_2017_data_and_scripts.zip",
-    unzip_path = "data_raw/nitta_2017/",
-    out1 = file_out("data_raw/nitta_2017/rbcL_clean_sporos.fasta")),
+  # Unzip French Polynesia rbcL sequences
+  # This requires doi_10.5061_dryad.df59g__v1.zip to be downloaded to data_raw/
+  # from https://datadryad.org/stash/dataset/doi:10.5061/dryad.df59g first
+  nitta_2017_data = unzip_nitta_2017(
+    dryad_zip_file = file_in("data_raw/doi_10.5061_dryad.df59g__v1.zip"), 
+    exdir = "data_raw/nitta_2017",
+    produces = file_out("data_raw/nitta_2017/rbcL_clean_sporos.fasta")
+    ),
   
   # Load French Polynesia rbcL sequences
   # (also add "_FP" to end of name)
   moorea_rbcL = read.FASTA(file_in("data_raw/nitta_2017/rbcL_clean_sporos.fasta")) %>%
     purrr::set_names(., paste0(names(.), "_FP")),
   
+  # Unzip Japan rbcL sequences and breeding mode data
+  # This requires doi_10.5061_dryad.4362p32__v4.zip to be downloaded to data_raw/
+  # from https://datadryad.org/stash/dataset/doi:10.5061/dryad.4362p32 first
+  ebihara_2019_data = unzip_ebihara_2019(
+    dryad_zip_file = file_in("data_raw/doi_10.5061_dryad.4362p32__v4.zip"), 
+    exdir = "data_raw/ebihara_2019",
+    produces_1 = file_out("data_raw/ebihara_2019/rbcl_mrbayes.nex"),
+    produces_2 = file_out("data_raw/ebihara_2019/FernGreenListV1.01E.xls"),
+    produces_3 = file_out("data_raw/ebihara_2019/ESM1.csv")
+  ),
+  
   # Load Japan rbcL data with names formatted as codes
-  japan_rbcL_raw = read.nexus.data(file_in("data_raw/rbcl_mrbayes.nex")) %>% as.DNAbin,
+  japan_rbcL_raw = read.nexus.data(file_in("data_raw/ebihara_2019/rbcl_mrbayes.nex")) %>% as.DNAbin,
   
   # Load table matching taxon codes to scientific names of Japanese pteridophytes
-  japan_taxa = read_excel(file_in("data_raw/FernGreenListV1.01.xls")) %>% tidy_japan_names(),
+  japan_taxa = read_excel(file_in("data_raw/ebihara_2019/FernGreenListV1.01E.xls")) %>% tidy_japan_names(),
   
   # Load data on reproductive mode for Japanese pteridophytes
-  repro_data = read_csv(file_in("data_raw/ESM1.csv")) %>%
+  repro_data = read_csv(file_in("data_raw/ebihara_2019/ESM1.csv")) %>%
     clean_names %>%
     mutate(taxon_id = as.character(taxon_id)),
   
