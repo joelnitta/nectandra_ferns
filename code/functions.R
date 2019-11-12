@@ -268,6 +268,7 @@ add_new_pterido_taxa <- function (ppgi) {
 make_checklist <- function (specimens, sci_names, taxonomy) {
   
   specimens %>%
+    filter(locality == "Nectandra Cloud Forest Preserve") %>%
     left_join(sci_names, by = "taxon") %>%
     left_join(taxonomy, by = "genus") %>%
     mutate(habit_simple = case_when(
@@ -307,6 +308,7 @@ make_checklist <- function (specimens, sci_names, taxonomy) {
 estimate_richness_by_date <- function (specimens, endpoint = 150) {
   
   specimens %>%
+    filter(locality == "Nectandra Cloud Forest Preserve") %>%
     filter(!is.na(date_collected)) %>%
     select(taxon, date_collected) %>%
     unique %>%

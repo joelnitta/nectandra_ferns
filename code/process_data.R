@@ -15,15 +15,16 @@ library(gbfetch)
 
 # This includes collection data of all J. Nitta collections (and more).
 # Filter this down to just the relevant columns for sporophytes from Nectandra.
+# AND two extra specimens that are not from Nectandra but were used for DNA sequencing.
 specimens_raw <- read_csv(here("data_raw/specimens.csv")) %>%
   clean_names
 
 nectandra_specimens <-
 specimens_raw %>%
-  filter(is_gametophyte == 0) %>%
-  filter(locality == "Nectandra Cloud Forest Preserve") %>% 
   mutate(coll_num = paste3(collection_number, subcollection_number, sep = "")) %>%
   mutate(specimen = paste3(collector_lastname, coll_num)) %>%
+  filter(is_gametophyte == 0) %>%
+  filter(locality == "Nectandra Cloud Forest Preserve" | specimen %in% c("Nitta 2012", "Nitta 169")) %>% 
   select(specimen_id, specimen, 
          genus, species, contains("infraspecific"), certainty,
          site, observations,
@@ -42,6 +43,7 @@ write_csv(nectandra_specimens, "data/nectandra_specimens.csv")
 
 # This includes DNA accession data of all J. Nitta collections (and more).
 # Filter this down to just the relevant columns for sporophytes from Nectandra.
+# AND two extra specimens that are not from Nectandra but were used for DNA sequencing.
 dna_raw <- read_csv(here("data_raw/DNA_accessions.csv")) %>%
   clean_names
 
