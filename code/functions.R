@@ -641,7 +641,6 @@ make_inext_plot <- function(inext_out) {
 #' @return Nothing; externally, the tree will be written as a pdf
 #'
 plot_rbcL_tree <- function(rbcL_tree, ppgi, specimens, dna_acc, outfile) {
-  
   # Extract tips into tibble and add taxonomy
   tips <-
     tibble(tip = rbcL_tree$tip.label) %>%
@@ -663,17 +662,22 @@ plot_rbcL_tree <- function(rbcL_tree, ppgi, specimens, dna_acc, outfile) {
   new_tips <-
     tibble(tip = rbcL_tree$tip.label) %>%
     mutate(genomic_id = str_match(tip, "_([:upper:]+.+)$") %>% magrittr::extract(,2)) %>%
-    left_join(dplyr::select(dna_acc, genomic_id, specimen_id)) %>%
-    left_join(dplyr::select(specimens, specimen_id, taxon, specimen)) %>%
+    left_join(dplyr::select(dna_acc, genomic_id, specimen_id), by = "genomic_id") %>%
+    # Manually set species ID for Pteris_altissima_KM008147 (Nitta 863)
+    mutate(specimen_id = case_when(
+      tip == "Pteris_altissima_KM008147" ~ 892,
+      TRUE ~ specimen_id
+    )) %>%
+    left_join(dplyr::select(specimens, specimen_id, taxon, specimen), by = "specimen_id") %>%
     mutate(
       new_tip = case_when(
-        str_detect(genomic_id, "JNG") ~ paste(taxon, specimen),
+        !is.na(specimen_id) ~ paste(taxon, specimen),
         TRUE ~ tip)
     ) %>%
     mutate(new_tip = new_tip %>%
-          str_remove_all("Nitta ") %>% 
-          str_replace_all("_", " ")
-          )
+             str_remove_all("Nitta ") %>% 
+             str_replace_all("_", " ")
+    )
   
   rbcL_tree$tip.label <- new_tips$new_tip
   
