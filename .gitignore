@@ -3,6 +3,7 @@
 .RData
 .Ruserdata
 *.Rproj
+iqtree_analysis/
 .drake/
 data/
 data_raw/

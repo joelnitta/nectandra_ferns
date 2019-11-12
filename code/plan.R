@@ -91,13 +91,16 @@ plan <- drake_plan(
   
   # Phylogenetic analysis ----
   
-  # Conduct ML phylogenetic analysis with RAxML
-  raxml_results = ips::raxml(
-    nectandra_rbcL, m = "GTRCAT",
-    f = "a", N = 2, p = 1234, x = 1234,
-    exec = "/usr/bin/raxmlHPC"),
-  
-  rbcL_tree = raxml_results$bipartitions,
+  # Conduct ML phylogenetic analysis with IQ-TREE
+  rbcL_tree = jntools::iqtree(
+    alignment = nectandra_rbcL,
+    wd = "iqtree_analysis",
+    nt = 1,
+    m = "TEST",
+    bb = 1000,
+    redo = TRUE,
+    echo = TRUE
+  ),
   
   # Write out alignment for dryad
   rbcL_aln_out = phangorn::write.phyDat(nectandra_rbcL, "data/nectandra_rbcL.phy"),
