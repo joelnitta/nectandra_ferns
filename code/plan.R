@@ -3,8 +3,7 @@ plan <- drake_plan(
   # Data loading and cleaning ----
   
   # Load PPGI taxonomy
-  ppgi = read_csv(file_in("data/ppgi_taxonomy.csv")) %>%
-    add_new_pterido_taxa,
+  ppgi = read_csv(file_in("data/ppgi_taxonomy.csv")),
   
   # Load Nectandra specimen data
   specimens = read_csv(file_in("data/nectandra_specimens.csv")),
@@ -14,6 +13,10 @@ plan <- drake_plan(
   
   # Load unaligned rbcL sequences
   nectandra_rbcL_raw = read.FASTA("data/nectandra_rbcL.fasta"),
+  
+  # Load species richness and GPS locations of various protected
+  # sites in Costa Rica
+  cr_richness = read_csv(file_in("data/costa_rica_richness.csv")),
   
   # Unzip French Polynesia rbcL sequences
   # This requires doi_10.5061_dryad.df59g__v1.zip to be downloaded to data_raw/
@@ -58,17 +61,15 @@ plan <- drake_plan(
   # Also make an alignment of Japan sexual-diploids only
   japan_rbcL_sexdip = rename_japan_rbcL_sexdip(
     japan_rbcL_raw, japan_taxa, repro_data),
-  
-  # Load species richness and GPS locations of various protected
-  # sites in Costa Rica
-  cr_richness = read_csv(file_in("data/costa_rica_richness.csv")),
-  
+
   # Checklist ----
+  
   # Make species checklist, write out as SI
   checklist = make_checklist(specimens, ppgi) %>% 
     write_csv(file_out("ms/table_S1.csv")),
   
   # Collection curve ----
+  
   # Run iNEXT to generate interpolated/extrapolated species richness
   # using number of sampling days as the sampling unit
   # set endpoint (maximum number of collection days) to 150
@@ -115,6 +116,7 @@ plan <- drake_plan(
   ),
   
   # Render manuscript ----
+  
   ms = rmarkdown::render(
     knitr_in(here("ms/nectandra_pteridos.Rmd")),
     output_file = file_out(here("ms/nectandra_pteridos.pdf")),

@@ -222,32 +222,6 @@ read_tree_in_zip <- function (zip_folder, tree_file) {
   
 }
 
-#' Add new taxa to the Pteridophyte Phylogeny Group I (PPGI) data
-#' 
-#' PPGI was published in 2016. This adds new genera that have been
-#' published since then.
-#'
-#' @param ppgi  Taxonomy of pteridophytes following Pteridophyte Phylogeny Group I
-#'
-#' @return Tibble
-#'
-add_new_pterido_taxa <- function (ppgi) {
-  
-  ppgi %>%
-    bind_rows(
-      tibble(
-        class = "Polypodiopsida",
-        order = "Polypodiales",
-        suborder = "Dennstaedtiineae",
-        order_id = "N",
-        fam_id = 31,
-        family = "Dennstaedtiaceae",
-        genus = "Hiya"
-      )
-    )
-  
-}
-
 # Checklist ----
 
 #' Make a species checklist of pteridophytes at Nectandra

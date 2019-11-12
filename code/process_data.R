@@ -154,3 +154,28 @@ costa_rica_richness <-
     TRUE ~ richness))
 
 write.csv(costa_rica_richness, "data/costa_rica_richness.csv")
+
+# Process PPGI data ----
+
+# Read in original Pteridophyte Phylogeny Group I taxonomy scheme
+# (genus-level and higher), add updates, and keep only needed columns.
+
+ppgi_raw <- read_csv("data_raw/ppgi_taxonomy_raw.csv")
+
+ppgi <- ppgi_raw %>%
+  # Update with Hiya
+  bind_rows(
+    tibble(
+      class = "Polypodiopsida",
+      order = "Polypodiales",
+      suborder = "Dennstaedtiineae",
+      order_id = "N",
+      fam_id = 31,
+      family = "Dennstaedtiaceae",
+      genus = "Hiya"
+    )
+  ) %>%
+  # Keep only needed columns
+  select(class, order, suborder, family, subfamily, genus)
+
+write_csv(ppgi, "data/ppgi_taxonomy.csv")
