@@ -51,21 +51,6 @@ unzip_ebihara_2019 <- function (dryad_zip_file, exdir, ...) {
   
 }
 
-tidy_taxonomy <- function (taxonomy_data) {
-  
-  taxonomy_data %>%
-    select(-genus_species) %>%
-    rename(
-      specific_epipthet = species,
-      infraspecific_epipthet = infrasp_name) %>%
-    mutate(taxon = jntools::paste3(genus, specific_epipthet, infraspecific_epipthet)) %>%
-    mutate(sci_name = jntools::paste3(genus, specific_epipthet, author, 
-                             infrasp_rank, infraspecific_epipthet, var_author)) %>%
-    mutate(sci_name = str_trim(sci_name, "both")) %>%
-    select(taxon, sci_name)
-  
-}
-
 tidy_specimens <- function (specimen_data, ppgi, taxonomy) {
   
   specimen_data %>%
@@ -265,11 +250,18 @@ add_new_pterido_taxa <- function (ppgi) {
 
 # Checklist ----
 
-make_checklist <- function (specimens, sci_names, taxonomy) {
+#' Make a species checklist of pteridophytes at Nectandra
+#'
+#' @param specimens Specimens data, one line per specimen
+#' @param taxonomy Higher level taxonomy data (genus and above)
+#'
+#' @return Tibble; species checklist of pteridophytes at Nectandra,
+#' with one row per taxon
+#' 
+make_checklist <- function (specimens, taxonomy) {
   
   specimens %>%
     filter(locality == "Nectandra Cloud Forest Preserve") %>%
-    left_join(sci_names, by = "taxon") %>%
     left_join(taxonomy, by = "genus") %>%
     mutate(habit_simple = case_when(
       str_detect(observations, regex("epipet", ignore_case = TRUE)) ~ "epipetric",
@@ -291,7 +283,8 @@ make_checklist <- function (specimens, sci_names, taxonomy) {
         magrittr::extract(!is.na(.)) %>% 
         unique %>% sort %>% paste(collapse = ", ") %>%
         stringr::str_to_sentence()
-    )
+    ) %>%
+    ungroup
   
 }
 
@@ -322,6 +315,67 @@ estimate_richness_by_date <- function (specimens, endpoint = 150) {
   }
 
 # Barcode analysis ----
+
+#' Align Nectandra rbcL sequences
+#'
+#' Also checks for missing taxa and adds them from GenBank
+#'
+#' @param nectandra_rbcL Unaligned rbcL sequences of pteridophytes from Nectandra
+#' @param nectandra_dna DNA accession numbers linking accession to specimen ID
+#' @param nectandra_specimens Specimen collection data including species names
+#'
+#' @return DNA alignment of all Nectandra pteridophyte species plus those
+#' sequences from GenBank for those that are missing rbcL
+#' 
+align_rbcL <- function (nectandra_rbcL, nectandra_dna, nectandra_specimens) {
+  
+  # Check for missing taxa from Nectandra list.
+  nectandra_rbcL_missing_taxa <-
+    tibble(genomic_id = names(nectandra_rbcL)) %>%
+    left_join(nectandra_dna) %>%
+    left_join(select(nectandra_specimens, specimen_id, taxon)) %>%
+    assert(not_na, everything()) %>%
+    anti_join(nectandra_specimens, ., by = "taxon") %>%
+    pull(taxon) %>%
+    unique %>% sort
+  
+  # Construct query and fetch GenBank sequences for missing taxa
+  query <- glue::glue("({paste(nectandra_rbcL_missing_taxa, collapse = '[ORIGIN] OR ')}[ORIGIN]) AND rbcl")
+  
+  gb_seqs <- gbfetch::fetch_sequences(query)
+  
+  gb_seqs_metadata <- gbfetch::fetch_metadata(query)
+  
+  # Select the appropriate sequences to use and rename them.
+  # KM008147 = Pteris altissima
+  # AY175795 = Trichomanes polypodioides
+  gb_seqs <- gb_seqs[names(gb_seqs) %in% c("KM008147", "AY175795")]
+  
+  names(gb_seqs) <-
+    tibble(accession = names(gb_seqs)) %>%
+    left_join(gb_seqs_metadata) %>%
+    mutate(tip_label = paste(species, accession) %>% str_replace_all(" ", "_")) %>%
+    pull(tip_label)
+  
+  # Reassign names to be taxon plus DNA accession number
+  names(nectandra_rbcL) <-
+    tibble(genomic_id = names(nectandra_rbcL)) %>%
+    left_join(nectandra_dna, by = "genomic_id") %>%
+    left_join(nectandra_specimens, by = "specimen_id") %>%
+    assert(is_uniq, genomic_id) %>%
+    assert(not_na, genomic_id, specimen_id, taxon) %>%
+    mutate(tip_label = paste(taxon, genomic_id) %>% str_replace_all(" ", "_")) %>%
+    pull(tip_label)
+  
+  # Combine new sequences with GenBank sequences
+  nectandra_rbcL <- c(nectandra_rbcL, gb_seqs)
+  
+  # Align sequences with MAFFT, trim ends, and remove any empty cells
+  ips::mafft(nectandra_rbcL, exec = "/usr/bin/mafft") %>%
+    trimEnds(nrow(.) * 0.5) %>%
+    deleteEmptyCells()
+  
+}
 
 #' Make a dataframe of minimum interspecific distances
 #' 
@@ -398,6 +452,11 @@ bin_min_inter_dist_by_dataset <- function(full_aln, dataset_select) {
 #' @return Tibble
 #' 
 analyze_min_dist <- function(nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL_sexdip) {
+  
+  # Add "_CR" to end of name of Nectandra sequences
+  nectandra_rbcL <- nectandra_rbcL %>% 
+    as.list %>%
+    set_names(., paste0(names(.), "_CR"))
   
   # Combine all rbcL sequences
   rbcL_combined <- c(japan_rbcL, moorea_rbcL, nectandra_rbcL, japan_rbcL_sexdip)
@@ -590,7 +649,7 @@ plot_rbcL_tree <- function(rbcL_tree, ppgi, specimens, dna_acc, outfile) {
       species = sp_name_only(tip, sep = "_"),
       genus = genus_name_only(tip, sep = "_")) %>%
     left_join(dplyr::select(ppgi, genus, family, class)) %>%
-    mutate(genomicID = str_match(tip, "JNG.*$") %>% map_chr(1))
+    mutate(genomicID = str_match(tip, "_([:upper:]+.+)$") %>% magrittr::extract(,2))
   
   # Identify lycophyte tips for rooting
   lycos <- tips %>% filter(class == "Lycopodiopsida") %>% pull(tip)
@@ -603,10 +662,18 @@ plot_rbcL_tree <- function(rbcL_tree, ppgi, specimens, dna_acc, outfile) {
   # Reformat tip labels now that tip order has changed
   new_tips <-
     tibble(tip = rbcL_tree$tip.label) %>%
-    mutate(genomicID = str_match(tip, "JNG.*$") %>% map_chr(1)) %>%
-    left_join(dplyr::select(dna_acc, genomicID, specimen_id = specimenID)) %>%
+    mutate(genomic_id = str_match(tip, "_([:upper:]+.+)$") %>% magrittr::extract(,2)) %>%
+    left_join(dplyr::select(dna_acc, genomic_id, specimen_id)) %>%
     left_join(dplyr::select(specimens, specimen_id, taxon, specimen)) %>%
-    mutate(new_tip = paste(taxon, specimen) %>% str_remove_all("Nitta ") %>% str_replace_all("_", " "))
+    mutate(
+      new_tip = case_when(
+        str_detect(genomic_id, "JNG") ~ paste(taxon, specimen),
+        TRUE ~ tip)
+    ) %>%
+    mutate(new_tip = new_tip %>%
+          str_remove_all("Nitta ") %>% 
+          str_replace_all("_", " ")
+          )
   
   rbcL_tree$tip.label <- new_tips$new_tip
   
