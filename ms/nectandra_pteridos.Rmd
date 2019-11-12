@@ -36,7 +36,9 @@ loadd(
     "min_distance_table",
     "specimens",
     "ppgi",
-    "cr_richness"),
+    "cr_richness",
+    "DNA_accessions",
+    "nectandra_rbcL_raw"),
   cache = nectandra_cache)
 
 ```
@@ -84,6 +86,7 @@ We characterized the taxonomic and phylogenetic diversity of pteridophytes (fern
 ## Introduction
 
 Despite its small size (\SI{51100}{\square\kilo\meter}), Costa Rica is home to a remarkably high biodiversity, and is ranked as one of the world's top 25 biodiversity hotspots [@Myers2000]. It is estimated that vascular plant species richness in Costa Rica exceeds \num{5000} spp. per \SI{10000}{\square\kilo\meter} [@Barthlott2005]. Accordingly, primary taxonomy is an important part of biological research in Costa Rica for the purposes of both documenting this biodiversity and informing conservation practices. 
+
 In addition to taxonomic diversity, measures of phylogenetic diversity (PD) provide another important perspective on biodiversity and should be taken into consideration for setting conservation priorities [@Faith1992]. Therefore, surveys documenting both species richness and molecular phylogenetic diversity are needed. Furthermore, the use of a standard molecular marker as a DNA "barcode" is useful for species identification and taxonomic revision. For example, DNA barcoding surveys have revealed hidden biodiversity in the form of cryptic species in butterflies in Costa Rica [@Hajibabaei2006], and have been used to identify cryptic life-cycle stages in ferns [@Nitta2017].
 
 Pteridophytes (\ie, ferns and lycophytes) are an important group of plants to study because many new species are still being discovered in the Neotropics [@Almeida2016a] and they play important ecological roles in many ecosystems [\eg, @George1999; @Coomes2005; @Schuettpelz2006c; @Mueller-Dombois2013]. The pteridophytes of Costa Rica comprise \circa \SI{1200}{\species}, accounting for one-quarter to one-third of the estimated richness of the Neotropics (\circa \SIrange{3000}{4500}{\species}) [@Almeida2016a]. While the pteridophyte floras of some sites in Costa Rica are well studied, such as Finca La Selva [@Grayum1987; @oet2019], other areas in the country have received considerably less attention. We present here the results of surveys conducted over three field seasons on the pteridophyte flora of the recently established Nectandra Cloud Forest Reserve near San Ramon, Costa Rica. We also characterize the phylogenetic diversity at this site and compare it with other pteridophyte floras that have recently been the focus of DNA barcoding surveys.
@@ -106,7 +109,7 @@ We consulted relevant floras for species identification, including *Flora Mesoam
 
 ### DNA sequencing and phylogenetic analysis
 
-DNA was extracted with the DNEasy plant mini kit following the manufacturer's protocol (Qiagen). We generally sampled one species per taxon for morphologically distinct taxa, and up to five specimens per taxon for taxa that are more difficult to identify using standard keys [@Moran1995; @Lellinger1989] and morphological characters. We amplified the plastid *rbcL* gene using the PCR primers and thermocycler settings of @Schuettpelz2007. We verified amplification success by gel electrophoresis in 1% TAE. We purified PCR products with Exo-STAR and conducted cycle sequencing using the Big Dye kit with two internal primers, ESRBCL654R and ESRBCL628F [@Schuettpelz2007] in addition to the amplification primers. We imported the resulting AB1 trace files into Geneious [@Kearse2012], assembled contigs, and exported the consensus sequences in FASTA format. We generated an alignment using MAFFT [@Katoh2002], and inferred a tree using RAxML [@Stamatakis2006] on the CIPRES cluster [@Miller2010]. We used the GTR model and assessed support with 1,000 bootstrap replicates. Molecular analysis was authorized by Convenio Marco de CONAGEBIO R-CM-RN-001-2014-OT.
+DNA was extracted with the DNEasy plant mini kit following the manufacturer's protocol (Qiagen). We generally sampled one species per taxon for morphologically distinct taxa, and up to five specimens per taxon for taxa that are more difficult to identify using standard keys [@Moran1995; @Lellinger1989] and morphological characters. We amplified the plastid *rbcL* gene using the PCR primers and thermocycler settings of @Schuettpelz2007. We verified amplification success by gel electrophoresis in 1% TAE. We purified PCR products with Exo-STAR and conducted cycle sequencing using the Big Dye kit with two internal primers, ESRBCL654R and ESRBCL628F [@Schuettpelz2007] in addition to the amplification primers. We imported the resulting AB1 trace files into Geneious [@Kearse2012], assembled contigs, and exported the consensus sequences in FASTA format. *rbcL* sequences were downloaded from GenBank for two taxa that could not be successfully sequenced in our study: *Pteris altissima* Poir. from Nectandra that had been sequenced previously in a different study (*Nitta 863*, KM008147) and *Trichomanes polypodioides* L. from Bolivia (*M. Kessler 8808*, AY175795). We generated an alignment using MAFFT [@Katoh2002], and inferred a tree using IQ-TREE with automatic model selection and \num{1000} ultrafast bootstrap replicates [@Nguyen2015]. Molecular analysis was authorized by Convenio Marco de CONAGEBIO R-CM-RN-001-2014-OT.
 
 ### Statistical analysis
 
@@ -121,6 +124,8 @@ To better characterize observed phylogenetic diversity, we compared the phylogen
 ### Data accessibility
 
 Code to replicate all analyses, figures, and this manuscript are available at https://github.com/joelnitta/nectandra_ferns. Data are available from the Dryad repository at http://doi.org/ADD_DOI_HERE_WHEN_ASSIGNED. Newly generated sequences have been deposited in GenBank (ADD NUMBERS). Photos of voucher specimens available at https://www.fernsoftheworld.com/florulas/ADD_URL_HERE_WHEN_ASSIGNED.
+
+NOTE FOR EDITOR AND REVIEWERS: data and code will be made publicly available upon acceptance. During review, data and code can be downloaded from the following link ADD_URL_HERE_WHEN_READY.
 
 ## Results
 
@@ -187,7 +192,30 @@ Point at transition from solid to dashed line indicates observed richness. Grey 
 
 ### Phylogenetic analysis
 
-The *rbcL* phylogeny (\fig S1) was in generally good agreement with recently published plastid phylogenies [@Pryer2004a; @Schuettpelz2007; @Lehtonen2011; @Testo2016a] at the family level and above, with families *sensu* PPGI [@PteridophytePhylogenyGroupI2016] monophyletic. Some internal nodes had weak support (\eg, Eupolypods II, BS 56%; Dennstaedtiaceae, BS 52%) and one internal node disagreed with recent plastid studies but lacked support (Gleicheniaceae sister to Osmundaceae). As the purpose of this study was not to robustly infer phylogeny across the ferns and lycophytes, we do not discuss such deep relationships further.
+```{r seq-stats}
+# Make table of newly generated sequences that will be submitted to GenBank
+new_seqs_data <-
+tibble(genomic_id = names(nectandra_rbcL_raw)) %>%
+  left_join(DNA_accessions, by = "genomic_id") %>%
+  left_join(specimens, by = "specimen_id") %>%
+  assert(not_na, taxon)
+
+n_taxa_rbcL_seqs <-
+new_seqs_data %>% pull(taxon) %>% n_distinct()
+
+coverage_taxa_rbcL_seqs <- 
+  n_taxa_rbcL_seqs %>%
+  magrittr::divide_by(taxa_count$taxon) %>%
+  round(3) %>%
+  scales::percent()
+
+new_seqs_data$genomic_id %>% n_distinct
+  
+```
+
+We recovered *rbcL* sequences for `r n_taxa_rbcL_seqs` taxa (`r coverage_taxa_rbcL_seqs`) from Nectandra, resulting in `r new_seqs_data$genomic_id %>% n_distinct` new *rbcL* sequences total. 
+
+The *rbcL* phylogeny (\fig S1) was in generally good agreement with recently published plastid phylogenies [@Pryer2004a; @Schuettpelz2007; @Lehtonen2011; @Testo2016a] at the family level and above, with families *sensu* PPGI [@PteridophytePhylogenyGroupI2016] monophyletic. Some internal nodes had weak support (\eg, Eupolypods II, BS 56%; Dennstaedtiaceae, BS 52%) and one internal node disagreed with recent plastid studies but lacked support (Gleicheniaceae sister to Osmundaceae). It should be noted that IQ-TREE ultrafast bootstrap support values are not analogous to traditional bootstrap values; ultrafast bootstrap support values are more unbiased, and only values >95% should be treated as receiving strong statistical support [@Minh2013]. As the purpose of this study was not to robustly infer phylogeny across the ferns and lycophytes, we do not discuss such deep relationships further.
 
 A small number of genera were found to be non-monophyletic but lacked strong support. *Stenogrammitis limula* is nested within *Lellingeria* (BS 75%). *Radiovittaria minima* is sister to a clade including *Radiovittaria remota*, *Polytaenium lineatum*, and *Vittaria bradeorum* (BS 58%). *Sphaeropteris* is nested within *Cyathea* (BS 76%) as the sister to *Cyathea bicrenata* (not supported).
 
@@ -332,8 +360,10 @@ ggsave(filename = "Fig4.eps", height = 4.5, width = 7, units = "in")
 
 \clearpage
 
-## Supplemental Information
+## Supporting Information
 
 Table S1. A checklist of fern and lycophyte species observed at the Nectandra Cloud Forest Reserve, Costa Rica. All voucher specimens deposited in UC.
 
-Figure S1. Maximum-likelihood phylogenetic tree of ferns and lycophytes at the Nectandra Cloud Forest Reserve, Costa Rica. Tree rooted on lycophytes. Gray numbers at nodes indicate bootstrap values > 50%. Scale bar shows expected number of changes per site. Numbers after species name are J. H. Nitta specimen collection numbers.
+Table S2. GenBank accession numbers of sequences analyzed in this study.
+
+Figure S1. Maximum-likelihood phylogenetic tree of ferns and lycophytes at the Nectandra Cloud Forest Reserve, Costa Rica inferred using IQ-TREE. Tree rooted on lycophytes. Gray numbers at nodes indicate ultra-fast bootstrap values > 50%. Scale bar shows expected number of changes per site. Numbers after species name are J. H. Nitta specimen collection numbers of specimens from Nectandra, except for *Trichomanes polypodiodes*, which not be sequenced successfully, so a GenBank sequence (AY175795) from Bolivia (*M. Kessler 8808*) was used instead.
