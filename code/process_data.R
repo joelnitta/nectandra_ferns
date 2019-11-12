@@ -13,7 +13,7 @@ library(assertr)
 library(tidyverse)
 
 # Process raw specimen data ----
-#
+
 # Raw specimen data include collection data of all J. Nitta collections (and more).
 # Filter this down to just the relevant columns for sporophytes from Nectandra.
 # AND two extra specimens that are not from Nectandra but were used for DNA sequencing.
@@ -79,3 +79,78 @@ nectandra_dna <- dna_raw %>%
   filter(specimen_id %in% nectandra_specimens$specimen_id)
 
 write_csv(nectandra_dna, "data/nectandra_DNA_accessions.csv")
+
+# Process references for MS ----
+
+# Make a clean bib file from raw references that only includes cited references
+# in the MS
+
+make_ref_list(
+  rmd_file = "ms/nectandra_pteridos.Rmd", 
+  raw_bib = "ms/references_raw.bib",
+  final_bib = "ms/references.bib")
+
+# Make some manual fixes to authors in SI bibliography
+# (these are institutions, so need double brackets to
+# avoid latex thinking they have first and last names)
+read_lines("ms/references.bib") %>%
+  str_replace(
+    "R Core Team",
+    "\\{R Core Team\\}") %>%
+  write_lines("ms/references.bib")
+
+read_lines("ms/references.bib") %>%
+  str_replace(
+    "Pteridophyte Phylogeny Group I",
+    "\\{Pteridophyte Phylogeny Group I\\}") %>%
+  write_lines("ms/references.bib")
+
+# Same for OET
+read_lines("ms/references.bib") %>%
+  str_replace(
+    "Organizaci",
+    "\\{Organizaci") %>%
+  write_lines("ms/references.bib")
+
+read_lines("ms/references.bib") %>%
+  str_replace(
+    "n para Estudios Tropicales",
+    "n para Estudios Tropicales\\}") %>%
+  write_lines("ms/references.bib")
+
+# Process Costa Rica pterido richness data ----
+
+# From the raw flora list of La Selva (Feb. 2017),
+# subset to only pteridophytes and count the number of 
+# unique taxa.
+
+la_selva_pteridos <- readxl::read_excel("data_raw/Lista_especies_LS_feb2017.xlsx", skip = 12) %>%
+  janitor::clean_names() %>%
+  rename(family = familia, genus = genero, specific_epithet = especie, 
+         author = autor, notes = historia_taxonomica,
+         habit = habito, habit_atr = habito_atributo) %>%
+  left_join(taxize::apgFamilies()) %>%
+  filter(order %in% c(
+    "Cyatheales",
+    "eupolypod II",
+    "Gleicheniales" ,
+    "Hymenophyllales",
+    "Lycopodiales",
+    "Marattiales",
+    "Ophioglossales",
+    "Polypodiales",
+    "Polypodiales-eupolypod I",
+    "Polypodiales-eupolypod II"
+  )) %>%
+  mutate(taxon = jntools::paste3(genus, specific_epithet))
+
+costa_rica_richness_raw <- read_csv("data_raw/costa_rica_richness_raw.csv")
+
+costa_rica_richness <-
+  costa_rica_richness_raw %>%
+  mutate(richness = as.integer(richness)) %>%
+  mutate(richness = case_when(
+    name == "La Selva" ~ n_distinct(la_selva_pteridos$taxon),
+    TRUE ~ richness))
+
+write.csv(costa_rica_richness, "data/costa_rica_richness.csv")
