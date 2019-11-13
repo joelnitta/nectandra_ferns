@@ -3,6 +3,22 @@
     "Version": "3.6.1",
     "Repositories": [
       {
+        "Name": "BioCsoft",
+        "URL": "https://bioconductor.org/packages/3.10/bioc"
+      },
+      {
+        "Name": "BioCann",
+        "URL": "https://bioconductor.org/packages/3.10/data/annotation"
+      },
+      {
+        "Name": "BioCexp",
+        "URL": "https://bioconductor.org/packages/3.10/data/experiment"
+      },
+      {
+        "Name": "BioCworkflows",
+        "URL": "https://bioconductor.org/packages/3.10/workflows"
+      },
+      {
         "Name": "CRAN",
         "URL": "https://cran.rstudio.com"
       }
@@ -15,6 +31,19 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "0fde015f5153e51df44981da0767f522"
+    },
+    "BiocManager": {
+      "Package": "BiocManager",
+      "Version": "1.30.9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "ae39a770c7be4816960bde0c25626b20"
+    },
+    "BiocVersion": {
+      "Package": "BiocVersion",
+      "Version": "3.10.1",
+      "Source": "Bioconductor",
+      "Hash": "bd0b3767104ea95d060c43d500e04fa9"
     },
     "DBI": {
       "Package": "DBI",
@@ -326,10 +355,15 @@
     },
     "farver": {
       "Package": "farver",
-      "Version": "1.1.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "d9bf0922f00c345bef1559e9cfc0846b"
+      "Version": "1.1.0.9999",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "farver",
+      "RemoteUsername": "thomasp85",
+      "RemoteRef": "master",
+      "RemoteSha": "7c837442ed18ce6af215d0aee25d6fb48ed865a2",
+      "Hash": "a0791524c045f0f2b964e4c9cef32919"
     },
     "fastmatch": {
       "Package": "fastmatch",
@@ -427,6 +461,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "b464e7b51e82292003ad0691a79f1ef8"
+    },
+    "ggtree": {
+      "Package": "ggtree",
+      "Version": "2.0.0",
+      "Source": "Bioconductor",
+      "Remotes": "GuangchuangYu/treeio",
+      "Hash": "3a6b5177604a0edb108c9f8ac1668970"
     },
     "globals": {
       "Package": "globals",
@@ -561,8 +602,8 @@
       "RemoteRepo": "jntools",
       "RemoteUsername": "joelnitta",
       "RemoteRef": "master",
-      "RemoteSha": "6360f402f7482058cea974ddc8847f1cb588df9c",
-      "Hash": "e5d36017f4ce55f231edc0853bb5d7df"
+      "RemoteSha": "12092a437c584b86a2801fdecd9e485f8ef8387e",
+      "Hash": "7dd52c78e2462090c4cd8cd0b43ef34b"
     },
     "jsonlite": {
       "Package": "jsonlite",
@@ -837,15 +878,15 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "0.8.3",
+      "Version": "0.8.3-7",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "renv",
       "RemoteUsername": "rstudio",
       "RemoteRef": "master",
-      "RemoteSha": "111473c48c5d8ba382e2888544713c42238c46a5",
-      "Hash": "8fbb31d05221e3fb21ac24f5d57ad689"
+      "RemoteSha": "c4f88194ca3b8f19e30085f097e34cd435440e62",
+      "Hash": "cd8b9b7799094192381d7d1dc6273e24"
     },
     "reprex": {
       "Package": "reprex",
@@ -931,6 +972,13 @@
       "Repository": "CRAN",
       "Hash": "04552808fd065fdf0fec7bad340eb83c"
     },
+    "rvcheck": {
+      "Package": "rvcheck",
+      "Version": "0.1.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "37bec92ea8f76e64854ed1e11667e0de"
+    },
     "rvest": {
       "Package": "rvest",
       "Version": "0.3.5",
@@ -949,13 +997,14 @@
       "Package": "scales",
       "Version": "1.0.0.9000",
       "Source": "GitHub",
+      "Remotes": "thomasp85/farver",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "scales",
       "RemoteUsername": "r-lib",
       "RemoteRef": "master",
-      "RemoteSha": "94a852913edc0819508ca90a09b34c7ab23f4d19",
-      "Hash": "183f73334d49d6de113c22b43dd55725"
+      "RemoteSha": "bbc129e830b2d5bd21b7a4f69c1b6386fd052198",
+      "Hash": "ad51aee6bd489aac2c2f669cc51b963a"
     },
     "scico": {
       "Package": "scico",
@@ -1076,6 +1125,13 @@
       "Repository": "CRAN",
       "Hash": "dc3fcbc21f04b293e0794e24982cf357"
     },
+    "tidytree": {
+      "Package": "tidytree",
+      "Version": "0.2.9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "383121d6e14b017dbe7822ec1b0498bf"
+    },
     "tidyverse": {
       "Package": "tidyverse",
       "Version": "1.2.1",
@@ -1089,6 +1145,12 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "077c604ce8fd8096a8a47eea31faab8e"
+    },
+    "treeio": {
+      "Package": "treeio",
+      "Version": "1.10.0",
+      "Source": "Bioconductor",
+      "Hash": "0ffaf285b55277c447af6b1140e94689"
     },
     "triebeard": {
       "Package": "triebeard",
