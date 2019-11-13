@@ -122,9 +122,10 @@ To better characterize observed phylogenetic diversity, we compared the phylogen
 
 ### Data accessibility
 
-Code to replicate all analyses, figures, and this manuscript are available at https://github.com/joelnitta/nectandra_ferns. Data are available from the Dryad repository at http://doi.org/ADD_DOI_HERE_WHEN_ASSIGNED. Newly generated sequences have been deposited in GenBank (ADD NUMBERS). Photos of voucher specimens available at https://www.fernsoftheworld.com/florulas/ADD_URL_HERE_WHEN_ASSIGNED.
+Code to replicate all analyses, figures, and this manuscript are available at https://github.com/joelnitta/nectandra_ferns. Data are available from the Dryad repository at http://doi.org/XXX. Newly generated sequences have been deposited in GenBank (accession numbers XXX--XXX). Photos of voucher specimens available on the Ferns of the World website (https://www.fernsoftheworld.com/florulas/XXX).
 
-\*\*\*NOTE FOR EDITOR AND REVIEWERS: data and code will be made publicly available upon acceptance. During review, data and code can be downloaded from the following link ADD_URL_HERE_WHEN_READY.\*\*\*
+\*\*\* NOTE FOR EDITOR AND REVIEWERS: data and code will be made publicly available upon acceptance. During review, data and code can be downloaded from the following link  
+https://www.dropbox.com/sh/ojk02yvch8bzz17/AABWCC6Le48p_oV0E_WRF45aa?dl=0. \*\*\*
 
 ## Results
 
@@ -237,7 +238,7 @@ nectandra_rbcL_raw %>% map_dbl(length)
 
 ```
 
-We recovered *rbcL* sequences for `r n_taxa_rbcL_seqs` taxa (`r coverage_taxa_rbcL_seqs`) from Nectandra, resulting in `r new_seqs_data$genomic_id %>% n_distinct` new *rbcL* sequences total. Mean sequence length was `r mean(seq_lengths) %>% round(1)` ± SD `sd(seq_lengths) %>% round(1)` bp. *rbcL* could not be sequenced for `r taxa_count$taxon - n_taxa_rbcL_seqs` taxa (of these, one already had a sequence available on GenBank), and only partial sequences (ca. 3' or 5' half of *rbcL*) could be obtained for `r seq_lengths[seq_lengths < 1000] %>% length()` taxa. Difficulty in sequencing of these samples may be due to degraded condition of DNA.
+We recovered *rbcL* sequences for `r n_taxa_rbcL_seqs` taxa (`r coverage_taxa_rbcL_seqs`) from Nectandra, resulting in `r new_seqs_data$genomic_id %>% n_distinct` new *rbcL* sequences total. Mean sequence length was `r mean(seq_lengths) %>% round(1)` ± SD `r sd(seq_lengths) %>% round(1)` bp. *rbcL* could not be sequenced for `r taxa_count$taxon - n_taxa_rbcL_seqs` taxa (of these, one already had a sequence available on GenBank), and only partial sequences (ca. 3' or 5' half of *rbcL*) could be obtained for `r seq_lengths[seq_lengths < 1000] %>% length()` taxa. Difficulty in sequencing of these samples may be due to degraded condition of DNA.
 
 The *rbcL* alignment was `r get_number(align_stats, "columns")` bp long including `r get_number(align_stats, "informative sites")` parsimony-informative sites and `r get_number(align_stats, "sequences")` sequences. The `r best_mod` model was selected for ML phylogenetic analysis according to `r best_mod_basis`.
 
