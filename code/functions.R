@@ -447,6 +447,56 @@ analyze_min_dist <- function(nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL
          ~bin_min_inter_dist_by_dataset(full_aln = rbcL_aln, dataset_select = .))
 }
 
+# GenBank accession table ----
+
+#' Make a table of GenBank accession numbers
+#'
+#' @param nectandra_rbcL rbcL alignment used for phylogenetic analysis
+#' @param DNA_accessions DNA accession numbers and corresponding specimen ID codes
+#' @param specimens Specimen data
+#'
+#' @return Tibble
+#' 
+make_genbank_accession_table <- function (nectandra_rbcL, DNA_accessions, specimens) {
+  
+  tibble(
+    tip = rownames(nectandra_rbcL)
+  ) %>%
+    mutate(genomic_id = str_match(tip, "_([:upper:]+.+)$") %>% magrittr::extract(,2)) %>%
+    left_join(select(DNA_accessions, genomic_id, specimen_id), by = "genomic_id") %>%
+    # Manually set species ID for Pteris_altissima_KM008147 (Nitta 863)
+    mutate(specimen_id = case_when(
+      tip == "Pteris_altissima_KM008147" ~ 892,
+      TRUE ~ specimen_id
+    )) %>%
+    left_join(select(specimens, specimen_id, taxon, scientific_name, specimen), by = "specimen_id") %>% 
+    mutate(
+      genbank_accession = case_when(
+        str_detect(genomic_id, "JNG") ~ "TBD",
+        TRUE ~ genomic_id
+      ),
+      genomic_id = case_when(
+        str_detect(genomic_id, "JNG") ~ genomic_id,
+        TRUE ~ NA_character_
+      ),
+      # Manually add data for AY175795
+      taxon = case_when(
+        genbank_accession == "AY175795" ~ "Trichomanes polypodiodes",
+        TRUE ~ taxon
+      ),
+      scientific_name = case_when(
+        genbank_accession == "AY175795" ~ "Trichomanes polypodiodes L.",
+        TRUE ~ scientific_name
+      ),
+      specimen = case_when(
+        genbank_accession == "AY175795" ~ "M. Kessler 8808 (Bolivia)",
+        TRUE ~ specimen
+      )
+    ) %>%
+    select(taxon, scientific_name, genomic_id, specimen, genbank_accession) %>%
+    assert(not_na, taxon, specimen, genbank_accession)
+  
+}
 
 # Etc ----
 
@@ -550,6 +600,14 @@ genus_name_only <- function (taxon_name, sep = " ") {
   str_split(taxon_name, sep) %>% 
     map_chr(., ~magrittr::extract(., 1))
 }
+
+# Extract a numeric value preceding a keyword in a text string.
+get_number <- function(text, keyword) {
+  
+  str_match(text, glue::glue("([:digit:]+) {keyword}")) %>% magrittr::extract(,2)
+  
+}
+
 
 # Plotting ----
 
@@ -680,9 +738,7 @@ plot_rbcL_tree <- function(phy, ppgi, specimens, dna_acc, outfile) {
   
   phy$node.label <- node_labels_tibble$new_lab
   
-  ############################
-  #### Plot using ggtree #####
-  ############################
+  #### Plot using ggtree
   
   # Left side: tree without branch lengths, 
   # include support values and tip labels

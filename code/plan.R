@@ -123,6 +123,11 @@ plan <- drake_plan(
     file_out("ms/Fig_S1.pdf")
   ),
   
+  # Write out GenBank accession numbers for SI
+  genbank_accession_table = make_genbank_accession_table(
+    nectandra_rbcL, DNA_accessions, specimens) %>% 
+    write_csv(file_out("ms/table_S2.csv")),
+  
   # Render manuscript ----
   
   ms = rmarkdown::render(
