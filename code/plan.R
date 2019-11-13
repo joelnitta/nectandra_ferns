@@ -93,18 +93,26 @@ plan <- drake_plan(
   # Phylogenetic analysis ----
   
   # Conduct ML phylogenetic analysis with IQ-TREE
-  rbcL_tree = jntools::iqtree(
+  iqtree_results = jntools::iqtree(
     alignment = nectandra_rbcL,
     wd = "iqtree_analysis",
     nt = 1,
     m = "TEST",
     bb = 1000,
+    alrt = 1000,
+    seed = 9130,
     redo = TRUE,
-    echo = TRUE
+    echo = TRUE,
+    produces1 = file_out("iqtree_analysis/nectandra_rbcL.phy.treefile"),
+    produced2 = file_out("iqtree_analysis/nectandra_rbcL.phy.log")
   ),
   
+  rbcL_tree = ape::read.tree(file_in("iqtree_analysis/nectandra_rbcL.phy.treefile")),
+  
+  iqtree_log = read_lines(file_in("iqtree_analysis/nectandra_rbcL.phy.log")),
+  
   # Write out alignment for dryad
-  rbcL_aln_out = phangorn::write.phyDat(nectandra_rbcL, "data/nectandra_rbcL.phy"),
+  rbcL_aln_out = phangorn::write.phyDat(nectandra_rbcL, "results/nectandra_rbcL.phy"),
   
   # Print out tree for SI
   rbcL_tree_out = plot_rbcL_tree(

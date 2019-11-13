@@ -608,33 +608,35 @@ make_inext_plot <- function(inext_out) {
 
 #' Print rbcL tree to pdf
 #'
-#' @param rbcL_tree Phylogenetic tree
+#' @param phy Phylogenetic tree
 #' @param ppgi Taxonomy of pteridophytes following Pteridophyte Phylogeny Group I
+#' @param specimens Specimen data
 #' @param outfile Name of file to use to save tree pdf
 #'
 #' @return Nothing; externally, the tree will be written as a pdf
 #'
-plot_rbcL_tree <- function(rbcL_tree, ppgi, specimens, dna_acc, outfile) {
+plot_rbcL_tree <- function(phy, ppgi, specimens, dna_acc, outfile) {
+  
   # Extract tips into tibble and add taxonomy
   tips <-
-    tibble(tip = rbcL_tree$tip.label) %>%
+    tibble(tip = phy$tip.label) %>%
     mutate(
       species = sp_name_only(tip, sep = "_"),
       genus = genus_name_only(tip, sep = "_")) %>%
-    left_join(dplyr::select(ppgi, genus, family, class)) %>%
+    left_join(dplyr::select(ppgi, genus, family, class), by = "genus") %>%
     mutate(genomicID = str_match(tip, "_([:upper:]+.+)$") %>% magrittr::extract(,2))
   
   # Identify lycophyte tips for rooting
   lycos <- tips %>% filter(class == "Lycopodiopsida") %>% pull(tip)
   
   # Root on lycophytes
-  rbcL_tree <-
-    ape::root(rbcL_tree, outgroup = lycos) %>%
+  phy <-
+    ape::root(phy, outgroup = lycos) %>%
     ape::ladderize(right = FALSE)
   
   # Reformat tip labels now that tip order has changed
   new_tips <-
-    tibble(tip = rbcL_tree$tip.label) %>%
+    tibble(tip = phy$tip.label) %>%
     mutate(genomic_id = str_match(tip, "_([:upper:]+.+)$") %>% magrittr::extract(,2)) %>%
     left_join(dplyr::select(dna_acc, genomic_id, specimen_id), by = "genomic_id") %>%
     # Manually set species ID for Pteris_altissima_KM008147 (Nitta 863)
@@ -653,29 +655,61 @@ plot_rbcL_tree <- function(rbcL_tree, ppgi, specimens, dna_acc, outfile) {
              str_replace_all("_", " ")
     )
   
-  rbcL_tree$tip.label <- new_tips$new_tip
+  phy$tip.label <- new_tips$new_tip
   
-  # Format bootstrap value: only print BS > 50
-  bs <-
-    rbcL_tree$node.label %>% 
-    parse_number
+  # Reformat node labels
+  node_labels_tibble <- tibble(
+    old_lab = phy$node.label
+  ) %>%
+    separate(old_lab, into = c("alrt", "bs"), sep ="\\/", remove = FALSE) %>%
+    mutate_at(vars(alrt, bs), ~parse_number(.) %>% round) %>%
+    mutate(alrt = case_when(
+      alrt < 50 ~ "-",
+      alrt == 100 ~ "*",
+      TRUE ~ as.character(alrt)
+    )) %>%
+    mutate(bs = case_when(
+      bs < 50 ~ "-",
+      bs == 100 ~ "*",
+      TRUE ~ as.character(bs)
+    )) %>%
+    mutate(new_lab = case_when(
+      !is.na(alrt) & !is.na(bs) ~ paste(alrt, bs, sep = "/"),
+      TRUE ~ old_lab
+    ))
   
-  bs <- case_when(bs > 50 ~ bs) %>% 
-    as.character() %>%
-    replace_na("")
+  phy$node.label <- node_labels_tibble$new_lab
   
-  rbcL_tree$node.label <- bs
+  ############################
+  #### Plot using ggtree #####
+  ############################
+  
+  # Left side: tree without branch lengths, 
+  # include support values and tip labels
+  tree1 <- ggtree(phy, branch.length="none") +
+    geom_nodelab(hjust = 0, size = 1*.pt) + 
+    geom_tiplab() +
+    # Need some extra space for long tip names
+    theme(plot.margin = margin(t=0,l=0,b=0,r=2.5, unit = "in")) +  
+    coord_cartesian(clip = "off")
+  
+  # Right side: tree with branch lengths, reversed, 
+  # no support values or tip labels
+  tree2 <- ggtree(phy) + 
+    scale_x_reverse() + 
+    # Add scale
+    geom_treescale(x = -0.1, y = 150, offset = 5) +
+    # Make sure margins are set same on both trees so tips line up
+    theme(plot.margin = margin(t=0,l=0,b=0,r=0, unit = "in"))
+  
+  # Combine left and right sides
+  final_plot <- tree1 + tree2 + plot_layout(widths = c(2,1))
   
   # Output pdf
-  print_height = 0.114 * length(rbcL_tree$tip.label)
+  print_height <- 0.16 * length(phy$tip.label)
   
-  pdf(file = outfile, width = 7, height = print_height)
-  plot(rbcL_tree, cex = 0.6, no.margin = TRUE)
-  # add node support values
-  nodelabels(rbcL_tree$node.label, adj=c(1.2, -0.3), frame="n", cex=0.35, font=1, col="darkgrey")
-  # add scale bar
-  add.scale.bar(x = 0, y = length(rbcL_tree$tip.label), cex=0.5)
-  dev.off()
+  ggsave(plot = final_plot, filename = outfile, width = 17, height = print_height, units = "in")
+  
 }
 
 #' Print rbcL tree to pdf

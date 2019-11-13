@@ -18,10 +18,11 @@ renv::activate()
 
 # Install packages that install packages.
 install.packages("remotes", repos = "https://cran.rstudio.com/")
+install.packages("BiocManager", repos = "https://cran.rstudio.com/")
 
 # Specify repositories so they get included in
 # renv.lock file.
-my_repos <- c()
+my_repos <- BiocManager::repositories()
 my_repos["CRAN"] <- "https://cran.rstudio.com/"
 options(repos = my_repos)
 
@@ -51,6 +52,10 @@ cran_packages <- c(
   "tidyverse")
 
 install.packages(cran_packages)
+
+### Install bioconductor packages ###
+bioc_packages <- c("ggtree")
+BiocManager::install(bioc_packages)
 
 # Install github packages
 github_packages <- c(
