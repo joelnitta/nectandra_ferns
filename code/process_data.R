@@ -2,6 +2,7 @@
 # and data columns than those needed for just this project and filters
 # and cleans them. Processed data files are written to "data/".
 
+library(lubridate)
 library(janitor)
 library(here)
 library(jntools) 
@@ -11,6 +12,10 @@ library(ips)
 library(gbfetch)
 library(assertr)
 library(tidyverse)
+library(conflicted)
+
+conflict_prefer("filter", "dplyr")
+conflict_prefer("here", "here")
 
 # Process raw specimen data ----
 
@@ -42,26 +47,57 @@ read_csv(here("data_raw/taxonomy.csv")) %>%
 # Format final specimen data
 nectandra_specimens <-
 specimens_raw %>%
+  # Manipulate columns
   mutate(coll_num = paste3(collection_number, subcollection_number, sep = "")) %>%
   mutate(specimen = paste3(collector_lastname, coll_num)) %>%
-  filter(is_gametophyte == 0) %>%
+  mutate(collector = paste(collector_firstname, collector_lastname)) %>%
+  rename(specific_epithet = species, elevation = elevation_m, other_collectors = collectors_other) %>%
+  mutate(species = paste3(genus, specific_epithet)) %>%
+  mutate(taxon = paste3(genus, specific_epithet, infraspecific_name)) %>%
   mutate(notes = replace_na(notes, "")) %>%
+  # Format herbaria labels to follow Index Herbariorum (http://sweetgum.nybg.org/science/ih/)
+  mutate(
+    herbaria = str_remove_all(herbaria, "Nectandra Cloud Forest Preserve") %>%
+      str_remove_all("Nectandra") %>%
+      str_remove_all("TI") %>%
+      str_replace_all("INB", "CR") %>%
+      str_replace_all("CR, CR", "CR") %>%
+      str_trim %>%
+      str_remove_all(", ,") %>%
+      str_remove_all(",$")
+  ) %>%
+  # Format collection date YYYY-MM-DD
+  mutate(
+    date_collected = date_collected %>%
+      str_remove_all("^[:alpha:]+ ") %>% 
+      str_remove_all("00:00:00 [:alpha:]+ ") %>%
+      mdy() %>%
+      as_date(),
+    year = year(date_collected),
+    month = month(date_collected) %>% str_pad(side = "left", pad = "0", width = 2),
+    day = day(date_collected) %>% str_pad(side = "left", pad = "0", width = 2),
+    date_collected = paste(year, month, day, sep = "-")
+  ) %>%
+  # Filter out gametophytes
+  filter(is_gametophyte == 0) %>%
   # Filter out specimens that are missing vouchers
   filter(str_detect(notes, "MISSING", negate = TRUE)) %>%
   # Filter to only Nectandra plus two exceptions
   filter(locality == "Nectandra Cloud Forest Preserve" | specimen %in% c("Nitta 2012", "Nitta 169")) %>% 
-  select(specimen_id, specimen, 
-         genus, species, contains("infraspecific"), certainty,
-         country, locality, site, observations,
-         elevation_m, latitude, longitude,
-         date_collected) %>%
-  rename(specific_epithet = species, elevation = elevation_m) %>%
-  mutate(species = paste3(genus, specific_epithet)) %>%
-  mutate(taxon = paste3(genus, specific_epithet, infraspecific_name)) %>%
   # Remove one Didymoglossum specimen that was separated out from a single collection and
   # may or may not be a distinct species pending additional study.
   filter(taxon != "Didymoglossum sp") %>%
-  left_join(sci_names, by = "taxon") %>%
+  # Add scientific names
+  left_join(sci_names, by = "taxon") %>% 
+  # Select variables
+  select(specimen_id, specimen, 
+         genus, specific_epithet, infraspecific_rank, infraspecific_name, certainty,
+         species, taxon, scientific_name,
+         country, locality, site, observations,
+         elevation, latitude, longitude,
+         collector, other_collectors,
+         herbaria,
+         date_collected) %>%
   assert(not_na, specimen_id, specimen, date_collected, genus, species, country, locality)
 
 write_csv(nectandra_specimens, "data/nectandra_specimens.csv")
