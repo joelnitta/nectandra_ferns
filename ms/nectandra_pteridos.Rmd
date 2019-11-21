@@ -94,7 +94,9 @@ Pteridophytes (\ie, ferns and lycophytes) are an important group of plants to st
 
 ### Study Site
 
-The Nectandra Cloud Forest Reserve (hereafter, "Nectandra"; \ang{10;11;} N, \ang{84;31;} W) is located at \SIrange{1000}{1200}{\meter} a.s.l. on the Atlantic slope of the Cordillera de Tilarán, Alajuela Province. It encompasses \SI{158}{\hectare} of premontane rainforest [@Holdridge1967], and is an important source of water for the local community [@Lennette2011]. Approximately three-quarters of Nectandra is primary forest with \textgreater98\% canopy cover; the remaining area comprises naturally regenerating former coffee and \textit{Dracaena} plantations. Two permanent streams and four seasonal drainages pass through the reserve and empty into the Balsa river. Most of the surrounding land is used for cattle pasture or other agriculture. It has a rich herpetofauna [@Rovito2015] and is home to at least 189 spp. of bryophytes [@Norris2017].
+The Nectandra Cloud Forest Reserve (hereafter, "Nectandra"; \ang{10;11;} N, \ang{84;31;} W) is located at \SIrange{1000}{1200}{\meter} a.s.l. on the Atlantic slope of the Cordillera de Tilarán, Alajuela Province (\fig \@ref(fig:map)a). It encompasses \SI{158}{\hectare} of premontane rainforest [@Holdridge1967], and is an important source of water for the local community [@Lennette2011]. Approximately three-quarters of Nectandra is primary forest with \textgreater98\% canopy cover; the remaining area comprises naturally regenerating former coffee and \textit{Dracaena} plantations (\fig \@ref(fig:map)b, c). Two permanent streams and four seasonal drainages pass through the reserve and empty into the Balsa river. Most of the surrounding land is used for cattle pasture or other agriculture. It has a rich herpetofauna [@Rovito2015] and is home to at least 189 spp. of bryophytes [@Norris2017].
+
+**\fig \@ref(fig:map). Location of study site (Nectandra Cloud Forest Reserve).** (a) Map of Costa Rica, showing location of Nectandra and other protected areas that have been surveyed for pteridophytes. Other protected areas include Alberto Manuel Brenes Biological Reserve, La Selva Biological Station, Monteverde Cloud Forest Reserve, the upper watershed of the Savegre River in the Los Santos Forest Reserve, and San Luis Biological Reserve. (b) Aerial photo of Nectandra (\ca 1995). Nectandra consists of three parcels of land: the original parcel is in white (\ca 80% primary forest), with areas added later in red ("Ocotea" parcel, primary forest) and blue ("Persea" parcel, secondary forest). Note extreme deforestation outside of protected areas. (c) Example of interior of primary forest at Nectandra. Photos courtesy of Evelyne Lennette, used with permission.
 
 Climate at Nectandra is characterized by extremely high frequency of cloud cover throughout the year. Rainfall peaks during the wet season from November to February. Mean annual precipitation is \SIrange{3000}{3500}{\milli\meter\per\year}, with 80\% estimated fog-saturated days.
 
@@ -178,9 +180,6 @@ The genera with the most species include *`r top_genera %>% slice(1) %>% pull(ge
 Three taxa could not be matched to any known species, *Polyphlebium* sp1 (*Nitta 123* and *Nitta 2378*), *Campyloneurum* sp1 (*Nitta 2308*), and *Megalastrum* sp1 (*Nitta 727*).
 
 Our literature survey identified five other protected areas in mainland Costa Rica that have been surveyed for pteridophytes [@oet2019; @Haber1990; Kappelle2000; @Rojas2009; @Jimenez2016] (\fig \@ref(fig:map)). The site with the highest species richness is the Alberto Manuel Brenes Biological Reserve (281 species), with Nectandra the second-highest and nearly the same as La Selva Biological Station (\fig \@ref(fig:richness-cr)a). Nectandra has by far the most species per hectare (`r nectandra_sp_per_hec`), with the San Luis Biological Reserve second-highest (\fig \@ref(fig:richness-cr)b).
-
-**\fig \@ref(fig:map). Map of Costa Rica, showing location of study site (Nectandra Cloud Forest Reserve) and other protected areas that have been surveyed for pteridophytes.**  
-Protected areas include Alberto Manuel Brenes Biological Reserve, La Selva Biological Station, Monteverde Cloud Forest Reserve, the upper watershed of the Savegre River in the Los Santos Forest Reserve, and San Luis Biological Reserve.
 
 **\fig \@ref(fig:richness-cr). Species richness of pteridophytes at protected areas in Costa Rica.**  
 For full names of protected areas, \fig \@ref(fig:map). (a) number of species. (b) number of species per hectare.
@@ -299,6 +298,8 @@ dem.m  <-  rasterToPoints(dem.raster)
 dem.df <-  data.frame(dem.m)
 colnames(dem.df) = c("lon", "lat", "alt")
 
+# Make Costa Rica map showing location of conservation areas
+costa_rica_map <-
 ggplot() +
   geom_raster(data = dem.df, aes(lon, lat, fill = alt)) +
   scale_fill_scico(palette = "nuuk") +
@@ -309,14 +310,34 @@ ggplot() +
   ) +
   scale_y_continuous(labels = scales::degree_format(unit = "N", accuracy = 1)) +
   scale_x_continuous(labels = scales::degree_format(unit = "W", accuracy = 1, scale = -1)) +
+  coord_quickmap() +
   standard_theme3() +
   theme(
     axis.title.x = element_blank(),
     axis.title.y = element_blank()
   )
 
-ggsave(filename = "Fig1.tiff", height = 4, width = 5, units = "in", dpi = 400)
+# Load Nectandra map created with Inkscape
+nectandra_map <- ggdraw() + draw_image("images/nectandra_property_map.png")
 
+# Load primary forest photo
+photo <- ggdraw() + draw_image("images/P1070534.jpg")
+
+# Create a blank spacer plot to add some white space
+# between Nectandra map and photo
+blank <- patchwork::plot_spacer()
+
+# The top part of the plot is just the Costa Rica map
+top <- plot_grid(costa_rica_map, labels = "a")
+
+# The bottom is Nectandra map and photo
+bottom <- plot_grid(nectandra_map, blank, photo, nrow = 1, labels = c("b", "", "c"), rel_widths = c(54.75, 0.5, 54.75))
+
+# Put them together
+plot_grid(top, bottom, nrow = 2, ncol = 1)
+
+# Save the file for submission
+ggsave(filename = "Fig1.tiff", height = 7.25, width = 7.5, units = "in", dpi = 350)
 ```
 
 \clearpage
