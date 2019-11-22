@@ -24,6 +24,9 @@
       }
     ]
   },
+  "Bioconductor": {
+    "Version": "3.10"
+  },
   "Packages": {
     "BH": {
       "Package": "BH",
@@ -34,10 +37,10 @@
     },
     "BiocManager": {
       "Package": "BiocManager",
-      "Version": "1.30.9",
+      "Version": "1.30.10",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "ae39a770c7be4816960bde0c25626b20"
+      "Hash": "ae29b65c2dfdf96cfc4d507dfe1be877"
     },
     "BiocVersion": {
       "Package": "BiocVersion",
@@ -75,10 +78,10 @@
     },
     "R6": {
       "Package": "R6",
-      "Version": "2.4.0",
+      "Version": "2.4.1",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "92b50d943a7c76c67918c1e1beb68627"
+      "Hash": "32b894df8893259af194abdc2b1fc366"
     },
     "RColorBrewer": {
       "Package": "RColorBrewer",
@@ -276,6 +279,13 @@
       "Repository": "CRAN",
       "Hash": "4d85496bf78919616ac1bb981032b625"
     },
+    "cowplot": {
+      "Package": "cowplot",
+      "Version": "1.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "bae8bf4011199676a147077514a8a5c8"
+    },
     "crayon": {
       "Package": "crayon",
       "Version": "1.3.4",
@@ -355,15 +365,10 @@
     },
     "farver": {
       "Package": "farver",
-      "Version": "1.1.0.9999",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "farver",
-      "RemoteUsername": "thomasp85",
-      "RemoteRef": "master",
-      "RemoteSha": "7c837442ed18ce6af215d0aee25d6fb48ed865a2",
-      "Hash": "a0791524c045f0f2b964e4c9cef32919"
+      "Version": "2.0.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "8b389e971e00a574360051d7dd84d823"
     },
     "fastmatch": {
       "Package": "fastmatch",
@@ -464,10 +469,10 @@
     },
     "ggtree": {
       "Package": "ggtree",
-      "Version": "2.0.0",
+      "Version": "2.0.1",
       "Source": "Bioconductor",
       "Remotes": "GuangchuangYu/treeio",
-      "Hash": "3a6b5177604a0edb108c9f8ac1668970"
+      "Hash": "5b96e85516c90fc42baab4a472a1ee50"
     },
     "globals": {
       "Package": "globals",
@@ -492,8 +497,8 @@
       "RemoteRepo": "gt",
       "RemoteUsername": "rstudio",
       "RemoteRef": "master",
-      "RemoteSha": "96b3ae6f119262ee28f62843e24ea9b049a8b86d",
-      "Hash": "2a66efb2f3fa76d963a7bdd4bed44987"
+      "RemoteSha": "284bbe57597c9547b298a1472ae1b4f7fd5e5558",
+      "Hash": "24ef20f6e47525c0a93f2d566edbcfe4"
     },
     "gtable": {
       "Package": "gtable",
@@ -668,6 +673,13 @@
       "Repository": "CRAN",
       "Hash": "d55fdb3732a8f047e49b86064dd78984"
     },
+    "magick": {
+      "Package": "magick",
+      "Version": "2.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "452b461db4b0b37d0718a03e00613b84"
+    },
     "magrittr": {
       "Package": "magrittr",
       "Version": "1.5",
@@ -747,15 +759,15 @@
     },
     "patchwork": {
       "Package": "patchwork",
-      "Version": "0.0.1",
+      "Version": "0.0.1.9000",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "patchwork",
       "RemoteUsername": "thomasp85",
       "RemoteRef": "master",
-      "RemoteSha": "36b4918777c25393df605a4959a4c9690d2af186",
-      "Hash": "6623b17bc5bf1f15411b57e31248fb37"
+      "RemoteSha": "37baea588257f1fbc81facf6a6b6ea129e9b6f08",
+      "Hash": "01fa2b605c7b514453c77bafecd160e7"
     },
     "phangorn": {
       "Package": "phangorn",
@@ -878,15 +890,15 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "0.8.3-7",
+      "Version": "0.8.3-43",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "renv",
       "RemoteUsername": "rstudio",
       "RemoteRef": "master",
-      "RemoteSha": "c4f88194ca3b8f19e30085f097e34cd435440e62",
-      "Hash": "cd8b9b7799094192381d7d1dc6273e24"
+      "RemoteSha": "8330c006d01ceb6bde7d6d6cc7c5c2e146839190",
+      "Hash": "de979ccddd633e2c9e22f3896f6f6de4"
     },
     "reprex": {
       "Package": "reprex",
@@ -925,10 +937,10 @@
     },
     "rmarkdown": {
       "Package": "rmarkdown",
-      "Version": "1.16",
+      "Version": "1.17",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "74352997ea70389458e7a8b7059dfb95"
+      "Hash": "b0829435ecf8d260997ac7afb01f29ca"
     },
     "rncl": {
       "Package": "rncl",
@@ -995,16 +1007,10 @@
     },
     "scales": {
       "Package": "scales",
-      "Version": "1.0.0.9000",
-      "Source": "GitHub",
-      "Remotes": "thomasp85/farver",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "scales",
-      "RemoteUsername": "r-lib",
-      "RemoteRef": "master",
-      "RemoteSha": "bbc129e830b2d5bd21b7a4f69c1b6386fd052198",
-      "Hash": "ad51aee6bd489aac2c2f669cc51b963a"
+      "Version": "1.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "a98877092d646d981a9249d5ea7774ea"
     },
     "scico": {
       "Package": "scico",
@@ -1134,10 +1140,10 @@
     },
     "tidyverse": {
       "Package": "tidyverse",
-      "Version": "1.2.1",
+      "Version": "1.3.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "ec414bb606232eb2f242f4e49706a0da"
+      "Hash": "5c648a6c9657d358e237ed607d4442d0"
     },
     "tinytex": {
       "Package": "tinytex",

@@ -36,6 +36,7 @@ cran_packages <- c(
   "assertr",
   "broom",
   "conflicted",
+  "cowplot",
   "drake",
   "ggrepel",
   "ggridges",
@@ -44,11 +45,13 @@ cran_packages <- c(
   "ips",
   "janitor",
   "kableExtra",
+  "magick",
   "raster",
   "readxl",
   "writexl",
   "rmarkdown",
   "scico",
+  "scales",
   "tidyverse")
 
 install.packages(cran_packages)
@@ -62,8 +65,7 @@ github_packages <- c(
   "joelnitta/jntools",
   "joelnitta/gbfetch",
   "thomasp85/patchwork",
-  "rstudio/gt",
-  "r-lib/scales")
+  "rstudio/gt")
 
 remotes::install_github(github_packages)
 
