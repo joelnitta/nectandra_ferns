@@ -21,6 +21,10 @@ RUN Rscript renv_restore.R
 
 RUN echo '.libPaths("/renv")' >> /usr/local/lib/R/etc/Rprofile.site
 
+# Install latex packages with tinytex
+
+RUN Rscript install_latex.R
+
 # Install other custom software
 
 ENV APPS_HOME=/apps
