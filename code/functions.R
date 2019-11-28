@@ -827,3 +827,67 @@ plot_rbcL_tree_families <- function(rbcL_tree, ppgi, outfile) {
   add.scale.bar(x = 0, y = length(rbcL_tree$tip.label), cex=0.5)
   dev.off()
 }
+
+# Phylogenetic analysis ----
+
+#' Make a 'broad' tree including Nectandra rbcL sequences and all
+#' rbcL sequences from GenBank for a group of interest
+#'
+#' @param nectandra_rbcL List of class 'DNAbin'; Nectandra rbcL sequences
+#' @param ppgi Dataframe; Pteridophyte phylogeny group I taxonomy
+#' @param nectandra_family String; name of family of interest in Nectandra data
+#' @param genbank_group String; name of group to download rbcL from GenBank
+#' @param tree_path Path to write out phylogenetic tree.
+#'
+#' @return List; phylogenetic tree in ape format. Externally, the tree
+#' will be written in NEXUS format to tree_path
+#' 
+make_broad_tree <- function(
+  nectandra_rbcL, ppgi,
+  nectandra_family, genbank_group,
+  tree_path) {
+  
+  # Extract target family from Nectandra rbcL alignment
+  taxa_selected <- 
+    tibble(tips = rownames(nectandra_rbcL)) %>%
+    mutate(genus = str_split(tips, "_") %>% map_chr(1)) %>%
+    left_join(ppgi, by = "genus") %>%
+    filter(family == nectandra_family) %>%
+    pull(tips)
+  
+  nectandra_rbcL_selected <- nectandra_rbcL[taxa_selected, ] %>% as.list
+  
+  # Download all rbcL seqs for group of interest from genbank
+  
+  genbank_rbcL <- gbfetch::fetch_sequences(
+    glue::glue("{genbank_group}[ORGN] AND rbcl[Gene] AND 1000:1600[SLEN] NOT accd[Gene] NOT atpB[Gene] NOT spacer"))
+  
+  genbank_rbcL_metadata <- gbfetch::fetch_metadata(
+    glue::glue("{genbank_group}[ORGN] AND rbcl[Gene] AND 1000:1600[SLEN] NOT accd[Gene] NOT atpB[Gene] NOT spacer"))
+  
+  # Rename GB sequences by species + accession
+  gb_names <- tibble(accession = names(genbank_rbcL)) %>%
+    left_join(select(genbank_rbcL_metadata, accession, species), by = "accession") %>%
+    mutate(new_name = paste3(species, accession) %>% str_replace_all(" ", "_"))
+  
+  names(genbank_rbcL) <- gb_names$new_name
+  
+  # Combine and align
+  combined_rbcL <- c(nectandra_rbcL_selected, genbank_rbcL)
+  
+  combined_rbcL_aln <-
+    ips::mafft(combined_rbcL, exec = "/usr/local/bin/mafft", options = "--adjustdirection") %>%
+    trimEnds(nrow(.) * 0.5) %>%
+    deleteEmptyCells()
+  
+  # Remove any offending characters: perioids and single quotes
+  rownames(combined_rbcL_aln) <- rownames(combined_rbcL_aln) %>% str_remove_all("'")
+  
+  rownames(combined_rbcL_aln) <- rownames(combined_rbcL_aln) %>% str_remove_all("\\.")
+  
+  # Make tree with fasttree
+  combined_rbcL_tree <- fasttree(combined_rbcL_aln)
+  
+  ape::write.tree(combined_rbcL_tree, tree_path)
+  
+}
