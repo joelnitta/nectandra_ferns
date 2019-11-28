@@ -96,7 +96,7 @@ Pteridophytes (\ie, ferns and lycophytes) are an important group of plants to st
 
 The Nectandra Cloud Forest Reserve (hereafter, "Nectandra"; \ang{10;11;} N, \ang{84;31;} W) is located at \SIrange{1000}{1200}{\meter} a.s.l. on the Atlantic slope of the Cordillera de Tilarán, Alajuela Province (\fig \@ref(fig:map)a). It encompasses \SI{158}{\hectare} of premontane rainforest [@Holdridge1967] and is an important source of water for the local community [@Lennette2011]. Approximately three-quarters of Nectandra is primary forest with \textgreater98\% canopy cover; the remaining area comprises naturally regenerating former coffee and \textit{Dracaena} plantations (\fig \@ref(fig:map)b, c). Two permanent streams and four seasonal drainages pass through the reserve and empty into the Balsa river. Most of the surrounding land is used for cattle pasture or other agriculture. It has a rich herpetofauna [@Rovito2015] and is home to at least 189 spp. of bryophytes [@Norris2017].
 
-**\fig \@ref(fig:map). Location of study site (Nectandra Cloud Forest Reserve).** (a) Map of Costa Rica, showing location of Nectandra and other protected areas that have been surveyed for pteridophytes. Other protected areas include Alberto Manuel Brenes Biological Reserve, La Selva Biological Station, Monteverde Cloud Forest Reserve, the upper watershed of the Savegre River in the Los Santos Forest Reserve, and San Luis Biological Reserve. (b) Aerial photo of Nectandra (\ca 1995). Nectandra consists of three parcels of land: the original parcel is in white (\ca 80% primary forest), with areas added later in red ("Ocotea" parcel, primary forest) and blue ("Persea" parcel, secondary forest). Note extreme deforestation outside of protected areas. (c) Example of interior of primary forest at Nectandra. Photos courtesy of Evelyne Lennette, used with permission.
+**\fig \@ref(fig:map). Location of the Nectandra Cloud Forest Reserve ("Nectandra").** (a) Map of Costa Rica, showing location of Nectandra and other protected areas that have been surveyed for pteridophytes. Other protected areas include Alberto Manuel Brenes Biological Reserve, La Selva Biological Station, Monteverde Cloud Forest Reserve, the upper watershed of the Savegre River in the Los Santos Forest Reserve, and San Luis Biological Reserve. (b) Aerial photo of Nectandra (\circa 1995). Nectandra consists of three parcels of land: the original parcel is in white (\circa 80% primary forest), with areas added later in red ("Ocotea" parcel, primary forest) and blue ("Persea" parcel, secondary forest). Note extreme deforestation outside of protected areas. (c) Example of interior of primary forest at Nectandra. Photos courtesy of Evelyne Lennette, used with permission.
 
 Climate at Nectandra is characterized by extremely high frequency of cloud cover throughout the year. Rainfall peaks during the wet season from November to February. Mean annual precipitation is \SIrange{3000}{3500}{\milli\meter\per\year}, with 80\% estimated fog-saturated days.
 
@@ -290,7 +290,7 @@ The authors are very grateful to Evelyne and David Lennette for allowing us to s
 
 \clearpage
 
-```{r map, fig.height = 4, fig.width = 5, fig.cap="Map of Costa Rica"}
+```{r map, fig.height = 7.25, fig.width = 7.5, fig.cap="Map of Costa Rica"}
 
 # Download altitude data for Costa Rica
 dem.raster <- getData("alt", country = "CR")
@@ -308,8 +308,8 @@ ggplot() +
     fill = "Elevation (m)",
     shape = "Site"
   ) +
-  scale_y_continuous(labels = scales::degree_format(unit = "N", accuracy = 1)) +
-  scale_x_continuous(labels = scales::degree_format(unit = "W", accuracy = 1, scale = -1)) +
+  scale_y_continuous(labels = scales::label_number(suffix = "\u00b0N", accuracy = 1)) +
+  scale_x_continuous(labels = scales::label_number(suffix = "\u00b0W", accuracy = 1, scale = -1)) +
   coord_quickmap() +
   standard_theme3() +
   theme(
@@ -337,7 +337,7 @@ bottom <- plot_grid(nectandra_map, blank, photo, nrow = 1, labels = c("b", "", "
 plot_grid(top, bottom, nrow = 2, ncol = 1)
 
 # Save the file for submission
-ggsave(filename = "Fig1.tiff", height = 7.25, width = 7.5, units = "in", dpi = 350)
+ggsave(filename = "Fig1.tiff", height = 7.25, width = 7.5, units = "in", dpi = 300)
 ```
 
 \clearpage
@@ -414,4 +414,4 @@ Table S1. A checklist of fern and lycophyte species observed at the Nectandra Cl
 
 Table S2. GenBank accession numbers of sequences analyzed in this study.
 
-Figure S1. Maximum-likelihood phylogenetic tree of ferns and lycophytes at the Nectandra Cloud Forest Reserve, Costa Rica inferred using IQ-TREE with \num{1000} SH-like approximate likelihood ratio test (SH-aLRT) and ultra-fast bootstrap (UFboot) replicates each. Tree rooted on lycophytes. Numbers at nodes indicate SH-aLRT support (%) / UFboot support (%); values less than 50% shown with "-"; values of 100% shown with "\*". For phylogram on right side, scale bar shows expected number of changes per site. Numbers after species name are J. H. Nitta specimen collection numbers of specimens from Nectandra, except for *Trichomanes polypodiodes*, which not be sequenced successfully, so a GenBank sequence (AY175795) from Bolivia (*M. Kessler 8808*) was used instead.
+Figure S1. Maximum-likelihood phylogenetic tree of ferns and lycophytes at the Nectandra Cloud Forest Reserve, Costa Rica inferred using IQ-TREE with \num{1000} SH-like approximate likelihood ratio test (SH-aLRT) and ultra-fast bootstrap (UFboot) replicates each. Tree rooted on lycophytes. Numbers at nodes indicate SH-aLRT support (%) / UFboot support (%); values less than 50% shown with "-"; values of 100% shown with "\*". For phylogram on right side, scale bar shows expected number of changes per site. Numbers after species name are J. H. Nitta specimen collection numbers of specimens from Nectandra, except for *Trichomanes polypodiodes*, which could not be sequenced successfully, so a GenBank sequence (AY175795) from Bolivia (*M. Kessler 8808*) was used instead.
