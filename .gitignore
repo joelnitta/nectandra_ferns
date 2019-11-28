@@ -11,6 +11,7 @@ temp/
 drafts/
 renv/
 results/
+other_images/
 references_raw.bib
 .DS_Store
 *.grd
