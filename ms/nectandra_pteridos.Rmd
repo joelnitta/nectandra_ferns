@@ -1,19 +1,14 @@
 ---
 title: "A taxonomic and molecular survey of the pteridophytes of the Nectandra Cloud Forest Reserve, Costa Rica"
 bibliography: "references.bib"
-mainfont: Times New Roman.ttf
 fontsize: 12pt
-mainfontoptions: 
-- BoldFont=Times New Roman Bold.ttf
-- ItalicFont=Times New Roman Italic.ttf
-- BoldItalicFont=Times New Roman Bold Italic.ttf
 output: 
   bookdown::pdf_document2:
     citation_package: none # Use pandoc default, otherwise csl can't be used for reference formatting
     toc: no
     number_sections: no
     fig_caption: yes
-    keep_tex: no
+    keep_tex: yes
     latex_engine: xelatex
     pandoc_args: [ "--csl", "plos-one.csl"]
     includes:
@@ -27,7 +22,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, results = "hide", cache = TRUE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, results = "hide", cache = FALSE)
 
 # Load objects build during analysis from drake cache
 loadd(
@@ -54,8 +49,16 @@ taxa_count <-
   summarize_at(vars(everything()), n_distinct)
 ```
 
-<!-- Remove page numbers -->
-\pagenumbering{gobble}
+<!-- Work-around to get pandoc to recognize custom siunitx units -->
+<!-- see https://github.com/jgm/pandoc/issues/4773 -->
+\renewcommand{\hour}{h}
+\renewcommand{\second}{s}
+\renewcommand{\ma}{MA}
+\renewcommand{\year}{yr}
+\renewcommand{\month}{mo}
+\renewcommand{\week}{wk}
+\renewcommand{\day}{d}
+\renewcommand{\basepair}{bp}
 
 <!-- Set left justification -->
 \raggedright
@@ -92,8 +95,8 @@ The comparison shows that Nectandra is more similar to Japan than Tahiti, which 
 
 ## Introduction
 
-Despite its small size (\SI{51100}{\square\kilo\meter}), Costa Rica is home to a remarkably high biodiversity, and is ranked as one of the world's top 25 biodiversity hotspots [@Myers2000].
-It is estimated that vascular plant species richness in Costa Rica exceeds \num{5000} spp. per \SI{10000}{\square\kilo\meter} [@Barthlott2005].
+Despite its small size (\SI{51100}{\kilo\meter}^2^), Costa Rica is home to a remarkably high biodiversity, and is ranked as one of the world's top 25 biodiversity hotspots [@Myers2000].
+It is estimated that vascular plant species richness in Costa Rica exceeds \num{5000} \species per \SI{10000}{\kilo\meter}^2^ [@Barthlott2005].
 Accordingly, primary taxonomy is an important part of biological research in Costa Rica for the purposes of both documenting this biodiversity and informing conservation practices. 
 
 In addition to taxonomic diversity, measures of phylogenetic diversity (PD) provide another important perspective on biodiversity and should be taken into consideration for setting conservation priorities [@Faith1992].
@@ -102,7 +105,7 @@ Furthermore, the use of a standard molecular marker as a DNA "barcode" is useful
 For example, DNA barcoding surveys have revealed hidden biodiversity in the form of cryptic species in butterflies in Costa Rica [@Hajibabaei2006] and have been used to identify cryptic life-cycle stages in ferns [@Nitta2017].
 
 Pteridophytes (\ie, ferns and lycophytes) are an important group of plants to study because many new species are still being discovered in the Neotropics [@Almeida2016a] and they play important ecological roles in many ecosystems [\eg, @George1999; @Coomes2005; @Schuettpelz2006c; @Mueller-Dombois2013].
-The pteridophytes of Costa Rica comprise \circa \SI{1200}{\species}, accounting for one-quarter to one-third of the estimated richness of the Neotropics (\circa \SIrange{3000}{4500}{\species}) [@Almeida2016a].
+The pteridophytes of Costa Rica comprise \circa \num{1200} \species, accounting for one-quarter to one-third of the estimated richness of the Neotropics (\circa \num{3000} \species to \num{4500} \species) [@Almeida2016a].
 While the pteridophyte floras of some sites in Costa Rica are well studied, such as Finca La Selva [@Grayum1987; @oet2019], other areas in the country have received considerably less attention.
 We present here the results of surveys conducted over three field seasons on the pteridophyte flora of the recently established Nectandra Cloud Forest Reserve near San Ramon, Costa Rica.
 We also characterize the phylogenetic diversity at this site and compare it with other pteridophyte floras that have recently been the focus of DNA barcoding surveys.
@@ -111,12 +114,12 @@ We also characterize the phylogenetic diversity at this site and compare it with
 
 ### Study Site
 
-The Nectandra Cloud Forest Reserve (hereafter, "Nectandra"; \ang{10;11;} N, \ang{84;31;} W) is located at \SIrange{1000}{1200}{\meter} a.s.l. on the Atlantic slope of the Cordillera de Tilarán, Alajuela Province (\fig \@ref(fig:map)a).
+The Nectandra Cloud Forest Reserve (hereafter, "Nectandra"; 10°11' N, 84°31' W) is located at \SI{1000}{\meter} to \SI{1200}{\meter} a.s.l. on the Atlantic slope of the Cordillera de Tilarán, Alajuela Province (\fig \@ref(fig:map)a).
 It encompasses \SI{158}{\hectare} of premontane rainforest [@Holdridge1967] and is an important source of water for the local community [@Lennette2011].
-Approximately three-quarters of Nectandra is primary forest with \textgreater98\% canopy cover; the remaining area comprises naturally regenerating former coffee and \textit{Dracaena} plantations (\fig \@ref(fig:map)b, c).
+Approximately three-quarters of Nectandra is primary forest with > 98% canopy cover; the remaining area comprises naturally regenerating former coffee and *Dracaena* plantations (\fig \@ref(fig:map)b, c).
 Two permanent streams and four seasonal drainages pass through the reserve and empty into the Balsa river.
 Most of the surrounding land is used for cattle pasture or other agriculture.
-It has a rich herpetofauna [@Rovito2015] and is home to at least 189 spp. of bryophytes [@Norris2017].
+It has a rich herpetofauna [@Rovito2015] and is home to at least \num{189} \species of bryophytes [@Norris2017].
 
 **\fig \@ref(fig:map). Location of the Nectandra Cloud Forest Reserve ("Nectandra").** (a) Map of Costa Rica, showing location of Nectandra and other protected areas that have been surveyed for pteridophytes.
 Other protected areas include Alberto Manuel Brenes Biological Reserve, La Selva Biological Station, Monteverde Cloud Forest Reserve, the upper watershed of the Savegre River in the Los Santos Forest Reserve, and San Luis Biological Reserve.
@@ -128,7 +131,7 @@ Photos courtesy of Evelyne Lennette, used with permission.
 
 Climate at Nectandra is characterized by extremely high frequency of cloud cover throughout the year.
 Rainfall peaks during the wet season from November to February.
-Mean annual precipitation is \SIrange{3000}{3500}{\milli\meter\per\year}, with 80\% estimated fog-saturated days.
+Mean annual precipitation is \SI{3000}{\milli\meter} \year^-1^ to \SI{3500}{\milli\meter} \year^-1^, with 80% estimated fog-saturated days.
 
 ### Field survey
 
@@ -230,13 +233,13 @@ richness_estimate[["AsyEst"]] %>%
 
 Our surveys resulted in `r taxa_count %>% pull(specimen)` individuals, representing `r taxa_count %>% pull(species)` species, `r taxa_count %>% pull(genus)` genera, and `r taxa_count %>% pull(family)` families of pteridophytes (\tab S1).
 
-The genera with the most species were *`r top_genera %>% slice(1) %>% pull(genus)`* (`r top_genera %>% slice(1) %>% pull(n)` spp.), *`r top_genera %>% slice(2) %>% pull(genus)`* (`r top_genera %>% slice(2) %>% pull(n)` spp.), *`r top_genera %>% slice(3) %>% pull(genus)`* (`r top_genera %>% slice(3) %>% pull(n)` spp.), and *`r top_genera %>% slice(4) %>% pull(genus)`* (`r top_genera %>% slice(4) %>% pull(n)` spp.).
-Families with the most species were `r top_families %>% slice(1) %>% pull(family)` (`r top_families %>% slice(1) %>% pull(n)` spp.), `r top_families %>% slice(2) %>% pull(family)` (`r top_families %>% slice(2) %>% pull(n)` spp.), and `r top_families %>% slice(3) %>% pull(family)` (`r top_families %>% slice(3) %>% pull(n)` spp.).
+The genera with the most species were *`r top_genera %>% slice(1) %>% pull(genus)`* (`r top_genera %>% slice(1) %>% pull(n)` \species), *`r top_genera %>% slice(2) %>% pull(genus)`* (`r top_genera %>% slice(2) %>% pull(n)` \species), *`r top_genera %>% slice(3) %>% pull(genus)`* (`r top_genera %>% slice(3) %>% pull(n)` \species), and *`r top_genera %>% slice(4) %>% pull(genus)`* (`r top_genera %>% slice(4) %>% pull(n)` \species).
+Families with the most species were `r top_families %>% slice(1) %>% pull(family)` (`r top_families %>% slice(1) %>% pull(n)` \species), `r top_families %>% slice(2) %>% pull(family)` (`r top_families %>% slice(2) %>% pull(n)` \species), and `r top_families %>% slice(3) %>% pull(family)` (`r top_families %>% slice(3) %>% pull(n)` \species).
 
 Three taxa could not be matched to any known species, *Polyphlebium* sp1 (*Nitta 123* and *Nitta 2378*), *Campyloneurum* sp1 (*Nitta 2308*), and *Megalastrum* sp1 (*Nitta 727*).
 
 Our literature survey identified five other protected areas in mainland Costa Rica that have been surveyed for pteridophytes [@oet2019; @Haber1990; Kappelle2000; @Rojas2009; @Jimenez2016] (\fig \@ref(fig:map)).
-The site with the highest species richness is the Alberto Manuel Brenes Biological Reserve (281 species), with Nectandra the second-highest and nearly the same as La Selva Biological Station (\fig \@ref(fig:richness-cr)a).
+The site with the highest species richness is the Alberto Manuel Brenes Biological Reserve (281 \species), with Nectandra the second-highest and nearly the same as La Selva Biological Station (\fig \@ref(fig:richness-cr)a).
 Nectandra has by far the most species per hectare (`r nectandra_sp_per_hec`), with the San Luis Biological Reserve second-highest (\fig \@ref(fig:richness-cr)b).
 
 **\fig \@ref(fig:richness-cr). Species richness of pteridophytes at protected areas in Costa Rica.**  
@@ -245,7 +248,7 @@ For full names of protected areas, \fig \@ref(fig:map).
 (b) number of species per hectare.
 
 The collection curve did not reach an asymptote (\fig \@ref(fig:richness-inext)).
-Extrapolation of the curve indicates that the true species richness may approach `r est_rich$estimator` spp. (95% confidence interval `r est_rich$x95_percent_lower`--`r est_rich$x95_percent_upper` spp.).
+Extrapolation of the curve indicates that the true species richness may approach `r est_rich$estimator` \species (95% confidence interval `r est_rich$x95_percent_lower` \species to `r est_rich$x95_percent_upper` \species).
 
 **\fig \@ref(fig:richness-inext). Interpolation (solid line) and extrapolation (dashed line) of species richness of pteridophytes at Nectandra Cloud Forest Reserve, Costa Rica.**  
 Point at transition from solid to dashed line indicates observed richness.
@@ -344,8 +347,8 @@ While the number of species per hectare is not a fair measure of biodiversity pe
 Clearly, Nectandra is highly effective at protecting a large number of pteridophyte species given its area.
 Furthermore, the collection curve indicates that additional, unsampled species may be present (\fig \@ref(fig:richness-inext)), adding to the value of this conservation area.
 A recent survey of the bryophytes of Nectandra found a similar number of species (189) and also suggested unsampled species remained due to the shape of the collection curve [@Norris2017].
-One reason for the high species richness at Nectandra may be its elevation (\SIrange{1000}{1200}{\meter}).
-Species richness of pteridophytes in the tropics generally reaches a maximum at mid-elevations on mountains [@Kessler2011a], and plot-based surveys of pteridophytes along elevational gradients in Costa Rica spanning \circa \SIrange{100}{3000}{\meter} have found maximum richness at \SIrange{1000}{1200}{\meter} [@WatkinsJr.2006a; @Karger2011].
+One reason for the high species richness at Nectandra may be its elevation (\SI{1000}{\meter} to \SI{1200}{\meter}).
+Species richness of pteridophytes in the tropics generally reaches a maximum at mid-elevations on mountains [@Kessler2011a], and plot-based surveys of pteridophytes along elevational gradients in Costa Rica spanning \circa \SI{100}{\meter} to \SI{3000}{\meter} have found maximum richness at \SI{1000}{\meter} to \SI{1200}{\meter} [@WatkinsJr.2006a; @Karger2011].
 
 ### Unidentified taxa and species complexes
 
@@ -431,10 +434,10 @@ ggplot() +
   )
 
 # Load Nectandra map created with Inkscape
-nectandra_map <- ggdraw() + draw_image("images/nectandra_property_map.png")
+nectandra_map <- ggdraw() + draw_image(here("images/nectandra_property_map.png"))
 
 # Load primary forest photo
-photo <- ggdraw() + draw_image("images/P1070534.jpg")
+photo <- ggdraw() + draw_image(here("images/P1070534.jpg"))
 
 # Create a blank spacer plot to add some white space
 # between Nectandra map and photo
@@ -450,7 +453,7 @@ bottom <- plot_grid(nectandra_map, blank, photo, nrow = 1, labels = c("b", "", "
 plot_grid(top, bottom, nrow = 2, ncol = 1)
 
 # Save the file for submission
-ggsave(filename = "Fig1.tiff", height = 7.25, width = 7.5, units = "in", dpi = 300)
+ggsave(filename = here("results/Fig1.tiff"), height = 7.25, width = 7.5, units = "in", dpi = 300)
 ```
 
 \clearpage
@@ -461,7 +464,7 @@ a <-
   cr_richness %>%
   mutate(name = fct_reorder(name, richness)) %>%
   ggplot(aes(x = name, y = richness)) +
-  geom_col() +
+  geom_col(fill = "grey40") +
   standard_theme3() +
   coord_flip() +
   labs(y = "No. spp.", x = "Site", subtitle = "a")
@@ -471,14 +474,14 @@ b <-
   mutate(sp_per_hectare = richness / area_ha) %>%
   mutate(name = fct_reorder(name, sp_per_hectare)) %>%
   ggplot(aes(x = name, y = sp_per_hectare)) +
-  geom_col() +
+  geom_col(fill = "grey40") +
   standard_theme3() +
   coord_flip() +
   labs(y = "No. spp. per hectare", x = "", subtitle = "b")
 
 a + b
 
-ggsave(filename = "Fig2.eps", height = 3, width = 5, units = "in")
+ggsave(filename = here("results/Fig2.eps"), height = 3, width = 5, units = "in", device = cairo_ps_high_res)
 
 ```
 
@@ -487,7 +490,7 @@ ggsave(filename = "Fig2.eps", height = 3, width = 5, units = "in")
 ```{r richness-inext, fig.height=3, fig.width=3, fig.cap="Estimated richness"}
 make_inext_plot(richness_estimate)
 
-ggsave(filename = "Fig3.eps", height = 3, width = 3, units = "in")
+ggsave(filename = here("results/Fig3.eps"), height = 3, width = 3, units = "in", device = cairo_ps_high_res)
 
 ```
 
@@ -504,7 +507,7 @@ min_distance_table %>%
   )) %>%
   ggplot(aes(range, percent, fill = is_zero)) +
   geom_col() +
-  scale_fill_manual(values = c("dark grey", "red")) +
+  scale_fill_manual(values = c("grey40", "#de2d26")) +
   scale_x_continuous(labels = scales::percent) +
   scale_y_continuous(labels = scales::percent) +
   standard_theme2() +
@@ -515,7 +518,7 @@ min_distance_table %>%
     strip.text = element_text(hjust = 0),
     strip.background = element_blank())
 
-ggsave(filename = "Fig4.eps", height = 4.5, width = 7, units = "in")
+ggsave(filename = here("results/Fig4.eps"), height = 4.5, width = 7, units = "in", device = cairo_ps_high_res)
 
 ```
 
@@ -523,12 +526,12 @@ ggsave(filename = "Fig4.eps", height = 4.5, width = 7, units = "in")
 
 ## Supporting Information
 
-Table S1. A checklist of fern and lycophyte species observed at the Nectandra Cloud Forest Reserve, Costa Rica.
+\tab S1. A checklist of fern and lycophyte species observed at the Nectandra Cloud Forest Reserve, Costa Rica.
 All voucher specimens deposited in UC.
 
-Table S2. GenBank accession numbers of sequences analyzed in this study.
+\tab S2. GenBank accession numbers of sequences analyzed in this study.
 
-Figure S1. Maximum-likelihood phylogenetic tree of ferns and lycophytes at the Nectandra Cloud Forest Reserve, Costa Rica inferred using IQ-TREE with \num{1000} SH-like approximate likelihood ratio test (SH-aLRT) and ultra-fast bootstrap (UFboot) replicates each.
+\fig S1. Maximum-likelihood phylogenetic tree of ferns and lycophytes at the Nectandra Cloud Forest Reserve, Costa Rica inferred using IQ-TREE with \num{1000} SH-like approximate likelihood ratio test (SH-aLRT) and ultra-fast bootstrap (UFboot) replicates each.
 Tree rooted on lycophytes.
 Numbers at nodes indicate SH-aLRT support (%) / UFboot support (%); values less than 50% shown with "-"; values of 100% shown with "\*".
 For phylogram on right side, scale bar shows expected number of changes per site.

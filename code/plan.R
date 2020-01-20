@@ -129,10 +129,21 @@ plan <- drake_plan(
     write_csv(file_out("ms/table_S2.csv")),
   
   # Render manuscript ----
+
+  # First render to PDF, keeping the latex
+  ms_pdf = render_tracked(
+    knitr_in("ms/nectandra_pteridos.Rmd"),
+    quiet = TRUE,
+    output_dir = here::here("results"),
+    tracked_output = file_out(here::here("results/nectandra_pteridos.tex"))
+  ),
   
-  ms = rmarkdown::render(
-    knitr_in(here("ms/nectandra_pteridos.Rmd")),
-    output_file = file_out(here("ms/nectandra_pteridos.pdf")),
-    quiet = TRUE)
+  # Next use the latex to convert to docx with pandoc
+  ms_docx = latex2docx(
+    latex = file_in(here::here("results/nectandra_pteridos.tex")),
+    docx = file_out(here::here("results/nectandra_pteridos.docx")),
+    template = file_in(here::here("ms/plos-one.docx")),
+    wd = here::here("results")
+  )
   
 )
