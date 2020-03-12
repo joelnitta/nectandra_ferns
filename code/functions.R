@@ -12,8 +12,9 @@
 #' contents (will be created if needed).
 #' @param ... Extra arguments; not used by this function, but
 #' meant for tracking with drake.
-#' @return Unzipped data files:
-#' - rbcL_clean_sporos.fasta: rbcL sequences of sporophytes from Moorea
+#' @return A dataframe describing the unzipped data file.
+#' The unzipped data file (rbcL_clean_sporos.fasta: rbcL sequences of 
+#' sporophytes from Moorea) will be written to `unzip_path`.
 #'
 unzip_nitta_2017 <- function (dryad_zip_file, exdir, ...) {
   
@@ -21,9 +22,14 @@ unzip_nitta_2017 <- function (dryad_zip_file, exdir, ...) {
   # Unzip the first one in a temporary directory, then the one we want into data_raw.
   temp_dir <- tempdir()
   unzip(dryad_zip_file, "data_and_scripts.zip", exdir = temp_dir)
-  unzip(fs::path(temp_dir, "data_and_scripts.zip"), "data_and_scripts/shared_data/rbcL_clean_sporos.fasta", exdir = exdir, junkpaths = TRUE)
+  unzip(fs::path(temp_dir, "data_and_scripts.zip"), files = "data_and_scripts/shared_data/rbcL_clean_sporos.fasta", exdir = exdir, junkpaths = TRUE)
+  
+  unzipped_files <- unzip(fs::path(temp_dir, "data_and_scripts.zip"), files = "data_and_scripts/shared_data/rbcL_clean_sporos.fasta", list = TRUE)
+  
   # Cleanup
   fs::file_delete(fs::path(temp_dir, "data_and_scripts.zip"))
+  
+  return(unzipped_files)
   
 }
 
@@ -39,15 +45,15 @@ unzip_nitta_2017 <- function (dryad_zip_file, exdir, ...) {
 #' contents (will be created if needed).
 #' @param ... Extra arguments; not used by this function, but
 #' meant for tracking with drake.
-#' @return Unzipped data files:
-#' - rbcL_clean_sporos.fasta: rbcL sequences of sporophytes from Moorea
+#' @return A dataframe of the unzipped files. Externally, these files will be written to `exdir`.
 #'
 unzip_ebihara_2019 <- function (dryad_zip_file, exdir, ...) {
   
   # Unzip only the needed files
-  unzip(dryad_zip_file, "rbcl_mrbayes.nex", exdir = exdir)
-  unzip(dryad_zip_file, "FernGreenListV1.01E.xls", exdir = exdir)
-  unzip(dryad_zip_file, "ESM1.csv", exdir = exdir)
+  unzip(dryad_zip_file, files = c("rbcl_mrbayes.nex", "FernGreenListV1.01E.xls", "ESM1.csv"), exdir = exdir, overwrite = TRUE)
+ 
+  # Return dataframe of unzipped files
+  unzip(dryad_zip_file, files = c("rbcl_mrbayes.nex", "FernGreenListV1.01E.xls","ESM1.csv"), list = TRUE)
   
 }
 
