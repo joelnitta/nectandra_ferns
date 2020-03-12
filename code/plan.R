@@ -56,11 +56,15 @@ plan <- drake_plan(
   
   # Rename Japan rbcL alignment as taxon names
   # (also add "_JA" to end of name)
-  japan_rbcL = rename_japan_rbcL(japan_rbcL_raw, japan_taxa),
+  japan_rbcL = rename_japan_rbcL(
+    japan_rbcL = japan_rbcL_raw, 
+    japan_taxa = japan_taxa),
   
   # Also make an alignment of Japan sexual-diploids only
   japan_rbcL_sexdip = rename_japan_rbcL_sexdip(
-    japan_rbcL_raw, japan_taxa, repro_data),
+    japan_rbcL = japan_rbcL_raw, 
+    japan_taxa = japan_taxa, 
+    repro_data = repro_data),
 
   # Checklist ----
   

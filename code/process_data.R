@@ -112,7 +112,9 @@ dna_raw <- read_csv(here("data_raw/DNA_accessions.csv")) %>%
 
 nectandra_dna <- dna_raw %>%
   select(genomic_id, specimen_id) %>%
-  filter(specimen_id %in% nectandra_specimens$specimen_id)
+  filter(specimen_id %in% nectandra_specimens$specimen_id) %>%
+  assert(not_na, genomic_id, specimen_id) %>%
+  assert(is_uniq, genomic_id)
 
 write_csv(nectandra_dna, "data/nectandra_DNA_accessions.csv")
 

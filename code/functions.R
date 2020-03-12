@@ -123,13 +123,18 @@ rename_japan_rbcL <- function (japan_rbcL, japan_taxa) {
              str_split("_") %>%
              map_chr(2)
     ) %>%
-    left_join(japan_taxa) %>%
+    assert(is_uniq, taxon_id) %>%
+    assert(not_na, taxon_id) %>%
+    left_join(japan_taxa, by = "taxon_id") %>%
     # Convert full name with authors to only taxon, no authors
+    assert(is_uniq, scientific_name) %>%
     assert(not_na, scientific_name) %>%
     left_join(
       parse_names_batch(.$scientific_name) %>% 
-        select(scientific_name = b, taxon = c)
+        select(scientific_name = b, taxon = c),
+      by = "scientific_name"
     ) %>%
+    assert(is_uniq, taxon) %>%
     assert(not_na, taxon) %>%
     mutate(taxon = str_replace_all(taxon, " ", "_")) %>%
     # Add JA so we know where it came from
@@ -141,7 +146,6 @@ rename_japan_rbcL <- function (japan_rbcL, japan_taxa) {
   japan_rbcL
 }
 
-
 #' Rename taxa in rbcL alignment of pteridophytes of Japan,
 #' and filter to only sexual diploid taxa
 #' 
@@ -150,13 +154,15 @@ rename_japan_rbcL <- function (japan_rbcL, japan_taxa) {
 #' The first number (601) is a family code, 
 #' and the second (1) is the taxon code.
 #' 
-#' This renames them to human-readable taxon names.
+#' This renames them to human-readable taxon names, and adds
+#' "JAsexdip" to each name.
 #' 
 #' Uses parse_names_batch, which requires GNparser to be installed
 #' and on PATH
 #'
 #' @param japan_rbcL rbcL alignment with names as codes
 #' @param japan_taxa dataframe matching codes to species name
+#' @param repro_data dataframe with columns including `taxon_id` and `sexual_diploid`
 #'
 rename_japan_rbcL_sexdip <- function (japan_rbcL, japan_taxa, repro_data) {
   
@@ -169,16 +175,23 @@ rename_japan_rbcL_sexdip <- function (japan_rbcL, japan_taxa, repro_data) {
         str_split("_") %>%
         map_chr(2)
     ) %>%
-    left_join(japan_taxa) %>%
+    assert(not_na, taxon_id, original_name) %>%
+    assert(is_uniq, taxon_id, original_name) %>%
+    left_join(japan_taxa, by = "taxon_id") %>%
     # Convert full name with authors to only taxon, no authors
     assert(not_na, scientific_name) %>%
+    assert(is_uniq, scientific_name) %>%
     left_join(
       parse_names_batch(.$scientific_name) %>% 
-        select(scientific_name = b, taxon = c)
+        select(scientific_name = b, taxon = c),
+      by = "scientific_name"
     ) %>%
     assert(not_na, taxon) %>%
+    assert(is_uniq, taxon) %>%
     mutate(taxon = str_replace_all(taxon, " ", "_")) %>%
-    left_join(select(repro_data, taxon_id, sexual_diploid)) %>%
+    left_join(select(repro_data, taxon_id, sexual_diploid), by = "taxon_id") %>%
+    # Filter to only sexual diloids
+    mutate(sexual_diploid = replace_na(sexual_diploid, 0)) %>%
     filter(sexual_diploid == 1) %>%
     # Add JA so we know where it came from
     mutate(taxon = paste0(taxon, "_JAsexdip"))
