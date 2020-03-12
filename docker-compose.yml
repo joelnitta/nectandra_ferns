@@ -1,6 +1,6 @@
 version: "3"
 services:
-  rmd:
+  analysis:
     image: joelnitta/nectandra_ferns:3.6.1
     ports:
       - "8787:8787"
