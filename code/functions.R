@@ -57,41 +57,10 @@ unzip_ebihara_2019 <- function (dryad_zip_file, exdir, ...) {
   
 }
 
-tidy_specimens <- function (specimen_data, ppgi, taxonomy) {
-  
-  specimen_data %>%
-    filter(country == "Costa Rica") %>%
-    as_tibble %>%
-    filter(locality %in% c(
-      "Nectandra Cloud Forest Preserve",
-      "Finca Ocotea"
-    )) %>%
-    filter(is_gametophyte == 0) %>%
-    filter(!is.na(species)) %>%
-    rename(specific_epipthet = species, infraspecific_epipthet = infraspecific_name) %>%
-    mutate(
-      species = paste(genus, specific_epipthet),
-      taxon = paste3(genus, specific_epipthet, infraspecific_epipthet)) %>%
-    left_join(taxonomy) %>%
-    left_join(select(ppgi, genus, family, class)) %>%
-    mutate(sci_name = case_when(
-      is.na(sci_name) ~ taxon,
-      TRUE ~ sci_name
-    )) %>%
-    select(class, family, genus, species, taxon, sci_name, specimen)
-  
-}
-
 #' Tidy taxonomic data of pteridophytes of Japan
 #'
-#' Data is from Japan Green list
+#' @param Dataframe with data of pteridophytes of Japan (Japan Green list)
 #'
-#' @param data 
-#'
-#' @return
-#' @export
-#'
-#' @examples
 tidy_japan_names <- function (data) {
   data %>%
   select(taxon_id = ID20160331, scientific_name = `GreenList Name`,
@@ -203,42 +172,6 @@ rename_japan_rbcL_sexdip <- function (japan_rbcL, japan_taxa, japan_repro_data) 
   names(japan_rbcL) <- japan_sexdip_names_table$taxon
   
   japan_rbcL
-}
-
-clean_taxonomy_data <- function (data) {
-  
-  data %>%
-    janitor::clean_names() %>%
-    rename(specific_epithet = species) %>%
-    mutate(taxon = paste3(genus, specific_epithet, infrasp_name)) %>%
-    mutate(scientific_name = paste3(
-      genus,
-      specific_epithet,
-      author,
-      infrasp_rank,
-      infrasp_name,
-      var_author
-    )) %>%
-    select(taxon, scientific_name) %>%
-    mutate(scientific_name = stringr::str_trim(scientific_name))
-  
-}
-
-#' Read in a tree file contained in a zipped archive
-#'
-#' @param zip_folder Path to zip file
-#' @param tree_file Name of nexus file within zip file
-#'
-#' @return List
-#' 
-read_tree_in_zip <- function (zip_folder, tree_file) {
-  
-  temp_dir <- tempdir()
-  
-  unzip(zip_folder, exdir = temp_dir)
-  
-  ape::read.tree(fs::path(temp_dir, tree_file))
-  
 }
 
 # Checklist ----
