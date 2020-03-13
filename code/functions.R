@@ -162,9 +162,9 @@ rename_japan_rbcL <- function (japan_rbcL, japan_taxa) {
 #'
 #' @param japan_rbcL rbcL alignment with names as codes
 #' @param japan_taxa dataframe matching codes to species name
-#' @param repro_data dataframe with columns including `taxon_id` and `sexual_diploid`
+#' @param japan_repro_data dataframe with columns including `taxon_id` and `sexual_diploid`
 #'
-rename_japan_rbcL_sexdip <- function (japan_rbcL, japan_taxa, repro_data) {
+rename_japan_rbcL_sexdip <- function (japan_rbcL, japan_taxa, japan_repro_data) {
   
   # Make a table mapping dna taxon codes to scientific names
   # only 
@@ -189,7 +189,7 @@ rename_japan_rbcL_sexdip <- function (japan_rbcL, japan_taxa, repro_data) {
     assert(not_na, taxon) %>%
     assert(is_uniq, taxon) %>%
     mutate(taxon = str_replace_all(taxon, " ", "_")) %>%
-    left_join(select(repro_data, taxon_id, sexual_diploid), by = "taxon_id") %>%
+    left_join(select(japan_repro_data, taxon_id, sexual_diploid), by = "taxon_id") %>%
     # Filter to only sexual diloids
     mutate(sexual_diploid = replace_na(sexual_diploid, 0)) %>%
     filter(sexual_diploid == 1) %>%

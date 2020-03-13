@@ -29,10 +29,10 @@ loadd(
   list = c(
     "richness_estimate",
     "min_distance_table",
-    "specimens",
+    "nectandra_specimens",
     "ppgi",
     "cr_richness",
-    "DNA_accessions",
+    "nectandra_dna",
     "nectandra_rbcL_raw",
     "iqtree_log"),
   cache = nectandra_cache)
@@ -42,8 +42,8 @@ loadd(
 ```{r taxa-count}
 # Count number of taxa at Nectandra
 taxa_count <-
-  specimens %>%
-  left_join(ppgi) %>%
+  nectandra_specimens %>%
+  left_join(ppgi, by = "genus") %>%
   select(family, genus, species, taxon, specimen) %>%
   unique %>%
   summarize_at(vars(everything()), n_distinct)
@@ -135,7 +135,7 @@ Mean annual precipitation is \SI{3000}{\milli\meter} \year^-1^ to \SI{3500}{\mil
 
 ### Field survey
 
-We carried out surveys of pteridophytes over three field seasons (January 2008, 2011, and 2013; `r specimens %>% filter(!is.na(date_collected)) %>% pull(date_collected) %>% n_distinct` days of sampling total).
+We carried out surveys of pteridophytes over three field seasons (January 2008, 2011, and 2013; `r nectandra_specimens %>% filter(!is.na(date_collected)) %>% pull(date_collected) %>% n_distinct` days of sampling total).
 Most specimens were collected along trails through the reserve.
 Epiphytes were collected from fallen trees or tree branches, or up to \circa \SI{2}{\meter} on tree trunks.
 Permits for collection were obtained from the Costa Rican government (SINAC No. 04941 and Cites 2014-CR 1006/SJ (#S 1045)).
@@ -194,8 +194,8 @@ https://www.dropbox.com/sh/ojk02yvch8bzz17/AABWCC6Le48p_oV0E_WRF45aa?dl=0. \*\*\
 ```{r top-taxa}
 # Count families and genera with the most species
 top_families <-
-  specimens %>%
-  left_join(ppgi) %>%
+  nectandra_specimens %>%
+  left_join(ppgi, by = "genus") %>%
   select(family, genus, species) %>%
   unique %>%
   group_by(family) %>%
@@ -203,8 +203,8 @@ top_families <-
   arrange(desc(n))
 
 top_genera <-
-  specimens %>%
-  left_join(ppgi) %>%
+  nectandra_specimens %>%
+  left_join(ppgi, by = "genus") %>%
   select(family, genus, species) %>%
   unique %>%
   group_by(genus) %>%
@@ -260,8 +260,8 @@ Gray shading indicates 95% confidence interval.
 # Make table of newly generated sequences that will be submitted to GenBank
 new_seqs_data <-
 tibble(genomic_id = names(nectandra_rbcL_raw)) %>%
-  left_join(DNA_accessions, by = "genomic_id") %>%
-  left_join(specimens, by = "specimen_id") %>%
+  left_join(nectandra_dna, by = "genomic_id") %>%
+  left_join(nectandra_specimens, by = "specimen_id") %>%
   assert(not_na, taxon)
 
 # Check number of new rbcL sequences

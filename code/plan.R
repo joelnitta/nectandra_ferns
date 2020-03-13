@@ -3,20 +3,20 @@ plan <- drake_plan(
   # Data loading and cleaning ----
   
   # Load PPGI taxonomy
-  ppgi = read_csv(file_in("data/ppgi_taxonomy.csv")),
+  ppgi = readr::read_csv(file_in("data/ppgi_taxonomy.csv")),
   
   # Load Nectandra specimen data
-  specimens = read_csv(file_in("data/nectandra_specimens.csv")),
+  nectandra_specimens = readr::read_csv(file_in("data/nectandra_specimens.csv")),
   
-  # Load DNA accession data
-  DNA_accessions = read_csv(file_in("data/nectandra_DNA_accessions.csv")),
+  # Load Nectandra DNA accession data
+  nectandra_dna = readr::read_csv(file_in("data/nectandra_DNA_accessions.csv")),
   
-  # Load unaligned rbcL sequences
-  nectandra_rbcL_raw = read.FASTA("data/nectandra_rbcL.fasta"),
+  # Load Nectandra unaligned rbcL sequences
+  nectandra_rbcL_raw = ape::read.FASTA("data/nectandra_rbcL.fasta"),
   
   # Load species richness and GPS locations of various protected
   # sites in Costa Rica
-  cr_richness = read_csv(file_in("data/costa_rica_richness.csv")),
+  cr_richness = readr::read_csv(file_in("data/costa_rica_richness.csv")),
   
   # Unzip French Polynesia rbcL sequences
   # This requires doi_10.5061_dryad.df59g__v1.zip to be downloaded to data_raw/
@@ -29,7 +29,7 @@ plan <- drake_plan(
   
   # Load French Polynesia rbcL sequences
   # (also add "_FP" to end of name)
-  moorea_rbcL = read.FASTA(file_in("data/nitta_2017/rbcL_clean_sporos.fasta")) %>%
+  moorea_rbcL = ape::read.FASTA(file_in("data/nitta_2017/rbcL_clean_sporos.fasta")) %>%
     purrr::set_names(., paste0(names(.), "_FP")),
   
   # Unzip Japan rbcL sequences and breeding mode data
@@ -44,14 +44,14 @@ plan <- drake_plan(
   ),
   
   # Load Japan rbcL data with names formatted as codes
-  japan_rbcL_raw = read.nexus.data(file_in("data/ebihara_2019/rbcl_mrbayes.nex")) %>% as.DNAbin,
+  japan_rbcL_raw = ape::read.nexus.data(file_in("data/ebihara_2019/rbcl_mrbayes.nex")) %>% ape::as.DNAbin(),
   
   # Load table matching taxon codes to scientific names of Japanese pteridophytes
-  japan_taxa = read_excel(file_in("data/ebihara_2019/FernGreenListV1.01E.xls")) %>% tidy_japan_names(),
+  japan_taxa = readxl::read_excel(file_in("data/ebihara_2019/FernGreenListV1.01E.xls")) %>% tidy_japan_names(),
   
   # Load data on reproductive mode for Japanese pteridophytes
-  repro_data = read_csv(file_in("data/ebihara_2019/ESM1.csv")) %>%
-    clean_names %>%
+  japan_repro_data = readr::read_csv(file_in("data/ebihara_2019/ESM1.csv")) %>%
+    janitor::clean_names() %>%
     mutate(taxon_id = as.character(taxon_id)),
   
   # Rename Japan rbcL alignment as taxon names
@@ -64,13 +64,13 @@ plan <- drake_plan(
   japan_rbcL_sexdip = rename_japan_rbcL_sexdip(
     japan_rbcL = japan_rbcL_raw, 
     japan_taxa = japan_taxa, 
-    repro_data = repro_data),
+    japan_repro_data = japan_repro_data),
   
   # Checklist ----
   
   # Make species checklist, write out as SI
   checklist = make_checklist(
-    specimens = specimens, 
+    specimens = nectandra_specimens, 
     taxonomy = ppgi) %>% 
     write_csv(file_out("results/table_S1.csv")),
   
@@ -80,7 +80,7 @@ plan <- drake_plan(
   # using number of sampling days as the sampling unit
   # set endpoint (maximum number of collection days) to 150
   richness_estimate = estimate_richness_by_date(
-    specimens = specimens,
+    specimens = nectandra_specimens,
     endpoint = 150),
   
   # Barcode analysis ----
@@ -88,13 +88,16 @@ plan <- drake_plan(
   # Align Nectandra sequences and add missing taxa
   nectandra_rbcL = align_rbcL(
     nectandra_rbcL = nectandra_rbcL_raw, 
-    nectandra_dna = DNA_accessions, 
-    nectandra_specimens = specimens),
+    nectandra_dna = nectandra_dna, 
+    nectandra_specimens = nectandra_specimens),
   
   # Calculate minimum interspecific distances for the three
   # rbcL datasets and bin them by 0.05% sequence divergence
   min_distance_table = analyze_min_dist(
-    nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL_sexdip),
+    nectandra_rbcL = nectandra_rbcL, 
+    moorea_rbcL = moorea_rbcL, 
+    japan_rbcL = japan_rbcL, 
+    japan_rbcL_sexdip = japan_rbcL_sexdip),
   
   # Phylogenetic analysis ----
   
@@ -115,23 +118,25 @@ plan <- drake_plan(
   
   rbcL_tree = ape::read.tree(file_in("iqtree_analysis/nectandra_rbcL.phy.treefile")),
   
-  iqtree_log = read_lines(file_in("iqtree_analysis/nectandra_rbcL.phy.log")),
+  iqtree_log = readr::read_lines(file_in("iqtree_analysis/nectandra_rbcL.phy.log")),
   
   # Write out alignment for dryad
   rbcL_aln_out = phangorn::write.phyDat(nectandra_rbcL, "results/nectandra_rbcL.phy"),
   
   # Print out tree for SI
   rbcL_tree_out = plot_rbcL_tree(
-    rbcL_tree,
-    ppgi,
-    specimens,
-    DNA_accessions,
-    file_out("ms/Fig_S1.pdf")
+    phy = rbcL_tree,
+    ppgi = ppgi,
+    specimens = nectandra_specimens,
+    dna_acc = nectandra_dna,
+    outfile = file_out("ms/Fig_S1.pdf")
   ),
   
   # Write out GenBank accession numbers for SI
   genbank_accession_table = make_genbank_accession_table(
-    nectandra_rbcL, DNA_accessions, specimens) %>% 
+    nectandra_rbcL = nectandra_rbcL, 
+    DNA_accessions = nectandra_dna, 
+    specimens = nectandra_specimens) %>% 
     write_csv(file_out("ms/table_S2.csv")),
   
   # Render manuscript ----
