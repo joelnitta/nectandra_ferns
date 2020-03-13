@@ -65,12 +65,14 @@ plan <- drake_plan(
     japan_rbcL = japan_rbcL_raw, 
     japan_taxa = japan_taxa, 
     repro_data = repro_data),
-
+  
   # Checklist ----
   
   # Make species checklist, write out as SI
-  checklist = make_checklist(specimens, ppgi) %>% 
-    write_csv(file_out("ms/table_S1.csv")),
+  checklist = make_checklist(
+    specimens = specimens, 
+    taxonomy = ppgi) %>% 
+    write_csv(file_out("results/table_S1.csv")),
   
   # Collection curve ----
   
@@ -78,16 +80,16 @@ plan <- drake_plan(
   # using number of sampling days as the sampling unit
   # set endpoint (maximum number of collection days) to 150
   richness_estimate = estimate_richness_by_date(
-    specimens,
+    specimens = specimens,
     endpoint = 150),
   
   # Barcode analysis ----
   
   # Align Nectandra sequences and add missing taxa
   nectandra_rbcL = align_rbcL(
-    nectandra_rbcL_raw, 
-    DNA_accessions, 
-    specimens),
+    nectandra_rbcL = nectandra_rbcL_raw, 
+    nectandra_dna = DNA_accessions, 
+    nectandra_specimens = specimens),
   
   # Calculate minimum interspecific distances for the three
   # rbcL datasets and bin them by 0.05% sequence divergence

@@ -255,7 +255,9 @@ make_checklist <- function (specimens, taxonomy) {
   
   specimens %>%
     filter(locality == "Nectandra Cloud Forest Preserve") %>%
+    assert(not_na, genus) %>%
     left_join(taxonomy, by = "genus") %>%
+    assert(not_na, family) %>%
     mutate(habit_simple = case_when(
       str_detect(observations, regex("epipet", ignore_case = TRUE)) ~ "epipetric",
       str_detect(observations, regex("on rocks", ignore_case = TRUE)) ~ "epipetric",
@@ -292,16 +294,17 @@ make_checklist <- function (specimens, taxonomy) {
 #' @return Tibble; output of iNEXT()
 #' 
 estimate_richness_by_date <- function (specimens, endpoint = 150) {
-  
+
   specimens %>%
     filter(locality == "Nectandra Cloud Forest Preserve") %>%
-    filter(!is.na(date_collected)) %>%
+    assert(not_na, date_collected) %>%
+    # Convert to presence-absence matrix of species x dates
     select(taxon, date_collected) %>%
     unique %>%
     mutate(abun = 1) %>%
-    pivot_wider(names_from = date_collected, values_from = abun) %>%
-    mutate_if(is.numeric, ~replace_na(., 0)) %>%
-    column_to_rownames("taxon") %>%
+    pivot_wider(names_from = date_collected, values_from = abun, 
+                values_fill = list(abun = 0)) %>%
+    column_to_rownames("taxon") %>% 
     as.matrix %>%
     iNEXT(datatype = "incidence_raw", endpoint = endpoint)
 
