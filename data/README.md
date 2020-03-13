@@ -66,8 +66,10 @@ Specialized formats or other abbreviations used: none.
 
 nectandra_rbcL.fasta: Newly generated rbcL sequences for this study in FASTA format.
 All sequences are pteridophytes (ferns and lycophytes) from Costa Rica. Sequence
-names correspond to 'genomic_id' in nectandra_DNA_accessions.csv. 189 sequences.
-Shortest sequence 466 bp, longest sequence 1309 bp, mean sequence length 1291 bp.
+names correspond to 'genomic_id' in nectandra_DNA_accessions.csv. 190 sequences.
+Shortest sequence 466 bp, longest sequence 1309 bp, mean sequence length 1287 bp.
+Exported from Geneious project folder "Clean Sporos Trimmed Genbank Submission" (raw
+Geneious project file not included in this dataset).
 
 --------------------------
 
@@ -110,7 +112,7 @@ Index Herbariorum (http://sweetgum.nybg.org/science/ih/).
 
 --------------------------
 
-pgi_taxonomy.csv: Taxonomic system of Pteridophyte Phylogeny Group I (2016) for
+ppgi_taxonomy.csv: Taxonomic system of Pteridophyte Phylogeny Group I (2016) for
 pteridophytes at the genus level and above. Updated with one new genus (Hiya).
 
 Number of variables: 6
