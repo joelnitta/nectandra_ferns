@@ -129,7 +129,7 @@ plan <- drake_plan(
     ppgi = ppgi,
     specimens = nectandra_specimens,
     dna_acc = nectandra_dna,
-    outfile = file_out("ms/Fig_S1.pdf")
+    outfile = file_out("results/Fig_S1.pdf")
   ),
   
   # Write out GenBank accession numbers for SI
@@ -137,7 +137,7 @@ plan <- drake_plan(
     nectandra_rbcL = nectandra_rbcL, 
     DNA_accessions = nectandra_dna, 
     specimens = nectandra_specimens) %>% 
-    write_csv(file_out("ms/table_S2.csv")),
+    write_csv(file_out("results/table_S2.csv")),
   
   # Render manuscript ----
 

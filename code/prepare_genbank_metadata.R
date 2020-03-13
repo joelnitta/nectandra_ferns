@@ -93,4 +93,4 @@ genbank_metadata <-
 
 # This will need to be converted to "xls" with excel for use by 
 # the Geneious biocode plugin
-writexl::write_xlsx(genbank_metadata, here("data/genbank_metadata.xlsx"))
+writexl::write_xlsx(genbank_metadata, here("data_raw/genbank_metadata.xlsx"))
