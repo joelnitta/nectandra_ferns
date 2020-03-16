@@ -57,6 +57,7 @@ cran_packages <- c(
   "janitor",
   "kableExtra",
   "magick",
+  "pryr",
   "raster",
   "readxl",
   "writexl",
