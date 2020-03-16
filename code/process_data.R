@@ -191,7 +191,7 @@ costa_rica_richness <-
     name == "La Selva" ~ n_distinct(la_selva_pteridos$taxon),
     TRUE ~ richness))
 
-write.csv(costa_rica_richness, "data/costa_rica_richness.csv")
+write_csv(costa_rica_richness, "data/costa_rica_richness.csv")
 
 # Process PPGI data ----
 
