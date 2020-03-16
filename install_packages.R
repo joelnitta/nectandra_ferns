@@ -1,5 +1,16 @@
 # Install packages to a docker image with renv
 
+# Updates to packages can be made as follows:
+# 1. Volume-mount this repo to the image.
+# 2. Set repo locations: 
+# ```
+# my_repos <- BiocManager::repositories()
+# my_repos["CRAN"] <- "https://cran.rstudio.com/"
+# options(repos = my_repos)
+# ```
+# 2. Install new packages to `/renv`.
+# 3. Run `renv::snapshot(type = "simple", library = "/renv")`.
+
 ### Initialize renv ###
 
 # Install renv
@@ -65,7 +76,9 @@ github_packages <- c(
   "joelnitta/jntools",
   "joelnitta/gbfetch",
   "thomasp85/patchwork",
-  "rstudio/gt")
+  "rstudio/gt",
+  "adletaw/captioner",
+  "joelnitta/taxastand")
 
 remotes::install_github(github_packages)
 

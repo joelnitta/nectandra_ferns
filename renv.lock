@@ -209,6 +209,18 @@
       "Repository": "CRAN",
       "Hash": "3826226af5ca33cd8fa0b1d9c190b300"
     },
+    "captioner": {
+      "Package": "captioner",
+      "Version": "2.2.3.9000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "captioner",
+      "RemoteUsername": "adletaw",
+      "RemoteRef": "master",
+      "RemoteSha": "807ddb2267d572c18fb05673ec3b278052682890",
+      "Hash": "29f98178c84a7da2e29b7cd376fc5d5d"
+    },
     "cellranger": {
       "Package": "cellranger",
       "Version": "1.1.0",
@@ -321,6 +333,13 @@
       "Repository": "CRAN",
       "Hash": "aa3740879c38e6c11a93bd981521035a"
     },
+    "desc": {
+      "Package": "desc",
+      "Version": "1.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "0119aa659b9c1db195b4bd7c617d18c0"
+    },
     "digest": {
       "Package": "digest",
       "Version": "0.6.22",
@@ -348,6 +367,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "d9e858795a1a4ebfe6960e4514449d40"
+    },
+    "english": {
+      "Package": "english",
+      "Version": "1.2-5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "9380a4d1b0332a4723d6ebecab8c5f22"
     },
     "evaluate": {
       "Package": "evaluate",
@@ -426,12 +452,19 @@
       "Repository": "CRAN",
       "Hash": "01f6cc831a7f6f76a1c2f52e5479b144"
     },
+    "fuzzyjoin": {
+      "Package": "fuzzyjoin",
+      "Version": "0.1.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "ba716f6061af9f9e25ac3f1af0383db1"
+    },
     "gbfetch": {
       "Package": "gbfetch",
       "Version": "0.1.0",
       "Source": "GitHub",
-      "Remotes": "joelnitta/jntools",
       "RemoteType": "github",
+      "Remotes": "joelnitta/jntools",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "gbfetch",
       "RemoteUsername": "joelnitta",
@@ -445,6 +478,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "4e8e453aff36dd8ddac10ff157083e4f"
+    },
+    "geosphere": {
+      "Package": "geosphere",
+      "Version": "1.5-10",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "42410587391d10e8157be4b7acc6480b"
     },
     "ggplot2": {
       "Package": "ggplot2",
@@ -471,8 +511,9 @@
       "Package": "ggtree",
       "Version": "2.0.1",
       "Source": "Bioconductor",
+      "RemoteType": "bioconductor",
       "Remotes": "GuangchuangYu/treeio",
-      "Hash": "5b96e85516c90fc42baab4a472a1ee50"
+      "Hash": "d0c97d9f5a6d8ad7afd2b2b16430a4e0"
     },
     "globals": {
       "Package": "globals",
@@ -584,6 +625,13 @@
       "Repository": "CRAN",
       "Hash": "eeedf954ec443690f620eb9a9132a784"
     },
+    "isoband": {
+      "Package": "isoband",
+      "Version": "0.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "fb150524d61e14959ce7570a4c566ef9"
+    },
     "iterators": {
       "Package": "iterators",
       "Version": "1.0.12",
@@ -607,8 +655,8 @@
       "RemoteRepo": "jntools",
       "RemoteUsername": "joelnitta",
       "RemoteRef": "master",
-      "RemoteSha": "12092a437c584b86a2801fdecd9e485f8ef8387e",
-      "Hash": "7dd52c78e2462090c4cd8cd0b43ef34b"
+      "RemoteSha": "5a55293dbbbf547ed32cac56481f833939bd88d0",
+      "Hash": "59b84d1fa01dc6f70a4e9a07a3c0f6da"
     },
     "jsonlite": {
       "Package": "jsonlite",
@@ -783,12 +831,26 @@
       "Repository": "CRAN",
       "Hash": "57645ff795277554eee14df5bcee8025"
     },
+    "pkgbuild": {
+      "Package": "pkgbuild",
+      "Version": "1.0.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "0514428b15e609740155a0a0a3e182c5"
+    },
     "pkgconfig": {
       "Package": "pkgconfig",
       "Version": "2.0.3",
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "587295d4cdb937d4e3cf19bd46829326"
+    },
+    "pkgload": {
+      "Package": "pkgload",
+      "Version": "1.0.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "f214a72af3442fdd3396ceccbb7d7f44"
     },
     "plogr": {
       "Package": "plogr",
@@ -803,6 +865,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "37dd0f3aadee2ac99e47168f4bffddb7"
+    },
+    "praise": {
+      "Package": "praise",
+      "Version": "1.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "3940f2f321d5fa9fb72b8887b0454660"
     },
     "prettyunits": {
       "Package": "prettyunits",
@@ -1075,6 +1144,13 @@
       "Repository": "CRAN",
       "Hash": "3bd64ff7d32ab39360094aa228a3197b"
     },
+    "stringdist": {
+      "Package": "stringdist",
+      "Version": "0.9.5.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "fefd8b21bda930d9f909f09b9f28e14b"
+    },
     "stringi": {
       "Package": "stringi",
       "Version": "1.4.3",
@@ -1103,12 +1179,31 @@
       "Repository": "CRAN",
       "Hash": "9ecf6bee5958b8977bd1db3131978a71"
     },
+    "taxastand": {
+      "Package": "taxastand",
+      "Version": "0.1.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "taxastand",
+      "RemoteUsername": "joelnitta",
+      "RemoteRef": "master",
+      "RemoteSha": "f92634cf6872c2eca169c0363417faa90af627bf",
+      "Hash": "f867ca8cce0d4edbb57c18ac0de5e8f2"
+    },
     "taxize": {
       "Package": "taxize",
       "Version": "0.9.9",
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "34268e0562d09ecb3c8d391bf435aba7"
+    },
+    "testthat": {
+      "Package": "testthat",
+      "Version": "2.3.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "ba91292dc6d4d91f24d6bde8ef12ed56"
     },
     "tibble": {
       "Package": "tibble",
