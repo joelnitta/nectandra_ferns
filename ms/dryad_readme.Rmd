@@ -1,0 +1,359 @@
+---
+bibliography: "references.bib"
+output: rtf_document
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+# TO CONVERT TO PLAIN TEXT:
+# 1. Copy the contents of the rtf file, paste to txt.
+# 2. Replace all single line breaks with double line breaks (in TextWrangler)
+# 3. Hard-wrap all text at 80 characters (in Atom with autoflow: cmd-alt-q)
+
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, 
+  warning = FALSE, results = "hide", cache = FALSE)
+
+# Load objects build during analysis from drake cache
+loadd(
+  list = c(
+    "ppgi",
+    "nectandra_specimens",
+    "nectandra_dna",
+    "nectandra_rbcL_raw",
+    "nectandra_rbcL",
+    "cr_richness",
+    "iqtree_log",
+    "rbcL_tree"),
+  cache = nectandra_cache)
+
+```
+
+This README.txt file was generated on format `r format(Sys.time(), '%d %B, %Y')` by Joel Nitta
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\- GENERAL INFORMATION \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+Title of Dataset: Data from: A taxonomic and molecular survey of the
+pteridophytes of the Nectandra Cloud Forest Reserve, Costa Rica
+
+Author Information
+
+Principal Investigator: Joel H. Nitta
+
+Department of Botany, National Museum of Natural History, Smithsonian
+Institution, Washington, D.C., 20013, U.S.A. joelnitta@gmail.com
+
+Associate or Co-investigator: Atsushi Ebihara  
+
+Department of Botany, National Museum of Nature and Science, 4-1-1 Amakubo,
+Tsukuba 305-0005, Japan ebihara@kahaku.go.jp
+
+Associate or Co-investigator: Alan R. Smith
+
+University Herbarium, University of California, Berkeley. 1001 Valley Life
+Sciences Bldg. #2465. Berkeley, California, 94720, U.S.A.
+arsmith@berkeley.edu
+
+Date of data collection: 2008--2018
+
+Geographic location of data collection: Nectandra Cloud Forest Reserve, Costa
+Rica
+
+Information about funding sources or sponsorship that supported the
+collection of the data: Funding provided in part by the Nectandra Institute
+and Japan Society for the Promotion of Science (Kakenhi grant no. 15K07204)
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+SHARING/ACCESS INFORMATION
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+Licenses/restrictions placed on the data, or limitations of reuse: CC0 1.0
+Universal (CC0 1.0)
+
+Recommended citation for the data: Nitta JH, Ebihara A, Smith AR (2020) Data
+from: A taxonomic and molecular survey of the pteridophytes of the Nectandra
+Cloud Forest Reserve, Costa Rica. Dryad Digital Repository. FIXME: ADD DOI
+WHEN AVAILABLE
+
+Citation for and links to publications that cite or use the data: Nitta JH,
+Ebihara A, Smith AR (2020) A taxonomic and molecular survey of the
+pteridophytes of the Nectandra Cloud Forest Reserve, Costa Rica. PLoS ONE.
+FIXME: ADD DOI WHEN AVAILABLE
+
+Code for analyzing the data is available on github:
+https://github.com/joelnitta/nectandra
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+DATA & FILE OVERVIEW
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+File list (filenames, directory structure (for zipped files) and brief
+description of all data files):
+
+  - costa_rica_richness.csv: Data on species richness of pteridophytes in protected
+areas in Costa Rica.
+
+  - nectandra_DNA_accessions.csv: DNA accession numbers and specimen accession numbers
+of pteridophytes from the Nectandra Cloud Forest Reserve, Costa Rica.
+
+  - nectandra_rbcL.fasta: Newly generated rbcL sequences of pteridophytes from the Nectandra Cloud Forest Reserve, Costa Rica in FASTA format.
+
+  - nectandra_rbcL.phy: Aligned rbcL sequences of pteridophytes from the Nectandra Cloud Forest Reserve, Costa Rica in PHYLIP format.
+
+  - nectandra_rbcL.treefile: Phylogenetic tree of pteridophytes from the Nectandra Cloud Forest Reserve, Costa Rica in Newick format.
+
+  - nectandra_specimens.csv: Specimen data of pteridophytes from the Nectandra Cloud Forest Reserve, Costa Rica collected by Joel Nitta.
+
+  - ppgi_taxonomy.csv: Taxonomic system of Pteridophyte Phylogeny Group I (2016) for
+pteridophytes at the genus level and above.
+
+Additional related data collected that was not included in the current data
+package:
+
+  - rbcL_clean_sporos.fasta: rbcL sequences of pteridophytes of Moorea, French Polynesia [@Nitta2017; https://doi.org/10.5061/dryad.df59g].
+
+  - ESM1.csv: A list of native fern and lycophyte taxa (species, subspecies and varieties; 721 taxa total) in Japan [@Ebihara2019b; https://doi.org/10.5061/dryad.4362p32].
+
+  - FernGreenListV1.01E.xls: List of Japanese ferns and lycophytes species including
+scientific name, endemic status, conservation status, and other taxonomic data [@Ebihara2019b; https://doi.org/10.5061/dryad.4362p32].
+
+  - rbcl_mrbayes.nex: NEXUS file used for phylogenetic analysis of Japanese fern
+and lycophyte taxa with MrBayes [@Ebihara2019b; https://doi.org/10.5061/dryad.4362p32].
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+METHODOLOGICAL INFORMATION
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+Description of methods used for collection/generation of data:
+
+Surveys of pteridophytes (i.e., ferns and lycophytes) were carried out over
+three field seasons (January 2008, 2011, and 2013; `r nectandra_specimens %>%
+filter(!is.na(date_collected)) %>% pull(date_collected) %>% n_distinct`) at
+the Nectandra Cloud Forest Reserve, Costa Rica. Most specimens were collected
+along trails through the reserve. Epiphytes were collected from fallen trees
+or tree branches, or up to 2 m on tree trunks. Permits for collection were
+obtained from the Costa Rican government (SINAC No. 04941 and Cites 2014-CR
+1006/SJ (#S 1045)). The first set of voucher specimens was deposited at UC,
+with duplicates at CR and GH. Herbarium codes follow @Thiers2019. Leaf tissue
+was preserved on silica gel for DNA extraction. Spores of selected taxa were
+observed with a standard compound light microscope.
+
+DNA was extracted with the DNEasy plant mini kit following the manufacturer's
+protocol (Qiagen). One species per taxon was sampled for morphologically
+distinct taxa, and up to five specimens per taxon for taxa that are more
+difficult to identify using standard keys and morphological characters. The
+plastid rbcL gene was amplified using PCR primers and thermocycler settings
+of @Schuettpelz2007. PCR products were purified with Exo-STAR enzyme (GE
+Healthcare) and sequenced using the Big Dye Terminator v3.1 Cycle Sequencing
+Kit (ThermoFisher) with two internal primers, ESRBCL654R and ESRBCL628F
+[@Schuettpelz2007] in addition to the amplification primers. The resulting
+AB1 trace files were imported into Geneious [@Kearse2012], assembled into
+contigs, and the consensus sequences exported in FASTA format. A
+multi-sequence alignment was generated using MAFFT [@Katoh2002], and a
+phylogenetic tree inferred using IQ-TREE with automatic model selection
+[@Nguyen2015]. Molecular analysis was authorized by Convenio Marco de
+CONAGEBIO R-CM-RN-001-2014-OT.
+
+For additional methodological details, see Nitta JH, Ebihara A, Smith AR
+(2020).
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+DATA-SPECIFIC INFORMATION
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+costa_rica_richness.csv: Data on species richness of pteridophytes in
+protected  areas in Costa Rica. Compiled by Joel Nitta based on references in
+the  "citation" column.
+
+Number of variables: `r ncol(cr_richness)`
+
+Number of cases/rows: `r nrow(cr_richness)`
+
+Variable list:
+
+  - name: Name of site.
+
+  - min_el_m: Minimum elevation of site in meters.
+
+  - max_el_m: Maximum elevation of site in meters.
+
+  - area_ha: Area of site in hectares.
+
+  - richness: Number of species occurring at the site.
+
+  - holdridge_type: @Holdridge1967 life-zone type.
+
+  - citation: Reference for data.
+
+  - notes: Miscellaneous notes.
+
+  - latitude: Latitude in decimal-degrees.
+
+  - longitude: Longitude in decimal-degrees.
+
+Missing data codes: Missing data have no values (nothing entered between commas
+in the CSV file).
+
+Specialized formats or other abbreviations used: none.
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+nectandra_DNA_accessions.csv: DNA accession numbers and specimen accession numbers
+of pteridophytes from the Nectandra Cloud Forest Reserve, Costa Rica.
+
+Number of variables: `r ncol(nectandra_dna)`
+
+Number of cases/rows: `r nrow(nectandra_dna)`
+
+Variable list:
+
+  - genomic_id: Genomic accession number assigned during DNA extraction, of the
+	form "JNG" plus a four-digit number. Unique values.
+
+  - specimen_id: Specimen accession number assigned to each specimen in
+	nectandra_specimens.csv. Integer (not unique).
+
+Missing data codes: no missing data.
+
+Specialized formats or other abbreviations used: none.
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+```{r rbcL-fasta-nums}
+rbcL_fasta_min <- purrr::map_dbl(nectandra_rbcL_raw, length) %>% min
+rbcL_fasta_max <- purrr::map_dbl(nectandra_rbcL_raw, length) %>% max
+rbcL_fasta_mean <- purrr::map_dbl(nectandra_rbcL_raw, length) %>% mean %>% round
+```
+
+nectandra_rbcL.fasta: Newly generated rbcL sequences of pteridophytes from
+the Nectandra Cloud Forest Reserve, Costa Rica in FASTA format. All species
+included occur at the Nectandra Cloud Forest Reserve, Costa Rica; a small
+number of sequences are from specimens collected elsewhere. Sequence names
+correspond to 'genomic_id' in nectandra_DNA_accessions.csv. `r
+length(nectandra_rbcL_raw)` sequences; shortest sequence `r rbcL_fasta_min`
+bp; longest sequence `r rbcL_fasta_max` bp; mean sequence length `r
+rbcL_fasta_mean` bp. Exported from Geneious project folder "Clean Sporos
+Trimmed Genbank Submission" (raw Geneious project file not included in this
+dataset).
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+```{r alignment-nums}
+# Extract relevant lines from iqtree log
+align_stats <-
+  magrittr::extract(
+    iqtree_log,
+    iqtree_log %>% str_detect("Alignment has [:digit:]+ sequences"))
+```
+
+nectandra_rbcL.phy: Aligned rbcL sequences of pteridophytes from the
+Nectandra Cloud Forest Reserve, Costa Rica in PHYLIP format. 
+`r dim(nectandra_rbcL)[[1]]` sequences; `r dim(nectandra_rbcL)[[2]]` bp; 
+`r get_number(align_stats, "informative sites")`; parsimony-informative sites.
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+nectandra_rbcL.treefile: Phylogenetic tree of pteridophytes from the
+Nectandra Cloud Forest Reserve, Costa Rica in Newick format inferred with
+IQTREE. Values at each node indicate SH-aLRT support (%) / UFboot support
+(%). `r ape::Ntip(rbcL_tree)` tips; `r ape::Nnode(rbcL_tree)` internal nodes.
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+nectandra_specimens.csv: Specimen data of pteridophytes from the Nectandra
+Cloud Forest Reserve, Costa Rica collected by Joel Nitta. Formatting UTF-8.
+
+Number of variables: `r ncol(nectandra_specimens)`
+
+Number of cases/rows: `r nrow(nectandra_specimens)`
+
+Variable list:
+
+  - specimen_id: Unique specimen identification number (integer).
+
+  - specimen: Voucher specimen number.
+
+  - genus: Genus
+
+  - specific_epithet: Specific epithet.
+
+  - infraspecific_rank: Infraspecific rank.
+
+  - infraspecific_name: Infraspecific name.
+
+  - certainty: Degree of taxonomic certainty if not completely certain.
+
+  - species: Species (genus plus specific epithet).
+
+  - taxon: Species plus infraspecific name.
+
+  - scientific_name: Taxon plus scientific author.
+
+  - country: Country of origin.
+
+  - locality: General area of collection.
+
+  - site: Specific site where collected.
+
+  - observations: Observations about specimen.
+
+  - elevation: Elevation in m.
+
+  - latitude: Latitude in decimal-degrees.
+
+  - longitude: Longitude in decimal-degrees.
+
+  - collector: Name of collector.
+
+  - other_collectors: Names of other collectors if present.
+
+  - herbaria: Codes of herbaria where voucher specimens are lodged.
+
+  - date_collected: Date collected in YYYY-MM-DD format.
+
+Missing data codes: Missing or non-applicable data have no values
+(nothing entered between commas in the CSV file).
+
+Specialized formats or other abbreviations used: Herbaria codes follow
+Index Herbariorum (http://sweetgum.nybg.org/science/ih/).
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+ppgi_taxonomy.csv: Taxonomic system of Pteridophyte Phylogeny Group I (2016) for
+pteridophytes at the genus level and above. Updated with one new genus (Hiya).
+
+Number of variables: `r ncol(ppgi)`
+
+Number of cases/rows: `r nrow(ppgi)`
+
+Variable list:
+
+  - class: Class.
+
+  - order: Order.
+
+  - suborder: Suborder.
+  
+  - family: Family.
+
+  - subfamily: Subfamily.
+
+  - genus: Genus.
+
+Missing data codes: Non-applicable data have no values (nothing entered between
+commas in the CSV file).
+
+Specialized formats or other abbreviations used: none.
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+REFERENCES

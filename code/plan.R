@@ -101,9 +101,23 @@ plan <- drake_plan(
   
   # Phylogenetic analysis ----
   
+  # Write out alignment for submission to Dryad
+  rbcL_aln_out = phangorn::write.phyDat(
+    x = nectandra_rbcL,
+    file = file_out("results/nectandra_rbcL.phy"),
+    format = "phylip"
+    ),
+  
+  # Write out alignment for analysis with IQ-TREE
+  rbcL_aln_out_iqtree = phangorn::write.phyDat(
+    x = nectandra_rbcL, 
+    file = file_out("iqtree_analysis/nectandra_rbcL"),
+    format = "phylip"
+    ),
+  
   # Conduct ML phylogenetic analysis with IQ-TREE
   iqtree_results = jntools::iqtree(
-    alignment = nectandra_rbcL,
+    aln_path = file_in("iqtree_analysis/nectandra_rbcL"),
     wd = "iqtree_analysis",
     nt = 1,
     m = "TEST",
@@ -112,16 +126,16 @@ plan <- drake_plan(
     seed = 9130,
     redo = TRUE,
     echo = TRUE,
-    produces1 = file_out("iqtree_analysis/nectandra_rbcL.phy.treefile"),
-    produced2 = file_out("iqtree_analysis/nectandra_rbcL.phy.log")
+    tree_path = "iqtree_analysis/nectandra_rbcL.contree",
+    produces1 = file_out("iqtree_analysis/nectandra_rbcL.treefile"),
+    produced2 = file_out("iqtree_analysis/nectandra_rbcL.log")
   ),
   
-  rbcL_tree = ape::read.tree(file_in("iqtree_analysis/nectandra_rbcL.phy.treefile")),
+  # Read in tree with SH-aLRT support (%) / UFboot support (%) at nodes.
+  rbcL_tree = ape::read.tree(file_in("iqtree_analysis/nectandra_rbcL.treefile")),
   
-  iqtree_log = readr::read_lines(file_in("iqtree_analysis/nectandra_rbcL.phy.log")),
-  
-  # Write out alignment for dryad
-  rbcL_aln_out = phangorn::write.phyDat(nectandra_rbcL, "results/nectandra_rbcL.phy"),
+  # Read in IQTREE log file to get stats about alignment and tree
+  iqtree_log = readr::read_lines(file_in("iqtree_analysis/nectandra_rbcL.log")),
   
   # Print out tree for SI
   rbcL_tree_out = plot_rbcL_tree(
@@ -155,6 +169,14 @@ plan <- drake_plan(
     docx = file_out(here::here("results/nectandra_pteridos.docx")),
     template = file_in(here::here("ms/plos-one.docx")),
     wd = here::here("results")
-  )
+  ),
+  
+  # Also render the data readme for Dryad
+  dryad_readme = render_tracked(
+    knitr_in("ms/dryad_readme.Rmd"),
+    quiet = TRUE,
+    output_dir = here::here("results"),
+    tracked_output = file_out(here::here("results/dryad_readme.rtf"))
+  ),
   
 )
