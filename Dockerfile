@@ -35,9 +35,11 @@ WORKDIR $APPS_HOME
 
 ### gnparser ###
 ENV APP_NAME=gnparser
-ENV VERSION=0.7.5
+ENV VERSION=0.13.1
 ENV DEST=$APPS_HOME/$APP_NAME/$VERSION
-RUN wget https://www.dropbox.com/s/7jcrjj0o39vuh3x/$APP_NAME-v$VERSION-linux.tar.gz?dl=1 \
-  && tar xf $APP_NAME-v$VERSION-linux.tar.gz?dl=1 \
-  && rm $APP_NAME-v$VERSION-linux.tar.gz?dl=1 \
+RUN wget https://gitlab.com/gogna/gnparser/uploads/481ea1f2e32362fce661dc82b41cef36/$APP_NAME-v$VERSION-linux.tar.gz \
+  && tar xf $APP_NAME-v$VERSION-linux.tar.gz \
+  && rm $APP_NAME-v$VERSION-linux.tar.gz \
   && mv "$APP_NAME" /usr/local/bin/
+  
+WORKDIR /home/rstudio
