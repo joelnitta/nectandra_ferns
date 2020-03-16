@@ -37,6 +37,8 @@ loadd(
     "iqtree_log"),
   cache = nectandra_cache)
 
+# Load captions
+source(here::here("ms/captions.R"))
 ```
 
 ```{r taxa-count}
@@ -110,21 +112,21 @@ While the pteridophyte floras of some sites in Costa Rica are well studied, such
 We present here the results of surveys conducted over three field seasons on the pteridophyte flora of the recently established Nectandra Cloud Forest Reserve near San Ramon, Costa Rica.
 We also characterize the phylogenetic diversity at this site and compare it with other pteridophyte floras that have recently been the focus of DNA barcoding surveys.
 
-## Materials and Methods
+## Materials and methods
 
-### Study Site
+### Study site
 
-The Nectandra Cloud Forest Reserve (hereafter, "Nectandra"; 10°11' N, 84°31' W) is located at \SI{1000}{\meter} to \SI{1200}{\meter} a.s.l. on the Atlantic slope of the Cordillera de Tilarán, Alajuela Province (\fig \@ref(fig:map)a).
+The Nectandra Cloud Forest Reserve (hereafter, "Nectandra"; 10°11' N, 84°31' W) is located at \SI{1000}{\meter} to \SI{1200}{\meter} a.s.l. on the Atlantic slope of the Cordillera de Tilarán, Alajuela Province (`r figure("map")`a).
 It encompasses \SI{158}{\hectare} of premontane rainforest [@Holdridge1967] and is an important source of water for the local community [@Lennette2011].
-Approximately three-quarters of Nectandra is primary forest with > 98% canopy cover; the remaining area comprises naturally regenerating former coffee and *Dracaena* plantations (\fig \@ref(fig:map)b, c).
+Approximately three-quarters of Nectandra is primary forest with > 98% canopy cover; the remaining area comprises naturally regenerating former coffee and *Dracaena* plantations (`r figure("map")`b, c).
 Two permanent streams and four seasonal drainages pass through the reserve and empty into the Balsa river.
 Most of the surrounding land is used for cattle pasture or other agriculture.
 It has a rich herpetofauna [@Rovito2015] and is home to at least \num{189} \species of bryophytes [@Norris2017].
 
-**\fig \@ref(fig:map). Location of the Nectandra Cloud Forest Reserve ("Nectandra").** (a) Map of Costa Rica, showing location of Nectandra and other protected areas that have been surveyed for pteridophytes.
+**`r figure_full("map")`** (a) Map of Costa Rica, showing location of Nectandra and other protected areas that have been surveyed for pteridophytes.
 Other protected areas include Alberto Manuel Brenes Biological Reserve, La Selva Biological Station, Monteverde Cloud Forest Reserve, the upper watershed of the Savegre River in the Los Santos Forest Reserve, and San Luis Biological Reserve.
-(b) Aerial photo of Nectandra (\circa 1995).
-Nectandra consists of three parcels of land: the original parcel is in white (\circa 80% primary forest), with areas added later in red ("Ocotea" parcel, primary forest) and blue ("Persea" parcel, secondary forest).
+(b) Aerial photo of Nectandra (\circa{ }1995).
+Nectandra consists of three parcels of land: the original parcel is in white (\circa{ }80% primary forest), with areas added later in red ("Ocotea" parcel, primary forest) and blue ("Persea" parcel, secondary forest).
 Note extreme deforestation outside of protected areas.
 (c) Example of interior of primary forest at Nectandra.
 Photos courtesy of Evelyne Lennette, used with permission.
@@ -140,7 +142,7 @@ Most specimens were collected along trails through the reserve.
 Epiphytes were collected from fallen trees or tree branches, or up to \circa \SI{2}{\meter} on tree trunks.
 Permits for collection were obtained from the Costa Rican government (SINAC No. 04941 and Cites 2014-CR 1006/SJ (#S 1045)).
 The first set of voucher specimens was deposited at UC, with duplicates at CR and GH.
-Herbarium abbreviations follow @Thiers2019.
+Herbarium codes follow @Thiers2019.
 Leaf tissue was preserved on silica gel for DNA extraction.
 Spores of selected taxa were observed with a standard compound light microscope.
 
@@ -155,10 +157,10 @@ DNA was extracted with the DNEasy plant mini kit following the manufacturer's pr
 We generally sampled one species per taxon for morphologically distinct taxa, and up to five specimens per taxon for taxa that are more difficult to identify using standard keys [@Moran1995; @Lellinger1989] and morphological characters.
 We amplified the plastid *rbcL* gene using PCR primers and thermocycler settings of @Schuettpelz2007.
 We verified amplification success by gel electrophoresis in 1% TAE.
-We purified PCR products with Exo-STAR and conducted cycle sequencing using the Big Dye kit with two internal primers, ESRBCL654R and ESRBCL628F [@Schuettpelz2007] in addition to the amplification primers.
+We purified PCR products with Exo-STAR (GE Healthcare) and conducted cycle sequencing using the Big Dye Terminator v3.1 Cycle Sequencing Kit (ThermoFisher) with two internal primers, ESRBCL654R and ESRBCL628F [@Schuettpelz2007] in addition to the amplification primers.
 We imported the resulting AB1 trace files into Geneious [@Kearse2012], assembled contigs, and exported the consensus sequences in FASTA format.
 *rbcL* sequences were downloaded from GenBank for two taxa that could not be successfully sequenced in our study: *Pteris altissima* Poir. from Nectandra that had been sequenced previously in a different study (*Nitta 863*, KM008147) and *Trichomanes polypodioides* L. from Bolivia (*M. Kessler 8808*, AY175795).
-We generated an alignment using MAFFT [@Katoh2002], and inferred a tree using IQ-TREE with automatic model selection.
+We generated an alignment using MAFFT [@Katoh2002], and inferred a tree using IQ-TREE with automatic model selection [@Nguyen2015].
 Node support was assessed with \num{1000} ultra-fast bootstrap (UFboot) [@Nguyen2015] and \num{1000} Shimodaira–Hasegawa-like approximate likelihood ratio test (SH-aLRT) replicates [@Guindon2010] in IQ-TREE.
 Molecular analysis was authorized by Convenio Marco de CONAGEBIO R-CM-RN-001-2014-OT.
 
@@ -180,7 +182,7 @@ We then extracted the species for each site and calculated minimum interspecific
 
 Code to replicate all analyses, figures, and this manuscript are available at https://github.com/joelnitta/nectandra_ferns.
 Data are available from the Dryad repository at http://doi.org/XXX.
-Newly generated sequences have been deposited in GenBank (accession numbers XXX--XXX).
+Newly generated sequences have been deposited in GenBank (`r s_table("genbank")`).
 Photos of voucher specimens are available on the Ferns of the World website (https://www.fernsoftheworld.com/florulas/XXX).
 
 \*\*\* NOTE FOR EDITOR AND REVIEWERS: data and code will be made publicly available upon acceptance.
@@ -231,27 +233,27 @@ richness_estimate[["AsyEst"]] %>%
 
 ```
 
-Our surveys resulted in `r taxa_count %>% pull(specimen)` individuals, representing `r taxa_count %>% pull(species)` species, `r taxa_count %>% pull(genus)` genera, and `r taxa_count %>% pull(family)` families of pteridophytes (\tab S1).
+Our surveys resulted in `r taxa_count %>% pull(specimen)` individuals, representing `r taxa_count %>% pull(species)` species, `r taxa_count %>% pull(genus)` genera, and `r taxa_count %>% pull(family)` families of pteridophytes (`r s_table("checklist")`).
 
 The genera with the most species were *`r top_genera %>% slice(1) %>% pull(genus)`* (`r top_genera %>% slice(1) %>% pull(n)` \species), *`r top_genera %>% slice(2) %>% pull(genus)`* (`r top_genera %>% slice(2) %>% pull(n)` \species), *`r top_genera %>% slice(3) %>% pull(genus)`* (`r top_genera %>% slice(3) %>% pull(n)` \species), and *`r top_genera %>% slice(4) %>% pull(genus)`* (`r top_genera %>% slice(4) %>% pull(n)` \species).
 Families with the most species were `r top_families %>% slice(1) %>% pull(family)` (`r top_families %>% slice(1) %>% pull(n)` \species), `r top_families %>% slice(2) %>% pull(family)` (`r top_families %>% slice(2) %>% pull(n)` \species), and `r top_families %>% slice(3) %>% pull(family)` (`r top_families %>% slice(3) %>% pull(n)` \species).
 
 Three taxa could not be matched to any known species, *Polyphlebium* sp1 (*Nitta 123* and *Nitta 2378*), *Campyloneurum* sp1 (*Nitta 2308*), and *Megalastrum* sp1 (*Nitta 727*).
 
-Our literature survey identified five other protected areas in mainland Costa Rica that have been surveyed for pteridophytes [@oet2019; @Haber1990; Kappelle2000; @Rojas2009; @Jimenez2016] (\fig \@ref(fig:map)).
-The site with the highest species richness is the Alberto Manuel Brenes Biological Reserve (281 \species), with Nectandra the second-highest and nearly the same as La Selva Biological Station (\fig \@ref(fig:richness-cr)a).
-Nectandra has by far the most species per hectare (`r nectandra_sp_per_hec`), with the San Luis Biological Reserve second-highest (\fig \@ref(fig:richness-cr)b).
+Our literature survey identified five other protected areas in mainland Costa Rica that have been surveyed for pteridophytes [@oet2019; @Haber1990; Kappelle2000; @Rojas2009; @Jimenez2016] (`r figure("map")`).
+The site with the highest species richness is the Alberto Manuel Brenes Biological Reserve (281 \species), with Nectandra the second-highest and nearly the same as La Selva Biological Station (`r figure("richness-cr")`a).
+Nectandra has by far the most species per hectare (`r nectandra_sp_per_hec`), with the San Luis Biological Reserve second-highest (`r figure("richness-cr")`b).
 
-**\fig \@ref(fig:richness-cr). Species richness of pteridophytes at protected areas in Costa Rica.**  
-For full names of protected areas, \fig \@ref(fig:map).
+**`r figure_full("richness-cr")`** 
+For full names of protected areas, see `r figure("map")`.
 (a) number of species.
 (b) number of species per hectare.
 
-The collection curve did not reach an asymptote (\fig \@ref(fig:richness-inext)).
+The collection curve did not reach an asymptote (`r figure("richness-inext")`).
 Extrapolation of the curve indicates that the true species richness may approach `r est_rich$estimator` \species (95% confidence interval `r est_rich$x95_percent_lower` \species to `r est_rich$x95_percent_upper` \species).
 
-**\fig \@ref(fig:richness-inext). Interpolation (solid line) and extrapolation (dashed line) of species richness of pteridophytes at Nectandra Cloud Forest Reserve, Costa Rica.**  
-Point at transition from solid to dashed line indicates observed richness.
+**`r figure_full("richness-inext")`** 
+Point at transition from solid to dashed line indicates observed richness. 
 Gray shading indicates 95% confidence interval.
 
 ### Phylogenetic analysis
@@ -302,7 +304,7 @@ nectandra_rbcL_raw %>% map_dbl(length)
 
 ```
 
-We recovered *rbcL* sequences for `r n_taxa_rbcL_seqs` taxa (`r coverage_taxa_rbcL_seqs`) from Nectandra, resulting in `r new_seqs_data$genomic_id %>% n_distinct` new *rbcL* sequences.
+We recovered *rbcL* sequences for `r n_taxa_rbcL_seqs` taxa (`r coverage_taxa_rbcL_seqs`) from Nectandra, resulting in `r new_seqs_data$genomic_id %>% n_distinct` new *rbcL* sequences (`r s_table("checklist")`).
 Mean sequence length was `r mean(seq_lengths) %>% round(1)` ± SD `r sd(seq_lengths) %>% round(1)` bp.
 *rbcL* could not be sequenced for `r taxa_count$taxon - n_taxa_rbcL_seqs` taxa (of these, one already had a sequence available on GenBank), and only partial sequences (ca. 3' or 5' half of *rbcL*) could be obtained for `r seq_lengths[seq_lengths < 1000] %>% length()` taxa.
 Difficulty in sequencing of these samples may be due to degraded condition of DNA.
@@ -310,7 +312,7 @@ Difficulty in sequencing of these samples may be due to degraded condition of DN
 The *rbcL* alignment was `r get_number(align_stats, "columns")` bp long including `r get_number(align_stats, "informative sites")` parsimony-informative sites and `r get_number(align_stats, "sequences")` sequences.
 The `r best_mod` model was selected for ML phylogenetic analysis according to `r best_mod_basis`.
 
-The *rbcL* phylogeny (\fig S1) was in generally good agreement with recently published plastid phylogenies [@Pryer2004a; @Schuettpelz2007; @Lehtonen2011; @Testo2016a] at the family level and above, and families *sensu* PPGI [@PteridophytePhylogenyGroupI2016] were monophyletic.
+The *rbcL* phylogeny (`r s_figure("tree")`) was in generally good agreement with recently published plastid phylogenies [@Pryer2004a; @Schuettpelz2007; @Lehtonen2011; @Testo2016a] at the family level and above, and families *sensu* PPGI [@PteridophytePhylogenyGroupI2016] were monophyletic.
 One exception was Osmundaceae sister to Gleicheniaceae (SH-aLRT < 50%; UFboot 95%), which may be due to poor sampling; we could obtain only a 614 bp *rbcL* fragment from the sole osmundaceous species at our study site.
 Some internal nodes had weak support (\eg, Cyatheales [SH-aLRT 66%; UFboot 93%], leptosporangiates [SH-aLRT < 50%; UFboot 87%]).
 It should be noted that IQ-TREE UFboot support values are not analogous to traditional bootstrap values; only nodes receiving SH-aLRT >= 80% and UFboot >= 95% should be considered reliable [@Minh2013].
@@ -329,9 +331,9 @@ Sampling of multiple specimens per species for taxa that are morphologically dif
 ### Barcode analysis
 
 The pteridophyte flora of Nectandra includes `r min_distance_table %>% filter(dataset == "CR", is_zero == TRUE) %>% pull(n)` taxa (`r  min_distance_table %>% filter(dataset == "CR", is_zero == TRUE) %>% pull(percent) %>% percent`) that share identical *rbcL* sequences with at least one other taxon.
-This failure rate is higher than that of the pteridophytes of Moorea and Tahiti, but lower than Japan (\fig \@ref(fig:min-dist)).
+This failure rate is higher than that of the pteridophytes of Moorea and Tahiti, but lower than Japan (`r figure("min-dist")`).
 
-**\fig \@ref(fig:min-dist). Minimum interspecific distances for selected pteridophyte floras**  
+**`r figure_full("min-dist")`** 
 (a) Nectandra, (b) Moorea and Tahiti, (c) Japan (all species), and (d) Japan (sexual diploids only).
 Red bar indicates interspecific distance of zero, i.e., species that cannot be distinguished using *rbcL*.
 
@@ -345,7 +347,7 @@ We place our results in regional and global context by comparing this flora with
 Nectandra has the second-highest species richness of protected areas in Costa Rica with data available for ferns and lycophytes, and by far the greatest number of species per hectare.
 While the number of species per hectare is not a fair measure of biodiversity per se as the species-area curve is not linear [@Arrhenius1921], it is useful to assess the effectiveness of a given protected area.
 Clearly, Nectandra is highly effective at protecting a large number of pteridophyte species given its area.
-Furthermore, the collection curve indicates that additional, unsampled species may be present (\fig \@ref(fig:richness-inext)), adding to the value of this conservation area.
+Furthermore, the collection curve indicates that additional, unsampled species may be present (`r figure("richness-inext")`), adding to the value of this conservation area.
 A recent survey of the bryophytes of Nectandra found a similar number of species (189) and also suggested unsampled species remained due to the shape of the collection curve [@Norris2017].
 One reason for the high species richness at Nectandra may be its elevation (\SI{1000}{\meter} to \SI{1200}{\meter}).
 Species richness of pteridophytes in the tropics generally reaches a maximum at mid-elevations on mountains [@Kessler2011a], and plot-based surveys of pteridophytes along elevational gradients in Costa Rica spanning \circa \SI{100}{\meter} to \SI{3000}{\meter} have found maximum richness at \SI{1000}{\meter} to \SI{1200}{\meter} [@WatkinsJr.2006a; @Karger2011].
@@ -383,7 +385,7 @@ It is likely that more species in French Polynesia are recent immigrants that ha
 This would result in the observed distribution of high interspecific divergences for species from French Polynesia and low interspecific divergences for species in Costa Rica and Japan.
 
 Furthermore, the high failure rate in Japan is likely due to the high rate of apogamy combined with the taxonomic practice of splitting apogamous and sexual forms into separate species [@Ebihara2019b].
-When only sexual diploids are included, the failure rate in Japan drops and the distribution more closely resembles that of Costa Rica (\fig \@ref(fig:min-dist)).
+When only sexual diploids are included, the failure rate in Japan drops and the distribution more closely resembles that of Costa Rica (`r figure("min-dist")`).
 
 ## Conclusions
 
@@ -406,7 +408,20 @@ This study was supported by the Japan Society for the Promotion of Science (Kake
 
 \clearpage
 
-```{r map, fig.height = 7.25, fig.width = 7.5, fig.cap="Map of Costa Rica"}
+## Supporting information
+
+**`r s_table_full("genbank")`**
+
+**`r s_table_full("checklist")`** All voucher specimens deposited in UC.
+
+**`r s_figure_full("tree")`** Tree rooted on lycophytes.
+Numbers at nodes indicate SH-aLRT support (%) / UFboot support (%); values less than 50% shown with "-"; values of 100% shown with "\*".
+For phylogram on right side, scale bar shows expected number of changes per site.
+Numbers after species name are J. H. Nitta specimen collection numbers of specimens from Nectandra, except for *Trichomanes polypodiodes*, which could not be sequenced successfully, so a GenBank sequence (AY175795) from Bolivia (*M. Kessler 8808*) was used instead.
+
+\clearpage
+
+```{r map, fig.height = 7.25, fig.width = 7.5, fig.cap = figure_cap("map")}
 
 # Download altitude data for Costa Rica
 dem.raster <- getData("alt", country = "CR")
@@ -458,7 +473,7 @@ ggsave(filename = here("results/Fig1.tiff"), height = 7.25, width = 7.5, units =
 
 \clearpage
 
-```{r richness-cr, fig.height=3, fig.width=5, fig.cap="Species richness of pteridophytes at protected areas"}
+```{r richness-cr, fig.height = 3, fig.width = 5, fig.cap = figure_cap("richness-cr")}
 
 a <-
   cr_richness %>%
@@ -487,7 +502,7 @@ ggsave(filename = here("results/Fig2.eps"), height = 3, width = 5, units = "in",
 
 \clearpage
 
-```{r richness-inext, fig.height=3, fig.width=3, fig.cap="Estimated richness"}
+```{r richness-inext, fig.height = 3, fig.width = 3, fig.cap = figure_cap("richness-inext")}
 make_inext_plot(richness_estimate)
 
 ggsave(filename = here("results/Fig3.eps"), height = 3, width = 3, units = "in", device = cairo_ps_high_res)
@@ -496,7 +511,7 @@ ggsave(filename = here("results/Fig3.eps"), height = 3, width = 3, units = "in",
 
 \clearpage
 
-```{r min-dist, fig.height=4.5, fig.width=7, fig.cap="Minimum interspecific distances"}
+```{r min-dist, fig.height = 4.5, fig.width = 7, fig.cap = figure_cap("min-dist")}
 
 min_distance_table %>%
   mutate(dataset = case_when(
@@ -523,16 +538,3 @@ ggsave(filename = here("results/Fig4.eps"), height = 4.5, width = 7, units = "in
 ```
 
 \clearpage
-
-## Supporting Information
-
-\tab S1. A checklist of fern and lycophyte species observed at the Nectandra Cloud Forest Reserve, Costa Rica.
-All voucher specimens deposited in UC.
-
-\tab S2. GenBank accession numbers of sequences analyzed in this study.
-
-\fig S1. Maximum-likelihood phylogenetic tree of ferns and lycophytes at the Nectandra Cloud Forest Reserve, Costa Rica inferred using IQ-TREE with \num{1000} SH-like approximate likelihood ratio test (SH-aLRT) and ultra-fast bootstrap (UFboot) replicates each.
-Tree rooted on lycophytes.
-Numbers at nodes indicate SH-aLRT support (%) / UFboot support (%); values less than 50% shown with "-"; values of 100% shown with "\*".
-For phylogram on right side, scale bar shows expected number of changes per site.
-Numbers after species name are J. H. Nitta specimen collection numbers of specimens from Nectandra, except for *Trichomanes polypodiodes*, which could not be sequenced successfully, so a GenBank sequence (AY175795) from Bolivia (*M. Kessler 8808*) was used instead.
