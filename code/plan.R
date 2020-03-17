@@ -3,54 +3,71 @@ plan <- drake_plan(
   # Data loading and cleaning ----
   
   # Load PPGI taxonomy
-  ppgi = readr::read_csv(file_in("data/ppgi_taxonomy.csv")),
+  ppgi_path = target("data/ppgi_taxonomy.csv", format = "file"), # track file contents (not just path)
+  ppgi = readr::read_csv(ppgi_path),
   
   # Load Nectandra specimen data
-  nectandra_specimens = readr::read_csv(file_in("data/nectandra_specimens.csv")),
+  nectandra_specimens_path = target("data/nectandra_specimens.csv", format = "file"),
+  nectandra_specimens = readr::read_csv(nectandra_specimens_path),
   
   # Load Nectandra DNA accession data
-  nectandra_dna = readr::read_csv(file_in("data/nectandra_DNA_accessions.csv")),
+  nectandra_dna_path = target("data/nectandra_DNA_accessions.csv", format = "file"),
+  nectandra_dna = readr::read_csv(nectandra_dna_path),
   
   # Load Nectandra unaligned rbcL sequences
-  nectandra_rbcL_raw = ape::read.FASTA("data/nectandra_rbcL.fasta"),
+  nectandra_rbcL_raw_path = target("data/nectandra_rbcL.fasta", format = "file"),
+  nectandra_rbcL_raw = ape::read.FASTA(nectandra_rbcL_raw_path),
+  
+  # Also read in one sequence that will be submitted to GenBank separately
+  JNG4254_rbcL_raw_path = target("data/JNG4254.fasta", format = "file"),
+  JNG4254_rbcL_raw = ape::read.FASTA(JNG4254_rbcL_raw_path),
+  
+  # Combine the unaligned Nectandra rbcL seqs
+  nectandra_rbcL_with_JNG4254 = c(nectandra_rbcL_raw, JNG4254_rbcL_raw),
   
   # Load species richness and GPS locations of various protected
   # sites in Costa Rica
-  cr_richness = readr::read_csv(file_in("data/costa_rica_richness.csv")),
+  cr_richness_path = target("data/costa_rica_richness.csv", format = "file"),
+  cr_richness = readr::read_csv(cr_richness_path),
   
   # Unzip French Polynesia rbcL sequences
   # This requires doi_10.5061_dryad.df59g__v1.zip to be downloaded to data_raw/
   # from https://datadryad.org/stash/dataset/doi:10.5061/dryad.df59g first
-  nitta_2017_data = unzip_nitta_2017(
-    dryad_zip_file = file_in("data/doi_10.5061_dryad.df59g__v1.zip"), 
-    exdir = "data/nitta_2017",
-    produces = file_out("data/nitta_2017/rbcL_clean_sporos.fasta")
-    ),
+  moorea_rbcL_path = target({
+    unzip_nitta_2017(
+    dryad_zip_file = "data/doi_10.5061_dryad.df59g__v1.zip", 
+    exdir = "data/nitta_2017")
+    "data/nitta_2017/rbcL_clean_sporos.fasta"},
+    format = "file"
+  ),
   
   # Load French Polynesia rbcL sequences
   # (also add "_FP" to end of name)
-  moorea_rbcL = ape::read.FASTA(file_in("data/nitta_2017/rbcL_clean_sporos.fasta")) %>%
+  moorea_rbcL = ape::read.FASTA(moorea_rbcL_path) %>%
     purrr::set_names(., paste0(names(.), "_FP")),
   
   # Unzip Japan rbcL sequences and breeding mode data
   # This requires doi_10.5061_dryad.4362p32__v4.zip to be downloaded to data_raw/
   # from https://datadryad.org/stash/dataset/doi:10.5061/dryad.4362p32 first
-  ebihara_2019_data = unzip_ebihara_2019(
-    dryad_zip_file = file_in("data/doi_10.5061_dryad.4362p32__v4.zip"), 
-    exdir = "data/ebihara_2019",
-    produces_1 = file_out("data/ebihara_2019/rbcl_mrbayes.nex"),
-    produces_2 = file_out("data/ebihara_2019/FernGreenListV1.01E.xls"),
-    produces_3 = file_out("data/ebihara_2019/ESM1.csv")
-  ),
+  ebihara_2019_data = target({
+    unzip_ebihara_2019(
+      dryad_zip_file = "data/doi_10.5061_dryad.4362p32__v4.zip", 
+      exdir = "data/ebihara_2019"
+    )
+    c(tree = "data/ebihara_2019/rbcl_mrbayes.nex", 
+      taxa = "data/ebihara_2019/FernGreenListV1.01E.xls",
+      repro_data = "data/ebihara_2019/ESM1.csv")
+  },
+  format = "file"),
   
   # Load Japan rbcL data with names formatted as codes
-  japan_rbcL_raw = ape::read.nexus.data(file_in("data/ebihara_2019/rbcl_mrbayes.nex")) %>% ape::as.DNAbin(),
+  japan_rbcL_raw = ape::read.nexus.data(ebihara_2019_data[["tree"]]) %>% ape::as.DNAbin(),
   
   # Load table matching taxon codes to scientific names of Japanese pteridophytes
-  japan_taxa = readxl::read_excel(file_in("data/ebihara_2019/FernGreenListV1.01E.xls")) %>% tidy_japan_names(),
+  japan_taxa = readxl::read_excel(ebihara_2019_data[["taxa"]]) %>% tidy_japan_names(),
   
   # Load data on reproductive mode for Japanese pteridophytes
-  japan_repro_data = readr::read_csv(file_in("data/ebihara_2019/ESM1.csv")) %>%
+  japan_repro_data = readr::read_csv(ebihara_2019_data[["repro_data"]]) %>%
     janitor::clean_names() %>%
     mutate(taxon_id = as.character(taxon_id)),
   
@@ -87,7 +104,7 @@ plan <- drake_plan(
   
   # Align Nectandra sequences and add missing taxa
   nectandra_rbcL = align_rbcL(
-    nectandra_rbcL = nectandra_rbcL_raw, 
+    nectandra_rbcL_raw = nectandra_rbcL_with_JNG4254, 
     nectandra_dna = nectandra_dna, 
     nectandra_specimens = nectandra_specimens),
   
@@ -106,14 +123,14 @@ plan <- drake_plan(
     x = nectandra_rbcL,
     file = file_out("results/nectandra_rbcL.phy"),
     format = "phylip"
-    ),
+  ),
   
   # Write out alignment for analysis with IQ-TREE
   rbcL_aln_out_iqtree = phangorn::write.phyDat(
     x = nectandra_rbcL, 
     file = file_out("iqtree_analysis/nectandra_rbcL"),
     format = "phylip"
-    ),
+  ),
   
   # Conduct ML phylogenetic analysis with IQ-TREE
   iqtree_results = jntools::iqtree(
@@ -154,7 +171,7 @@ plan <- drake_plan(
     write_csv(file_out("results/table_S2.csv")),
   
   # Render manuscript ----
-
+  
   # First render to PDF, keeping the latex
   ms_pdf = render_tracked(
     knitr_in("ms/nectandra_pteridos.Rmd"),
