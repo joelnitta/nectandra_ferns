@@ -249,18 +249,18 @@ estimate_richness_by_date <- function (specimens, endpoint = 150) {
 #'
 #' Also checks for missing taxa and adds them from GenBank
 #'
-#' @param nectandra_rbcL Unaligned rbcL sequences of pteridophytes from Nectandra
+#' @param nectandra_rbcL_raw Unaligned rbcL sequences of pteridophytes from Nectandra
 #' @param nectandra_dna DNA accession numbers linking accession to specimen ID
 #' @param nectandra_specimens Specimen collection data including species names
 #'
 #' @return DNA alignment of all Nectandra pteridophyte species plus those
 #' sequences from GenBank for those that are missing rbcL
 #' 
-align_rbcL <- function (nectandra_rbcL, nectandra_dna, nectandra_specimens) {
+align_rbcL <- function (nectandra_rbcL_raw, nectandra_dna, nectandra_specimens) {
   
   # Check for missing taxa from Nectandra list.
   nectandra_rbcL_missing_taxa <-
-    tibble(genomic_id = names(nectandra_rbcL)) %>%
+    tibble(genomic_id = names(nectandra_rbcL_raw)) %>%
     left_join(nectandra_dna) %>%
     left_join(select(nectandra_specimens, specimen_id, taxon)) %>%
     assert(not_na, everything()) %>%
@@ -287,8 +287,8 @@ align_rbcL <- function (nectandra_rbcL, nectandra_dna, nectandra_specimens) {
     pull(tip_label)
   
   # Reassign names to be taxon plus DNA accession number
-  names(nectandra_rbcL) <-
-    tibble(genomic_id = names(nectandra_rbcL)) %>%
+  names(nectandra_rbcL_raw) <-
+    tibble(genomic_id = names(nectandra_rbcL_raw)) %>%
     left_join(nectandra_dna, by = "genomic_id") %>%
     left_join(nectandra_specimens, by = "specimen_id") %>%
     assert(is_uniq, genomic_id) %>%
@@ -297,10 +297,10 @@ align_rbcL <- function (nectandra_rbcL, nectandra_dna, nectandra_specimens) {
     pull(tip_label)
   
   # Combine new sequences with GenBank sequences
-  nectandra_rbcL <- c(nectandra_rbcL, gb_seqs)
+  nectandra_rbcL_raw <- c(nectandra_rbcL_raw, gb_seqs)
   
   # Align sequences with MAFFT, trim ends, and remove any empty cells
-  ips::mafft(nectandra_rbcL, exec = "/usr/bin/mafft") %>%
+  ips::mafft(nectandra_rbcL_raw, exec = "/usr/bin/mafft") %>%
     trimEnds(nrow(.) * 0.5) %>%
     deleteEmptyCells()
   
