@@ -356,10 +356,10 @@
     },
     "drake": {
       "Package": "drake",
-      "Version": "7.7.0",
+      "Version": "7.11.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "2455d2bafe93524d6f81acf29ccc9b1b"
+      "Hash": "25b398c4f0f2f0c573bd07611ef69da8"
     },
     "ellipsis": {
       "Package": "ellipsis",
