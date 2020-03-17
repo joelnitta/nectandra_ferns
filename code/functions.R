@@ -849,6 +849,33 @@ make_broad_tree <- function(
 
 # MS rendering ----
 
+#' Render a number with SI units
+#'
+#' @param num Number
+#' @param suffix SI suffix to attach to number
+#' @param auto_space Logical; should a space automatically be inserted
+#' between the number and the suffix (default = TRUE)
+#' @param accuracy Decimal points to round to (e.g, 0.1)
+#' @param scale A scaling factor: num will be multiplied by scale before formating. 
+#' @param prefix Symbol to display before value.
+#' @param big.mark Character used between every 3 digits to separate thousands.
+#' @param decimal.mark The character to be used to indicate the numeric decimal point
+#' @param trim Logical, if FALSE, values are right-justified to a common width (see base::format()).
+#' @param ... Other arguments passed on to base::format().
+#'
+#' @return Character vector
+#'
+#' @examples
+#' si(10000, "m")
+si <- function(num, suffix = "", auto_space = TRUE,
+               accuracy = NULL, scale = 1, prefix = "",
+               big.mark = ",", decimal.mark = ".", trim = TRUE, ...) {
+  if(auto_space == TRUE & suffix != "") suffix <- paste("", suffix, collapse = " ")
+  if(!is.numeric(num)) num <- readr::parse_number(num)
+  scales::comma(num, accuracy = accuracy, scale = scale, prefix = prefix, suffix = suffix,
+                big.mark = big.mark, decimal.mark = decimal.mark, trim = trim, ...)
+}
+
 # Tweaked version of cairo_ps device function with higher-resolution
 # for fallback zones
 cairo_ps_high_res <- function(...) {
