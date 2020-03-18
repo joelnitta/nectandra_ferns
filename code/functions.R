@@ -245,28 +245,95 @@ estimate_richness_by_date <- function (specimens, endpoint = 150) {
 
 # Barcode analysis ----
 
-#' Align Nectandra rbcL sequences
-#'
-#' Also checks for missing taxa and adds them from GenBank
+#' Make a list of "missing" Nectandra taxa
+#' 
+#' "Missing" taxa are those that could not be successfully sequenced
 #'
 #' @param nectandra_rbcL_raw Unaligned rbcL sequences of pteridophytes from Nectandra
 #' @param nectandra_dna DNA accession numbers linking accession to specimen ID
 #' @param nectandra_specimens Specimen collection data including species names
-#'
-#' @return DNA alignment of all Nectandra pteridophyte species plus those
-#' sequences from GenBank for those that are missing rbcL
 #' 
-align_rbcL <- function (nectandra_rbcL_raw, nectandra_dna, nectandra_specimens) {
+#' @return Character vector
+make_missing_taxa_list <- function (nectandra_rbcL_raw, nectandra_dna, nectandra_specimens) {
   
   # Check for missing taxa from Nectandra list.
-  nectandra_rbcL_missing_taxa <-
-    tibble(genomic_id = names(nectandra_rbcL_raw)) %>%
-    left_join(nectandra_dna) %>%
-    left_join(select(nectandra_specimens, specimen_id, taxon)) %>%
+  tibble(genomic_id = names(nectandra_rbcL_raw)) %>%
+    left_join(nectandra_dna, by = "genomic_id") %>%
+    left_join(select(nectandra_specimens, specimen_id, taxon), by = "specimen_id") %>%
     assert(not_na, everything()) %>%
+    assert(is_uniq, genomic_id) %>%
     anti_join(nectandra_specimens, ., by = "taxon") %>%
     pull(taxon) %>%
     unique %>% sort
+  
+}
+
+#' Tidy GenBank metadata
+#'
+#' GenBank metadata comes with a column "subtype" containing miscellaneous
+#' data separated by '|'. The names of these data are in the "subname" column.
+#' This function tidies these two columns, i.e., converts the data in the
+#' "subtype" column so each value gets its own column.
+#' 
+#' @param data Dataframe; GenBank metadata obtained with
+#' gbfetch::fetch_metadata.
+#'
+#' @return Dataframe.
+#' 
+#' @examples
+#' raw_meta <- fetch_metadata("rbcl[Gene] AND Crepidomanes[ORGN]")
+#' # Raw metadata still contains untidy data in the "subtype" and 
+#' # "subname" columns
+#' raw_meta
+#' # Tidy!
+#' tidy_genbank_metadata(raw_meta)
+
+tidy_genbank_metadata <- function(data) {
+  
+  # Check assumptions: must have subtype and subname columns present
+  assertthat::assert_that("subtype" %in% colnames(data))
+  assertthat::assert_that("subname" %in% colnames(data))
+  
+  # Define helper function that works on one row at a time
+  tidy_genbank_meta_single <- function(data) {
+    
+    # Early return if no data to parse in subtype
+    if(data$subtype == "" | is.na(data$subtype)) return (data %>% dplyr::select(-subname, -subtype))
+    if(data$subname == "" | is.na(data$subname)) return (data %>% dplyr::select(-subname, -subtype))
+    
+    # Split "subtype" into multiple columns
+    # Use janitor::make_clean_names to de-duplicate names
+    sub_cols <- data %>% 
+      dplyr::pull(subtype) %>% 
+      stringr::str_split("\\|") %>% 
+      magrittr::extract2(1) %>% 
+      janitor::make_clean_names()
+    
+    sub_data <- data %>% 
+      dplyr::select(subname) %>% 
+      tidyr::separate(subname, into = sub_cols, sep = "\\|")
+    
+    data %>% 
+      dplyr::select(-subname, -subtype) %>% 
+      dplyr::bind_cols(sub_data)
+  }
+  
+  # Apply the function row-wise and combine back into a dataframe
+  transpose(data) %>%
+    purrr::map(as_tibble) %>%
+    purrr::map_df(tidy_genbank_meta_single)
+  
+}
+
+#' Download genbank sequences for "missing" Nectandra taxa
+#' 
+#' "Missing" taxa are those that could not be successfully sequenced
+#'
+#' @param nectandra_rbcL_missing_taxa Character vector of missing taxa
+#' @param acc_keep Character vector of GenBank accessions to use
+#' @return List of class "DNAbin"
+#' 
+fetch_gb_seqs <- function (nectandra_rbcL_missing_taxa, acc_keep) {
   
   # Construct query and fetch GenBank sequences for missing taxa
   query <- glue::glue("({paste(nectandra_rbcL_missing_taxa, collapse = '[ORIGIN] OR ')}[ORIGIN]) AND rbcl")
@@ -275,16 +342,52 @@ align_rbcL <- function (nectandra_rbcL_raw, nectandra_dna, nectandra_specimens) 
   
   gb_seqs_metadata <- gbfetch::fetch_metadata(query)
   
-  # Select the appropriate sequences to use and rename them.
-  # KM008147 = Pteris altissima
-  # AY175795 = Trichomanes polypodioides
-  gb_seqs <- gb_seqs[names(gb_seqs) %in% c("KM008147", "AY175795")]
+  gb_seqs_metadata <- gb_seqs_metadata %>%
+    filter(accession %in% acc_keep) %>%
+    tidy_genbank_metadata %>%
+    rename(specimen = specimen_voucher) %>%
+    # Manually add data where missing
+    mutate(specimen = str_remove_all(specimen, "\\(UC\\)|M\\. ") %>% str_trim("both")) %>% 
+    mutate(country = case_when(
+      species == "Radiovittaria remota" ~ "Costa Rica",
+      TRUE ~ country
+    )) %>%
+    mutate(specimen = case_when(
+      species == "Radiovittaria remota" ~ "Moran 3180a",
+      TRUE ~ specimen
+    )) %>%
+    mutate(specimen = case_when(
+      species != "Pteris altissima" ~ paste(specimen, country),
+      TRUE ~ specimen
+    )) %>%
+    select(taxon = species, specimen, genbank_accession = accession) %>%
+    mutate(tip_label = paste(taxon, specimen) %>% str_replace_all(" ", "_"))
+  
+  # Select the appropriate sequences to use and rename them as species_accession
+  gb_seqs <- gb_seqs[names(gb_seqs) %in% acc_keep]
   
   names(gb_seqs) <-
-    tibble(accession = names(gb_seqs)) %>%
-    left_join(gb_seqs_metadata) %>%
-    mutate(tip_label = paste(species, accession) %>% str_replace_all(" ", "_")) %>%
+    tibble(genbank_accession = names(gb_seqs)) %>%
+    left_join(gb_seqs_metadata, by = "genbank_accession") %>%
     pull(tip_label)
+  
+  list(
+    seqs = gb_seqs,
+    metadata = gb_seqs_metadata)
+  
+}
+
+#' Rename Nectandra rbcL sequences
+#' 
+#' Renames newly sequenced samples to "Species_Voucher"
+#'
+#' @param nectandra_rbcL_raw Unaligned rbcL sequences of pteridophytes from Nectandra
+#' @param nectandra_dna DNA accession numbers linking accession to specimen ID
+#' @param nectandra_specimens Specimen collection data including species names
+#'
+#' @return List of class DNAbin
+#' 
+rename_nectandra_rbcL <- function (nectandra_rbcL_raw, nectandra_dna, nectandra_specimens) {
   
   # Reassign names to be taxon plus DNA accession number
   names(nectandra_rbcL_raw) <-
@@ -292,17 +395,37 @@ align_rbcL <- function (nectandra_rbcL_raw, nectandra_dna, nectandra_specimens) 
     left_join(nectandra_dna, by = "genomic_id") %>%
     left_join(nectandra_specimens, by = "specimen_id") %>%
     assert(is_uniq, genomic_id) %>%
-    assert(not_na, genomic_id, specimen_id, taxon) %>%
-    mutate(tip_label = paste(taxon, genomic_id) %>% str_replace_all(" ", "_")) %>%
+    assert(not_na, genomic_id, specimen_id, taxon, specimen) %>%
+    mutate(tip_label = paste(taxon, specimen) %>% 
+             str_replace_all(" ", "_")) %>%
     pull(tip_label)
   
-  # Combine new sequences with GenBank sequences
-  nectandra_rbcL_raw <- c(nectandra_rbcL_raw, gb_seqs)
+  nectandra_rbcL_raw
   
-  # Align sequences with MAFFT, trim ends, and remove any empty cells
-  ips::mafft(nectandra_rbcL_raw, exec = "/usr/bin/mafft") %>%
-    trimEnds(nrow(.) * 0.5) %>%
-    deleteEmptyCells()
+}
+
+#' Rename and align Nectandra rbcL sequences
+#' 
+#' Renames newly sequenced samples to "Species_Voucher"
+#'
+#' Also adds sequences of missing taxa from GenBank
+#'
+#' @param nectandra_rbcL_raw Unaligned rbcL sequences of pteridophytes from Nectandra
+#' @param genbank_rbcL_raw Sequences downloaded from GenBank
+#'
+#' @return DNA alignment of all Nectandra pteridophyte species plus those
+#' sequences from GenBank for those that are missing rbcL
+#' 
+align_nectandra_rbcL <- function (nectandra_rbcL_raw, genbank_rbcL_raw) {
+  
+  # Combine new sequences with GenBank sequences
+  c(nectandra_rbcL_raw, genbank_rbcL_raw) %>%
+    # Align sequences with MAFFT, trim ends, and remove any empty cells
+    ips::mafft(x = ., exec = "/usr/bin/mafft") %>%
+    # Trim ends missing > 50% of sequences
+    ips::trimEnds(nrow(.) * 0.5) %>%
+    # Delete empty cells
+    ips::deleteEmptyCells()
   
 }
 
@@ -406,50 +529,39 @@ analyze_min_dist <- function(nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL
 
 #' Make a table of GenBank accession numbers
 #'
-#' @param nectandra_rbcL rbcL alignment used for phylogenetic analysis
+#' @param nectandra_rbcL_raw Unaligned DNA sequences of newly sequenced specimens from Nectandra;
+#' named by genomic accession number ('JNG001', etc)
 #' @param DNA_accessions DNA accession numbers and corresponding specimen ID codes
-#' @param specimens Specimen data
+#' @param specimens Specimen data with specimen ID codes
+#' @param genbank_rbcL_metadata Metadata of rbcL sequences downloaded from GenBank
+#' @param nectandra_rbcL_aligned Aligned Nectandra rbcL sequences used for phylogenetic analysis
 #'
 #' @return Tibble
 #' 
-make_genbank_accession_table <- function (nectandra_rbcL, DNA_accessions, specimens) {
+make_genbank_accession_table <- function (nectandra_rbcL_raw, DNA_accessions, specimens, genbank_rbcL_metadata, nectandra_rbcL_aligned) {
   
-  tibble(
-    tip = rownames(nectandra_rbcL)
-  ) %>%
-    mutate(genomic_id = str_match(tip, "_([:upper:]+.+)$") %>% magrittr::extract(,2)) %>%
+  # Format table of newly sequenced sequences
+  tibble(genomic_id = names(nectandra_rbcL_raw)) %>%
     left_join(select(DNA_accessions, genomic_id, specimen_id), by = "genomic_id") %>%
-    # Manually set species ID for Pteris_altissima_KM008147 (Nitta 863)
-    mutate(specimen_id = case_when(
-      tip == "Pteris_altissima_KM008147" ~ 892,
-      TRUE ~ specimen_id
-    )) %>%
     left_join(select(specimens, specimen_id, taxon, scientific_name, specimen), by = "specimen_id") %>% 
-    mutate(
-      genbank_accession = case_when(
-        str_detect(genomic_id, "JNG") ~ "TBD",
-        TRUE ~ genomic_id
-      ),
-      genomic_id = case_when(
-        str_detect(genomic_id, "JNG") ~ genomic_id,
-        TRUE ~ NA_character_
-      ),
-      # Manually add data for AY175795
-      taxon = case_when(
-        genbank_accession == "AY175795" ~ "Trichomanes polypodiodes",
-        TRUE ~ taxon
-      ),
-      scientific_name = case_when(
-        genbank_accession == "AY175795" ~ "Trichomanes polypodiodes L.",
-        TRUE ~ scientific_name
-      ),
-      specimen = case_when(
-        genbank_accession == "AY175795" ~ "M. Kessler 8808 (Bolivia)",
-        TRUE ~ specimen
-      )
-    ) %>%
+    # FIXME: Add GenBank accession numbers when available
+    mutate(genbank_accession = "TBD") %>%
+    assert(is_uniq, genomic_id, specimen_id) %>%
+    assert(not_na, genomic_id, specimen_id, taxon, specimen, genbank_accession) %>%
+    # Add "tip_label" in same format as in alignment and tree to check all samples
+    # are accounted for
+    mutate(tip_label = paste(taxon, specimen) %>% 
+             str_replace_all(" ", "_")) %>%
+  # Combine with genbank seqs
+  bind_rows(genbank_rbcL_metadata) %>%
+    # Check that all specimens are identical between GenBank table and alignment
+    verify(isTRUE(all.equal(
+      sort(tip_label),
+      sort(rownames(nectandra_rbcL_aligned))
+    ))) %>%
+    assert(not_na, taxon, specimen, genbank_accession) %>%
     select(taxon, scientific_name, genomic_id, specimen, genbank_accession) %>%
-    assert(not_na, taxon, specimen, genbank_accession)
+    arrange(taxon, genomic_id)
   
 }
 
@@ -623,12 +735,11 @@ make_inext_plot <- function(inext_out) {
 #'
 #' @param phy Phylogenetic tree
 #' @param ppgi Taxonomy of pteridophytes following Pteridophyte Phylogeny Group I
-#' @param specimens Specimen data
 #' @param outfile Name of file to use to save tree pdf
 #'
 #' @return Nothing; externally, the tree will be written as a pdf
 #'
-plot_rbcL_tree <- function(phy, ppgi, specimens, dna_acc, outfile) {
+plot_rbcL_tree <- function(phy, ppgi, outfile) {
   
   # Extract tips into tibble and add taxonomy
   tips <-
@@ -636,8 +747,7 @@ plot_rbcL_tree <- function(phy, ppgi, specimens, dna_acc, outfile) {
     mutate(
       species = sp_name_only(tip, sep = "_"),
       genus = genus_name_only(tip, sep = "_")) %>%
-    left_join(dplyr::select(ppgi, genus, family, class), by = "genus") %>%
-    mutate(genomicID = str_match(tip, "_([:upper:]+.+)$") %>% magrittr::extract(,2))
+    left_join(dplyr::select(ppgi, genus, family, class), by = "genus") 
   
   # Identify lycophyte tips for rooting
   lycos <- tips %>% filter(class == "Lycopodiopsida") %>% pull(tip)
@@ -649,24 +759,9 @@ plot_rbcL_tree <- function(phy, ppgi, specimens, dna_acc, outfile) {
   
   # Reformat tip labels now that tip order has changed
   new_tips <-
-    tibble(tip = phy$tip.label) %>%
-    mutate(genomic_id = str_match(tip, "_([:upper:]+.+)$") %>% magrittr::extract(,2)) %>%
-    left_join(dplyr::select(dna_acc, genomic_id, specimen_id), by = "genomic_id") %>%
-    # Manually set species ID for Pteris_altissima_KM008147 (Nitta 863)
-    mutate(specimen_id = case_when(
-      tip == "Pteris_altissima_KM008147" ~ 892,
-      TRUE ~ specimen_id
-    )) %>%
-    left_join(dplyr::select(specimens, specimen_id, taxon, specimen), by = "specimen_id") %>%
-    mutate(
-      new_tip = case_when(
-        !is.na(specimen_id) ~ paste(taxon, specimen),
-        TRUE ~ tip)
-    ) %>%
-    mutate(new_tip = new_tip %>%
-             str_remove_all("Nitta ") %>% 
-             str_replace_all("_", " ")
-    )
+    tibble(new_tip = phy$tip.label) %>%
+    # Remove "Nitta" and country names from tips
+    mutate(new_tip = str_remove_all(new_tip, "Nitta_|_Costa_Rica|_Bolivia"))
   
   phy$tip.label <- new_tips$new_tip
   

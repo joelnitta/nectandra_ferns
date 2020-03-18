@@ -22,9 +22,6 @@ plan <- drake_plan(
   JNG4254_rbcL_raw_path = target("data/JNG4254.fasta", format = "file"),
   JNG4254_rbcL_raw = ape::read.FASTA(JNG4254_rbcL_raw_path),
   
-  # Combine the unaligned Nectandra rbcL seqs
-  nectandra_rbcL_with_JNG4254 = c(nectandra_rbcL_raw, JNG4254_rbcL_raw),
-  
   # Load species richness and GPS locations of various protected
   # sites in Costa Rica
   cr_richness_path = target("data/costa_rica_richness.csv", format = "file"),
@@ -35,8 +32,8 @@ plan <- drake_plan(
   # from https://datadryad.org/stash/dataset/doi:10.5061/dryad.df59g first
   moorea_rbcL_path = target({
     unzip_nitta_2017(
-    dryad_zip_file = "data/doi_10.5061_dryad.df59g__v1.zip", 
-    exdir = "data/nitta_2017")
+      dryad_zip_file = "data/doi_10.5061_dryad.df59g__v1.zip", 
+      exdir = "data/nitta_2017")
     "data/nitta_2017/rbcL_clean_sporos.fasta"},
     format = "file"
   ),
@@ -100,13 +97,42 @@ plan <- drake_plan(
     specimens = nectandra_specimens,
     endpoint = 150),
   
-  # Barcode analysis ----
+  # Align Nectandra sequences ----
   
-  # Align Nectandra sequences and add missing taxa
-  nectandra_rbcL = align_rbcL(
-    nectandra_rbcL_raw = nectandra_rbcL_with_JNG4254, 
+  # Get list of missing Nectandra taxa
+  # (taxa that couldn't be successfully sequenced)
+  nectandra_rbcL_missing_taxa = make_missing_taxa_list(
+    nectandra_rbcL_raw = nectandra_rbcL_raw, 
     nectandra_dna = nectandra_dna, 
     nectandra_specimens = nectandra_specimens),
+  
+  # Download GenBank sequences for selected missing taxa
+  genbank_rbcL_raw = fetch_gb_seqs(
+    nectandra_rbcL_missing_taxa = nectandra_rbcL_missing_taxa,
+    acc_keep = c(
+      "KM008147", # Pteris altissima
+      "AY175795", # Trichomanes polypodioides
+      "U21289")   # Radiovittaria remota
+  ),
+  
+  # For now combine JNG4254 with other Nectandra seqs, but
+  # this will need to be shifted to GenBank seqs when JNG4254 
+  # accession number is ready (it was sequenced separately in the SIBN project)
+  nectandra_rbcL_raw_with_JNG4254 = c(nectandra_rbcL_raw, JNG4254_rbcL_raw),
+  
+  # Rename newly sequenced Nectandra sequences
+  nectandra_rbcL_raw_renamed = rename_nectandra_rbcL(
+    nectandra_rbcL_raw = nectandra_rbcL_raw_with_JNG4254, 
+    nectandra_dna = nectandra_dna,
+    nectandra_specimens = nectandra_specimens
+  ),
+  
+  # Combine and align newly sequenced and GenBank Nectandra sequences
+  nectandra_rbcL = align_nectandra_rbcL(
+    nectandra_rbcL_raw = nectandra_rbcL_raw_renamed, 
+    genbank_rbcL_raw = genbank_rbcL_raw$seqs),
+  
+  # Barcode analysis ----
   
   # Calculate minimum interspecific distances for the three
   # rbcL datasets and bin them by 0.05% sequence divergence
@@ -158,16 +184,16 @@ plan <- drake_plan(
   rbcL_tree_out = plot_rbcL_tree(
     phy = rbcL_tree,
     ppgi = ppgi,
-    specimens = nectandra_specimens,
-    dna_acc = nectandra_dna,
     outfile = file_out("results/Fig_S1.pdf")
   ),
   
   # Write out GenBank accession numbers for SI
   genbank_accession_table = make_genbank_accession_table(
-    nectandra_rbcL = nectandra_rbcL, 
+    nectandra_rbcL_raw = nectandra_rbcL_raw_with_JNG4254, 
     DNA_accessions = nectandra_dna, 
-    specimens = nectandra_specimens) %>% 
+    specimens = nectandra_specimens,
+    genbank_rbcL_metadata = genbank_rbcL_raw$metadata,
+    nectandra_rbcL_aligned = nectandra_rbcL) %>% 
     write_csv(file_out("results/table_S2.csv")),
   
   # Render manuscript ----
