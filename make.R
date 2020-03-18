@@ -23,6 +23,7 @@ source("code/plan.R")
 
 # Set cache
 nectandra_cache = new_cache("nectandra_cache")
+options(rstudio_drake_cache = nectandra_cache)
 
 # Specify non-global environment
 # to get around captioner modifying global env
