@@ -2,7 +2,7 @@
 title: "A taxonomic and molecular survey of the pteridophytes of the Nectandra Cloud Forest Reserve, Costa Rica"
 bibliography: "references.bib"
 mainfont: Roboto-Regular.ttf
-fontsize: 11pt
+fontsize: 12pt
 mainfontoptions: 
 - BoldFont=Roboto-Bold.ttf
 - ItalicFont=Roboto-Italic.ttf
@@ -38,7 +38,9 @@ loadd(
     "ppgi",
     "cr_richness",
     "nectandra_dna",
+    "nectandra_rbcL",
     "nectandra_rbcL_raw",
+    "nectandra_rbcL_missing_taxa",
     "iqtree_log"),
   cache = nectandra_cache)
 
@@ -239,7 +241,7 @@ richness_estimate[["AsyEst"]] %>%
 
 ```
 
-Our surveys resulted in `r taxa_count %>% pull(specimen)` individuals, representing `r taxa_count %>% pull(species) %>% si("spp.")`, `r taxa_count %>% pull(genus)` genera, and `r taxa_count %>% pull(family)` families of pteridophytes (`r s_table("checklist")`).
+Our surveys resulted in `r taxa_count %>% pull(specimen)` individuals representing `r taxa_count %>% pull(species) %>% si("spp.")`, `r taxa_count %>% pull(genus)` genera, and `r taxa_count %>% pull(family)` families of pteridophytes (`r s_table("checklist")`).
 
 The genera with the most species were *`r top_genera %>% slice(1) %>% pull(genus)`* (`r top_genera %>% slice(1) %>% pull(n) %>% si("spp.")`), *`r top_genera %>% slice(2) %>% pull(genus)`* (`r top_genera %>% slice(2) %>% pull(n) %>% si("spp.")`), *`r top_genera %>% slice(3) %>% pull(genus)`* (`r top_genera %>% slice(3) %>% pull(n) %>% si("spp.")`), and *`r top_genera %>% slice(4) %>% pull(genus)`* (`r top_genera %>% slice(4) %>% pull(n) %>% si("spp.")`).
 Families with the most species were `r top_families %>% slice(1) %>% pull(family)` (`r top_families %>% slice(1) %>% pull(n) %>% si("spp.")`), `r top_families %>% slice(2) %>% pull(family)` (`r top_families %>% slice(2) %>% pull(n) %>% si("spp.")`), and `r top_families %>% slice(3) %>% pull(family)` (`r top_families %>% slice(3) %>% pull(n) %>% si("spp.")`).
@@ -272,16 +274,36 @@ tibble(genomic_id = names(nectandra_rbcL_raw)) %>%
   left_join(nectandra_specimens, by = "specimen_id") %>%
   assert(not_na, taxon)
 
-# Check number of new rbcL sequences
-n_taxa_rbcL_seqs <-
+# - Check number of new rbcL sequences: by taxa
+n_taxa_rbcL_new <-
 new_seqs_data %>% pull(taxon) %>% n_distinct()
 
-# Check coverage of rbcL sequences
+# - Check number of new rbcL sequences: by accession
+n_acc_rbcL_new <-
+new_seqs_data %>% pull(genomic_id) %>% n_distinct()
+
+# - Get vector of newly generated sequence lengths
+seq_lengths_rbcL_new <-
+nectandra_rbcL_raw %>% map_dbl(length)
+
+# Check number of rbcL taxa including GenBank
+n_taxa_rbcL_seqs <-
+  # Start from complete DNA alignment
+  tibble(tip = rownames(nectandra_rbcL)) %>%
+  # Separate out taxa name by dropping specimen
+  separate(tip, into = c("taxon", "specimen"), sep = "_Nitta|_Moran|_Kessler") %>%
+  mutate(taxon = str_replace_all(taxon, "_", " ")) %>%
+  # Check that worked as expected
+  assert(in_set(nectandra_specimens$taxon), taxon) %>%
+  # Count number of distinct taxa
+  pull(taxon) %>%
+  n_distinct()
+
+# Check coverage of rbcL taxa including GenBank
 coverage_taxa_rbcL_seqs <- 
   n_taxa_rbcL_seqs %>%
   magrittr::divide_by(taxa_count$taxon) %>%
-  round(3) %>%
-  scales::percent()
+  scales::percent(accuracy = 0.1)
 
 # Extract relevant lines from iqtree log
 align_stats <- 
@@ -304,16 +326,14 @@ best_mod_basis <-
   str_match("according to (.+)$") %>%
   magrittr::extract(,2)
 
-# Get vector of sequence lengths
-seq_lengths <-
-nectandra_rbcL_raw %>% map_dbl(length)
-
 ```
 
-We recovered *rbcL* sequences for `r n_taxa_rbcL_seqs` taxa (`r coverage_taxa_rbcL_seqs`) from Nectandra, resulting in `r new_seqs_data$genomic_id %>% n_distinct` new *rbcL* sequences (`r s_table("checklist")`).
-Mean sequence length was `r mean(seq_lengths) %>% si("bp", accuracy = 1)` ± SD `r sd(seq_lengths) %>% si("bp", accuracy = 1)`.
-*rbcL* could not be sequenced for `r (taxa_count$taxon - n_taxa_rbcL_seqs) %>% english2` taxa (of these, one already had a sequence available on GenBank), and only partial sequences (ca. 3' or 5' half of *rbcL*) could be obtained for `r seq_lengths[seq_lengths < 1000] %>% length() %>% english2` taxa.
+We generated `r n_acc_rbcL_new` new *rbcL* sequences of pteridophytes from Nectandra representing `r n_taxa_rbcL_new` taxa (`r s_table("genbank")`).
+Mean length of the newly generated sequences was `r mean(seq_lengths_rbcL_new) %>% si("bp", accuracy = 1)` ± SD `r sd(seq_lengths_rbcL_new) %>% si("bp", accuracy = 1)`.
+*rbcL* could not be sequenced for `r nectandra_rbcL_missing_taxa %>% n_distinct %>% english2` taxa, and only partial sequences (ca. 3' or 5' half of *rbcL*) could be obtained for `r seq_lengths_rbcL_new[seq_lengths_rbcL_new < 1000] %>% length() %>% english2` taxa.
 Difficulty in sequencing of these samples may be due to degraded condition of DNA.
+Of the taxa that we were unable to newly sequence, sequences of two taxa from specimens from Nectandra and two taxa from specimens from other areas were available on GenBank (`r s_table("genbank")`). 
+In total, our *rbcL* sampling included `r n_taxa_rbcL_seqs` taxa (`r coverage_taxa_rbcL_seqs`) of pteridophytes occurring at Nectandra.
 
 The *rbcL* alignment was `r get_number(align_stats, "columns") %>% si("bp")` long including `r get_number(align_stats, "informative sites") %>% si` parsimony-informative sites and `r get_number(align_stats, "sequences") %>% si` sequences.
 The `r best_mod` model was selected for ML phylogenetic analysis according to `r best_mod_basis`.
@@ -422,7 +442,7 @@ This study was supported by the Japan Society for the Promotion of Science (Kake
 **`r s_figure_full("tree")`** Tree rooted on lycophytes.
 Numbers at nodes indicate SH-aLRT support (%) / UFboot support (%); values less than 50% shown with "-"; values of 100% shown with "\*".
 For phylogram on right side, scale bar shows expected number of changes per site.
-Numbers after species name are J. H. Nitta specimen collection numbers of specimens from Nectandra, except for *Trichomanes polypodiodes*, which could not be sequenced successfully, so a GenBank sequence (AY175795) from Bolivia (*M. Kessler 8808*) was used instead.
+Numbers after species name are J. H. Nitta specimen collection numbers of specimens from Nectandra, except for *Trichomanes polypodiodes* L. (*M. Kessler 8808*, Bolivia) and *Radiovittaria remota* (Fée) E.H. Crane (*R. Moran 3180a*, Costa Rica), which could not be sequenced successfully, so GenBank sequences were used instead (accessions AY175795 and U21289, respectively).
 
 \clearpage
 
