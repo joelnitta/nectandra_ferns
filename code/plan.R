@@ -196,6 +196,59 @@ plan <- drake_plan(
     nectandra_rbcL_aligned = nectandra_rbcL) %>% 
     write_csv(file_out("results/table_S2.csv")),
   
+  # Other trees for SI ----
+  
+  # - Cyatheaceae: download sequences from GenBank and make alignment
+  cyatheaceae_seqs = make_broad_alignment(
+    nectandra_rbcL = nectandra_rbcL, 
+    ppgi = ppgi,
+    nectandra_family = c("Cyatheaceae", "Dicksoniaceae"),  # Include Dicksoniaceae as outgroup
+    genbank_group = "Cyatheaceae"
+  ),
+  
+  # - Cyatheaceae: Make tree with fasttree
+  cyatheaceae_tree = fasttree(cyatheaceae_seqs),
+  
+  # - Cyatheaceae: Identify outgroup sequences
+  cyatheaceae_outgroup = identify_outgroup(
+    phy = cyatheaceae_tree, 
+    ppgi = ppgi,
+    family == "Dicksoniaceae"
+  ),
+  
+  # - Cyatheaceae: Print out tree for SI
+  cyatheaceae_rbcL_tree_pdf = plot_broad_rbcL_tree(
+    phy = cyatheaceae_tree,
+    outgroup = cyatheaceae_outgroup,
+    outfile = file_out("results/Fig_S2.pdf")
+  ),
+  
+  # - Grammitids: download sequences from GenBank and make alignment
+  grammitid_seqs = make_broad_alignment(
+    nectandra_rbcL = nectandra_rbcL, 
+    ppgi = ppgi,
+    nectandra_family = "Polypodiaceae", # Include other Polypodiaceae as outgroup
+    genbank_group = "Grammitidoideae",
+    exclude_list = "MH159215" # Exclude misidentified Ascogrammitis anfractuosa on GenBank
+  ),
+  
+  # - Grammitids: Make tree with fasttree
+  grammitid_tree = fasttree(grammitid_seqs),
+  
+  # - Grammitids: Identify outgroup sequences
+  grammitid_outgroup = identify_outgroup(
+    phy = grammitid_tree, 
+    ppgi = ppgi,
+    subfamily == "Polypodioideae"
+  ),
+  
+  # - Grammitids: Print out tree for SI
+  grammitid_rbcL_tree_pdf = plot_broad_rbcL_tree(
+    phy = grammitid_tree,
+    outgroup = grammitid_outgroup,
+    outfile = file_out("results/Fig_S3.pdf")
+  ),
+  
   # Render manuscript ----
   
   # First render to PDF, keeping the latex

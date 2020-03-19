@@ -878,31 +878,94 @@ plot_rbcL_tree_families <- function(rbcL_tree, ppgi, outfile) {
   dev.off()
 }
 
+#' Print rbcL tree to pdf
+#'
+#' @param phy Phylogenetic tree
+#' @param outgroup Character vector; tips to use as the outgroup
+#' @param outfile Name of file to use to save tree pdf
+#'
+#' @return Nothing; externally, the tree will be written as a pdf
+#'
+plot_broad_rbcL_tree <- function(phy, outgroup, outfile) {
+  
+  # Root tree and ladderize
+  phy <-
+    ape::root(phy, outgroup = outgroup, resolve.root = TRUE) %>%
+    ape::ladderize(right = FALSE)
+  
+  # Reformat node labels (input tree is from fasttree, so node values are '0.99', etc.)
+  node_labels_tibble <- tibble(
+    old_lab = phy$node.label
+  ) %>%
+    # Convert to percent
+    mutate(new_lab = parse_number(old_lab) * 100) %>%
+    mutate(new_lab = case_when(
+      # Don't print for unsupported nodes
+      new_lab < 50 ~ "",
+      TRUE ~ as.character(new_lab))) %>%
+    mutate(new_lab = replace_na(new_lab, ""))
+  
+  phy$node.label <- node_labels_tibble$new_lab
+  
+  #### Plot using ggtree
+  
+  # Left side: tree without branch lengths, 
+  # include support values and tip labels
+  tree1 <- ggtree(phy, branch.length="none") +
+    geom_nodelab(hjust = 0, size = 1*.pt) + 
+    geom_tiplab() +
+    # Need some extra space for long tip names
+    theme(plot.margin = margin(t=0,l=0,b=0,r=3.5, unit = "in")) +  
+    coord_cartesian(clip = "off")
+  
+  # Right side: tree with branch lengths, reversed, 
+  # no support values or tip labels
+  tree2 <- ggtree(phy) + 
+    scale_x_reverse() + 
+    # Add scale
+    geom_treescale(x = -0.01, y = length(phy$tip.label) - 1, offset = 2) +
+    # Make sure margins are set same on both trees so tips line up
+    theme(plot.margin = margin(t=0,l=0,b=0,r=0, unit = "in"))
+  
+  # Combine left and right sides
+  final_plot <- tree1 + tree2 + plot_layout(widths = c(2,1))
+  
+  # Output pdf
+  print_height <- 0.16 * length(phy$tip.label)
+  
+  ggsave(plot = final_plot, filename = outfile, width = 17, height = print_height, units = "in", limitsize = FALSE)
+  
+}
+
 # Phylogenetic analysis ----
 
-#' Make a 'broad' tree including Nectandra rbcL sequences and all
+#' Make a 'broad' DNA alignment including Nectandra rbcL sequences and all
 #' rbcL sequences from GenBank for a group of interest
 #'
 #' @param nectandra_rbcL List of class 'DNAbin'; Nectandra rbcL sequences
 #' @param ppgi Dataframe; Pteridophyte phylogeny group I taxonomy
 #' @param nectandra_family String; name of family of interest in Nectandra data
 #' @param genbank_group String; name of group to download rbcL from GenBank
-#' @param tree_path Path to write out phylogenetic tree.
+#' @param start_date Earliest date to include for sequences
+#' @param end_date Latest date to include for sequences
+#' @param exclude_list Character vector of GenBank accessions to exclude from
+#' results (misidentifications)
 #'
-#' @return List; phylogenetic tree in ape format. Externally, the tree
-#' will be written in NEXUS format to tree_path
+#' @return List of class 'DNAbin'; Combined Nectandra and GenBank rbcL sequences
 #' 
-make_broad_tree <- function(
+make_broad_alignment <- function(
   nectandra_rbcL, ppgi,
   nectandra_family, genbank_group,
-  tree_path) {
+  start_date = "1980/01/01",
+  end_date = "2020/03/01",
+  exclude_list = "") {
   
   # Extract target family from Nectandra rbcL alignment
   taxa_selected <- 
     tibble(tips = rownames(nectandra_rbcL)) %>%
     mutate(genus = str_split(tips, "_") %>% map_chr(1)) %>%
     left_join(ppgi, by = "genus") %>%
-    filter(family == nectandra_family) %>%
+    filter(family %in% nectandra_family) %>%
     pull(tips)
   
   nectandra_rbcL_selected <- nectandra_rbcL[taxa_selected, ] %>% as.list
@@ -910,15 +973,21 @@ make_broad_tree <- function(
   # Download all rbcL seqs for group of interest from genbank
   
   genbank_rbcL <- gbfetch::fetch_sequences(
-    glue::glue("{genbank_group}[ORGN] AND rbcl[Gene] AND 1000:1600[SLEN] NOT accd[Gene] NOT atpB[Gene] NOT spacer"))
+    glue::glue('{genbank_group}[ORGN] AND rbcl[Gene] AND 1000:1600[SLEN] NOT accd[Gene] NOT atpB[Gene] NOT spacer AND ("{start_date}"[PDAT]:"{end_date}"[PDAT])'))
   
   genbank_rbcL_metadata <- gbfetch::fetch_metadata(
-    glue::glue("{genbank_group}[ORGN] AND rbcl[Gene] AND 1000:1600[SLEN] NOT accd[Gene] NOT atpB[Gene] NOT spacer"))
+    glue::glue('{genbank_group}[ORGN] AND rbcl[Gene] AND 1000:1600[SLEN] NOT accd[Gene] NOT atpB[Gene] NOT spacer AND ("{start_date}"[PDAT]:"{end_date}"[PDAT])'))
+  
+  # Exclude any sequences in exclude list
+  genbank_rbcL <- genbank_rbcL[!names(genbank_rbcL) %in% exclude_list]
+  genbank_rbcL_metadata <- filter(genbank_rbcL_metadata, !accession %in% exclude_list)
   
   # Rename GB sequences by species + accession
   gb_names <- tibble(accession = names(genbank_rbcL)) %>%
     left_join(select(genbank_rbcL_metadata, accession, species), by = "accession") %>%
-    mutate(new_name = paste3(species, accession) %>% str_replace_all(" ", "_"))
+    # Truncate extremely long names so they will fit on the tree
+    mutate(species_short = str_trunc(species, 40, side = "right", ellipsis = "")) %>%
+    mutate(new_name = paste3(species_short, accession) %>% str_replace_all(" ", "_"))
   
   names(genbank_rbcL) <- gb_names$new_name
   
@@ -926,20 +995,40 @@ make_broad_tree <- function(
   combined_rbcL <- c(nectandra_rbcL_selected, genbank_rbcL)
   
   combined_rbcL_aln <-
-    ips::mafft(combined_rbcL, exec = "/usr/local/bin/mafft", options = "--adjustdirection") %>%
+    ips::mafft(combined_rbcL, exec = "/usr/bin/mafft", options = "--adjustdirection") %>%
     trimEnds(nrow(.) * 0.5) %>%
     deleteEmptyCells()
   
   # Remove any offending characters: perioids and single quotes
-  rownames(combined_rbcL_aln) <- rownames(combined_rbcL_aln) %>% str_remove_all("'")
+  rownames(combined_rbcL_aln) <- rownames(combined_rbcL_aln) %>% 
+    str_remove_all("'") %>% 
+    str_remove_all("\\.")
+
+  combined_rbcL_aln
+
+}
+
+#' Identify taxa to use as an outgroup in a tree
+#'
+#' @param phy Pteridophyte phylogeny. Tip names should be formatted
+#' as genus_specific-epithet_accession
+#' @param ppgi Pteridophyte Phylogeny Group I taxonomic system
+#' @param ... Specification for outgroup taxa used as input to dplyr::filter()
+#'
+#' @return Character vector
+#' 
+identify_outgroup <- function(phy, ppgi, ...) {
   
-  rownames(combined_rbcL_aln) <- rownames(combined_rbcL_aln) %>% str_remove_all("\\.")
+  # Extract tips into tibble and add taxonomy
+  tips <-
+    tibble(tip = phy$tip.label) %>%
+    mutate(
+      species = sp_name_only(tip, sep = "_"),
+      genus = genus_name_only(tip, sep = "_")) %>%
+    left_join(ppgi, by = "genus") 
   
-  # Make tree with fasttree
-  combined_rbcL_tree <- fasttree(combined_rbcL_aln)
-  
-  ape::write.tree(combined_rbcL_tree, tree_path)
-  
+  # Identify outgroup taxa for rooting
+  tips %>% filter(...) %>% pull(tip)
 }
 
 # MS rendering ----

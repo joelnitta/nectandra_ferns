@@ -13,6 +13,8 @@ figure_full(name = "min-dist", caption = "Minimum interspecific distances for se
 # - SI figures
 s_figure_full <- captioner::captioner(prefix = "S", auto_space = FALSE, suffix = " Fig. ")
 s_figure_full(name = "tree", "Maximum-likelihood phylogenetic tree of ferns and lycophytes at the Nectandra Cloud Forest Reserve, Costa Rica inferred using IQ-TREE with 1,000 SH-like approximate likelihood ratio test (SH-aLRT) and ultra-fast bootstrap (UFboot) replicates each.")
+s_figure_full(name = "cyatheaceae-tree", "Maximum-likelihood phylogenetic tree of the family Cyatheaceae including all available *rbcL* sequences on GenBank and newly sequenced taxa from the Nectandra Cloud Forest Reserve, Costa Rica inferred using FastTree.")
+s_figure_full(name = "grammitid-tree", "Maximum-likelihood phylogenetic tree of the grammitid ferns (subfamily Grammitidoideae) including all available *rbcL* sequences on GenBank and newly sequenced taxa from the Nectandra Cloud Forest Reserve, Costa Rica inferred using FastTree.")
 
 # - SI tables
 s_table_full <- captioner::captioner(prefix = "S", auto_space = FALSE, suffix = " Table. ")
