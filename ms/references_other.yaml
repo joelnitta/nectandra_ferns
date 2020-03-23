@@ -1,0 +1,43 @@
+---
+references:
+- type: webpage
+  id: Thiers2020
+  author:
+  - family: Thiers
+    given: Barbara
+  issued:
+    year: 2020
+  accessed:
+    year: 2020
+    month: 03
+    day: 01
+  title: 'Index Herbariorum: A global directory of public herbaria and associated staff'
+  container-title: 'NYBG Steere Herbarium'
+  title-short: IH
+  URL: http://sweetgum.nybg.org/science/ih/
+
+- type: webpage
+  id: oet2019
+  author:
+    literal: 'Organización para Estudios Tropicales'
+  issued:
+    year: 2019
+  accessed:
+    year: 2019
+    month: 09
+    day: 03
+  title: 'Lista de Plantas Vasculares de La Selva, versión Feb. 2017'
+  container-title: 'La Selva Florula Digital'
+  title-short: LaSelvaFlorula
+  URL: https://sura.ots.ac.cr/florula4/index.php
+
+- type: thesis
+  id: Leon1992
+  author:
+  - family: León
+    given: Blanca
+  issued:
+    year: 1992
+  title: 'A taxonomic revision of the fern genus *Campyloneurum* (Polypodiaceae)'
+  genre: 'Ph.D. Thesis'
+  publisher: 'Aarhus University'
