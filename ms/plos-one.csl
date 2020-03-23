@@ -3,7 +3,7 @@
   <info>
     <title>Public Library of Science - Joel Nitta</title>
     <title-short>PLOS</title-short>
-    <id>http://csl.mendeley.com/styles/25428611/plos-jhn-2</id>
+    <id>https://csl.mendeley.com/styles/25428611/plos-jhn-2</id>
     <link href="http://www.zotero.org/styles/plos" rel="self"/>
     <link href="http://www.zotero.org/styles/vancouver" rel="template"/>
     <link href="http://www.plosone.org/static/guidelines#references" rel="documentation"/>
@@ -20,7 +20,7 @@
     <category citation-format="numeric"/>
     <category field="science"/>
     <summary>Vancouver for PLoS Journals as of January 2015</summary>
-    <updated>2020-03-23T06:58:24+00:00</updated>
+    <updated>2020-03-23T07:28:00+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -31,7 +31,7 @@
     </date>
     <terms>
       <term name="presented at">presented at</term>
-      <term name="retrieved">available</term>
+      <term name="retrieved">available from</term>
       <term name="section" form="short">sect.</term>
     </terms>
   </locale>
