@@ -1107,3 +1107,26 @@ latex2docx <- function (latex, docx, template = NULL, wd = getwd()) {
   )
   
 }
+
+#' Check the order of figure and table citations in an Rmd file
+#'
+#' @param rmd_file Path to the Rmd file
+#' @param cap_type Type of caption; should match the function name
+#' used by captioner to make the citation.
+#'
+#' @examples
+#' check_citation_order("ms/nectandra_pteridos.Rmd", "figure")
+check_citation_order <- function(rmd_file, cap_type) {
+  
+  readr::read_lines(rmd_file) %>% 
+    stringr::str_split(" ") %>% 
+    unlist %>%
+    magrittr::extract(., stringr::str_detect(., cap_type)) %>% 
+    str_match(glue::glue("^{cap_type}\\(([^\\()]+)\\)")) %>%
+    as_tibble(.name_repair = "universal") %>%
+    select(key = 2) %>%
+    filter(!is.na(key)) %>%
+    unique
+  
+}
+

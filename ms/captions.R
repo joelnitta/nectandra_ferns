@@ -14,7 +14,7 @@ figure_full(name = "min-dist", caption = "Minimum interspecific distances for se
 s_figure_full <- captioner::captioner(prefix = "S", auto_space = FALSE, suffix = " Fig. ")
 s_figure_full(name = "tree", "Maximum-likelihood phylogenetic tree of ferns and lycophytes at the Nectandra Cloud Forest Reserve, Costa Rica inferred using IQ-TREE with 1,000 SH-like approximate likelihood ratio test (SH-aLRT) and ultra-fast bootstrap (UFboot) replicates each.")
 s_figure_full(name = "cyatheaceae-tree", "Maximum-likelihood phylogenetic tree of the family Cyatheaceae including all available *rbcL* sequences on GenBank and newly sequenced taxa from the Nectandra Cloud Forest Reserve, Costa Rica inferred using FastTree.")
-s_figure_full(name = "grammitid-tree", "Maximum-likelihood phylogenetic tree of the grammitid ferns (subfamily Grammitidoideae) including all available *rbcL* sequences on GenBank and newly sequenced taxa from the Nectandra Cloud Forest Reserve, Costa Rica inferred using FastTree.")
+s_figure_full(name = "grammitid-tree", "Maximum-likelihood phylogenetic tree of grammitid ferns (subfamily Grammitidoideae) including all available *rbcL* sequences on GenBank and newly sequenced taxa from the Nectandra Cloud Forest Reserve, Costa Rica inferred using FastTree.")
 
 # - SI tables
 s_table_full <- captioner::captioner(prefix = "S", auto_space = FALSE, suffix = " Table. ")
@@ -31,3 +31,13 @@ s_table <- function(x) {s_table_full(x) %>% stringr::str_match("(S[0-9] Table)")
 # - Just the caption
 figure_cap <- function(x) {figure_full(x) %>% stringr::str_match("Fig [0-9]+\\. (.*)$") %>% magrittr::extract(,2)}
 # table_cap <- function(x) {table_full(x) %>% stringr::str_match("Table [0-9]+ (.*)$") %>% magrittr::extract(,2)}
+
+# Optional:
+# Check the order of figure and table citations in the Rmd file.
+# Adjust the order of creation of captions above if it doesn't match.
+
+# check_citation_order("ms/nectandra_pteridos.Rmd", "figure")
+
+# check_citation_order("ms/nectandra_pteridos.Rmd", "s_figure")
+ 
+# check_citation_order("ms/nectandra_pteridos.Rmd", "s_table")
