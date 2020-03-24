@@ -118,46 +118,11 @@ nectandra_dna <- dna_raw %>%
 
 write_csv(nectandra_dna, "data/nectandra_DNA_accessions.csv")
 
-# Process references for MS ----
-
-# Make a clean bib file from raw references that only includes cited references
-# in the MS
-
-make_ref_list(
-  rmd_file = "ms/nectandra_pteridos.Rmd", 
-  raw_bib = "ms/references_raw.bib",
-  final_bib = "ms/references.bib")
-
-# Make some manual fixes to authors in SI bibliography
-# (these are institutions, so need double brackets to
-# avoid latex thinking they have first and last names)
-read_lines("ms/references.bib") %>%
-  str_replace(
-    "R Core Team",
-    "\\{R Core Team\\}") %>%
-  write_lines("ms/references.bib")
-
-read_lines("ms/references.bib") %>%
-  str_replace(
-    "Pteridophyte Phylogeny Group I",
-    "\\{Pteridophyte Phylogeny Group I\\}") %>%
-  write_lines("ms/references.bib")
-
-# Same for OET
-read_lines("ms/references.bib") %>%
-  str_replace(
-    "Organizaci",
-    "\\{Organizaci") %>%
-  write_lines("ms/references.bib")
-
-read_lines("ms/references.bib") %>%
-  str_replace(
-    "n para Estudios Tropicales",
-    "n para Estudios Tropicales\\}") %>%
-  write_lines("ms/references.bib")
-
 # Process Costa Rica pterido richness data ----
 
+# Count number of taxa at Nectandra
+
+  
 # From the raw flora list of La Selva (Feb. 2017),
 # subset to only pteridophytes and count the number of 
 # unique taxa.
@@ -167,7 +132,7 @@ la_selva_pteridos <- readxl::read_excel("data_raw/Lista_especies_LS_feb2017.xlsx
   rename(family = familia, genus = genero, specific_epithet = especie, 
          author = autor, notes = historia_taxonomica,
          habit = habito, habit_atr = habito_atributo) %>%
-  left_join(taxize::apgFamilies()) %>%
+  left_join(taxize::apgFamilies(), by = "family") %>%
   filter(order %in% c(
     "Cyatheales",
     "eupolypod II",
@@ -189,6 +154,7 @@ costa_rica_richness <-
   mutate(richness = as.integer(richness)) %>%
   mutate(richness = case_when(
     name == "La Selva" ~ n_distinct(la_selva_pteridos$taxon),
+    name == "Nectandra" ~ n_distinct(nectandra_specimens$species),
     TRUE ~ richness))
 
 write_csv(costa_rica_richness, "data/costa_rica_richness.csv")
