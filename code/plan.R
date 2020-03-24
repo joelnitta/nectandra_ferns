@@ -198,7 +198,7 @@ plan <- drake_plan(
   
   # Other trees for SI ----
   
-  # - Cyatheaceae: download sequences from GenBank and make alignment
+  # - Cyatheaceae: download sequences from GenBank and make alignment, write out for Dryad
   cyatheaceae_seqs = make_broad_alignment(
     nectandra_rbcL = nectandra_rbcL, 
     ppgi = ppgi,
@@ -206,8 +206,12 @@ plan <- drake_plan(
     genbank_group = "Cyatheaceae"
   ),
   
-  # - Cyatheaceae: Make tree with fasttree
+  cyatheaceae_seqs_out = ape::write.FASTA(grammitid_seqs, file_out("results/cyatheaceae_rbcL.fasta")),
+  
+  # - Cyatheaceae: Make tree with fasttree, write out for Dryad
   cyatheaceae_tree = fasttree(cyatheaceae_seqs),
+  
+  cyatheaceae_tree_out = ape::write.tree(cyatheaceae_tree, file_out("results/cyatheaceae_rbcL.tre")),
   
   # - Cyatheaceae: Identify outgroup sequences
   cyatheaceae_outgroup = identify_outgroup(
@@ -232,8 +236,12 @@ plan <- drake_plan(
     exclude_list = "MH159215" # Exclude misidentified Ascogrammitis anfractuosa on GenBank
   ),
   
+  grammitid_seqs_out = ape::write.FASTA(grammitid_seqs, file_out("results/grammitidoideae_rbcL.fasta")),
+  
   # - Grammitids: Make tree with fasttree
   grammitid_tree = fasttree(grammitid_seqs),
+  
+  grammitid_tree_out = ape::write.tree(cyatheaceae_tree, file_out("results/grammitidoideae_rbcL.tre")),
   
   # - Grammitids: Identify outgroup sequences
   grammitid_outgroup = identify_outgroup(

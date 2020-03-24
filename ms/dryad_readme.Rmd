@@ -1,5 +1,7 @@
 ---
-bibliography: "references.bib"
+bibliography: 
+  - "references.bib"
+  - "references_other.yaml"
 output: rtf_document
 editor_options:
   chunk_output_type: console
@@ -12,7 +14,7 @@ editor_options:
 # 3. Hard-wrap all text at 80 characters (in Atom with autoflow: cmd-alt-q)
 
 knitr::opts_chunk$set(
-  echo = FALSE, message = FALSE, 
+  echo = FALSE, message = FALSE,
   warning = FALSE, results = "hide", cache = FALSE)
 
 # Load objects build during analysis from drake cache
@@ -23,6 +25,10 @@ loadd(
     "nectandra_dna",
     "nectandra_rbcL_raw",
     "nectandra_rbcL",
+    "cyatheaceae_seqs",
+    "cyatheaceae_tree",
+    "grammitid_seqs",
+    "grammitid_tree",
     "cr_richness",
     "iqtree_log",
     "rbcL_tree"),
@@ -98,6 +104,14 @@ description of all data files):
   - costa_rica_richness.csv: Data on species richness of pteridophytes in protected
 areas in Costa Rica.
 
+  - cyatheaceae_rbcL.fasta: Aligned rbcL sequences of family Cyatheaceae from the Nectandra Cloud Forest Reserve, Costa Rica and all available sequences on GenBank in FASTA format.
+
+  - cyatheaceae_rbcL.tre: Phylogenetic tree of family Cyatheaceae from the Nectandra Cloud Forest Reserve, Costa Rica and all available rbcL sequences on GenBank in Newick format.
+
+  - grammitidoideae_rbcL.fasta: Aligned rbcL sequences of subfamily Grammitidoideae from the Nectandra Cloud Forest Reserve, Costa Rica and all available sequences on GenBank in FASTA format.
+
+  - grammitidoideae_rbcL.tre: Phylogenetic tree of subfamily Grammitidoideae from the Nectandra Cloud Forest Reserve, Costa Rica and all available rbcL sequences on GenBank in Newick format.
+
   - nectandra_DNA_accessions.csv: DNA accession numbers and specimen accession numbers
 of pteridophytes from the Nectandra Cloud Forest Reserve, Costa Rica.
 
@@ -134,14 +148,14 @@ METHODOLOGICAL INFORMATION
 Description of methods used for collection/generation of data:
 
 Surveys of pteridophytes (i.e., ferns and lycophytes) were carried out over
-three field seasons (January 2008, 2011, and 2013; `r nectandra_specimens %>%
-filter(!is.na(date_collected)) %>% pull(date_collected) %>% n_distinct`) at
-the Nectandra Cloud Forest Reserve, Costa Rica. Most specimens were collected
+three field seasons (January 2008, 2011, and 2013;
+`r nectandra_specimens %>% filter(!is.na(date_collected)) %>% pull(date_collected) %>% n_distinct` days total)
+at the Nectandra Cloud Forest Reserve, Costa Rica. Most specimens were collected
 along trails through the reserve. Epiphytes were collected from fallen trees
 or tree branches, or up to 2 m on tree trunks. Permits for collection were
 obtained from the Costa Rican government (SINAC No. 04941 and Cites 2014-CR
 1006/SJ (#S 1045)). The first set of voucher specimens was deposited at UC,
-with duplicates at CR and GH. Herbarium codes follow @Thiers2019. Leaf tissue
+with duplicates at CR and GH. Herbarium codes follow @Thiers2020. Leaf tissue
 was preserved on silica gel for DNA extraction. Spores of selected taxa were
 observed with a standard compound light microscope.
 
@@ -158,8 +172,16 @@ AB1 trace files were imported into Geneious [@Kearse2012], assembled into
 contigs, and the consensus sequences exported in FASTA format. A
 multi-sequence alignment was generated using MAFFT [@Katoh2002], and a
 phylogenetic tree inferred using IQ-TREE with automatic model selection
-[@Nguyen2015]. Molecular analysis was authorized by Convenio Marco de
-CONAGEBIO R-CM-RN-001-2014-OT.
+[@Nguyen2015]. For a small number of genera that were not supported as
+monophyletic in the original phylogenetic analysis (Cyathea and Lellingeria),
+all available *rbcL* sequences for closely related taxa (at the family or
+subfamily level, respectively) were downloaded from GenBank, aligned in
+combination with the newly generated sequences from Nectandra with MAFFT, and
+a phylogenetic tree inferred using FastTree on default settings [@Price2009;
+@Price2010].
+
+Molecular analysis was authorized by Convenio Marco de CONAGEBIO
+R-CM-RN-001-2014-OT.
 
 For additional methodological details, see Nitta JH, Ebihara A, Smith AR
 (2020).
@@ -171,7 +193,7 @@ DATA-SPECIFIC INFORMATION
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 
 costa_rica_richness.csv: Data on species richness of pteridophytes in
-protected  areas in Costa Rica. Compiled by Joel Nitta based on references in
+protected areas in Costa Rica. Compiled by Joel Nitta based on references in
 the  "citation" column.
 
 Number of variables: `r ncol(cr_richness)`
@@ -180,7 +202,9 @@ Number of cases/rows: `r nrow(cr_richness)`
 
 Variable list:
 
-  - name: Name of site.
+  - name: Abbreviated name of site.
+  
+  - full_name: Full name of site.
 
   - min_el_m: Minimum elevation of site in meters.
 
@@ -204,6 +228,54 @@ Missing data codes: Missing data have no values (nothing entered between commas
 in the CSV file).
 
 Specialized formats or other abbreviations used: none.
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+cyatheaceae_rbcL.fasta: Aligned rbcL sequences of family Cyatheaceae from the
+Nectandra Cloud Forest Reserve, Costa Rica and all available sequences on
+GenBank in FASTA format. Sequences aligned using MAFFT [@Katoh2002]. Species
+from Nectandra in family Dicksoniaceae included as outgroup. Numbers after
+species names are GenBank accession numbers for sequences downloaded from
+GenBank or J. H. Nitta specimen collection numbers for sequences newly
+obtained by this study. `r dim(cyatheaceae_seqs)[[1]]` sequences;
+`r dim(cyatheaceae_seqs)[[2]]` bp; `r ips::pis(cyatheaceae_seqs, "absolute")`
+parsimony-informative sites.
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+cyatheaceae_rbcL.tre: Phylogenetic tree of family Cyatheaceae from the
+Nectandra Cloud Forest Reserve, Costa Rica and all available rbcL sequences
+on GenBank in Newick format. Tree inferred using FastTree [@Price2009;
+@Price2010] and rooted on species from Nectandra in family Dicksoniaceae.
+Numbers after species names are GenBank accession numbers for sequences
+downloaded from GenBank or J. H. Nitta specimen collection numbers for
+sequences newly obtained by this study. Numbers at nodes indicate local
+support values computed with the Shimodaira–Hasegawa test. `r ape::Ntip(cyatheaceae_tree)`
+tips; `r ape::Nnode(cyatheaceae_tree)` internal nodes.
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+grammitidoideae_rbcL.fasta: Aligned rbcL sequences of subfamily
+Grammitidoideae from the Nectandra Cloud Forest Reserve, Costa Rica and all
+available sequences on GenBank in FASTA format. Sequences aligned using MAFFT
+[@Katoh2002]. Species from Nectandra in subfamily Polypodioideae included as
+outgroup. Numbers after species names are GenBank accession numbers for
+sequences downloaded from GenBank or J. H. Nitta specimen collection numbers
+for sequences newly obtained by this study. `r dim(grammitid_seqs)[[1]]` sequences;
+`r dim(grammitid_seqs)[[2]]` bp; `r ips::pis(grammitid_seqs, "absolute")`
+parsimony-informative sites.
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+grammitidoideae_rbcL.tre: Phylogenetic tree of subfamily Grammitidoideae from
+the Nectandra Cloud Forest Reserve, Costa Rica and all available rbcL
+sequences on GenBank in Newick format. Tree inferred using FastTree
+[@Price2009; @Price2010] and rooted on species from Nectandra in subfamily
+Polypodioideae. Numbers after species names are GenBank accession numbers for
+sequences downloaded from GenBank or J. H. Nitta specimen collection numbers
+for sequences newly obtained by this study. Numbers at nodes indicate local
+support values computed with the Shimodaira–Hasegawa test.
+`r ape::Ntip(grammitid_tree)` tips; `r ape::Nnode(grammitid_tree)` internal nodes.
 
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 
@@ -238,10 +310,10 @@ nectandra_rbcL.fasta: Newly generated rbcL sequences of pteridophytes from
 the Nectandra Cloud Forest Reserve, Costa Rica in FASTA format. All species
 included occur at the Nectandra Cloud Forest Reserve, Costa Rica; a small
 number of sequences are from specimens collected elsewhere. Sequence names
-correspond to 'genomic_id' in nectandra_DNA_accessions.csv. `r
-length(nectandra_rbcL_raw)` sequences; shortest sequence `r rbcL_fasta_min`
-bp; longest sequence `r rbcL_fasta_max` bp; mean sequence length `r
-rbcL_fasta_mean` bp. Exported from Geneious project folder "Clean Sporos
+correspond to 'genomic_id' in nectandra_DNA_accessions.csv. 
+`r length(nectandra_rbcL_raw)` sequences; shortest sequence `r rbcL_fasta_min`
+bp; longest sequence `r rbcL_fasta_max` bp; mean sequence length 
+`r rbcL_fasta_mean` bp. Exported from Geneious project folder "Clean Sporos
 Trimmed Genbank Submission" (raw Geneious project file not included in this
 dataset).
 
@@ -256,15 +328,15 @@ align_stats <-
 ```
 
 nectandra_rbcL.phy: Aligned rbcL sequences of pteridophytes from the
-Nectandra Cloud Forest Reserve, Costa Rica in PHYLIP format. 
-`r dim(nectandra_rbcL)[[1]]` sequences; `r dim(nectandra_rbcL)[[2]]` bp; 
-`r get_number(align_stats, "informative sites")`; parsimony-informative sites.
+Nectandra Cloud Forest Reserve, Costa Rica in PHYLIP format.
+`r dim(nectandra_rbcL)[[1]]` sequences; `r dim(nectandra_rbcL)[[2]]` bp;
+`r get_number(align_stats, "informative sites")` parsimony-informative sites.
 
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 
 nectandra_rbcL.treefile: Phylogenetic tree of pteridophytes from the
 Nectandra Cloud Forest Reserve, Costa Rica in Newick format inferred with
-IQTREE. Values at each node indicate SH-aLRT support (%) / UFboot support
+IQTREE [@Nguyen2015]. Values at each node indicate SH-aLRT support (%) / UFboot support
 (%). `r ape::Ntip(rbcL_tree)` tips; `r ape::Nnode(rbcL_tree)` internal nodes.
 
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
@@ -324,7 +396,7 @@ Missing data codes: Missing or non-applicable data have no values
 (nothing entered between commas in the CSV file).
 
 Specialized formats or other abbreviations used: Herbaria codes follow
-Index Herbariorum (http://sweetgum.nybg.org/science/ih/).
+Index Herbariorum [@Thiers2020].
 
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 
@@ -342,7 +414,7 @@ Variable list:
   - order: Order.
 
   - suborder: Suborder.
-  
+
   - family: Family.
 
   - subfamily: Subfamily.
