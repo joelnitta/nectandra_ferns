@@ -103,8 +103,10 @@ specimens_raw %>%
   # Remove one Didymoglossum specimen that was separated out from a single collection and
   # may or may not be a distinct species pending additional study.
   filter(taxon != "Didymoglossum sp") %>%
+  # Remove a non-pteridophyte collection
+  filter(taxon != "Clethra mexicana") %>%
   # Add scientific names
-  left_join(sci_names, by = "taxon") %>% 
+  left_join(sci_names, by = "taxon") %>%
   # Select variables
   select(specimen_id, specimen, 
          genus, specific_epithet, infraspecific_rank, infraspecific_name, certainty,
@@ -114,8 +116,10 @@ specimens_raw %>%
          collector, other_collectors,
          herbaria,
          date_collected) %>%
+  # Run final checks
   assert(not_na, specimen_id, specimen, date_collected, genus, species, country, locality) %>%
-  assert(is_uniq, specimen_id, specimen)
+  assert(is_uniq, specimen_id, specimen) %>%
+  assert(in_set(ppgi$genus), genus)
 
 write_csv(nectandra_specimens, "data/nectandra_specimens.csv")
 
