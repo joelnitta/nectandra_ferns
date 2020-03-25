@@ -674,7 +674,6 @@ get_number <- function(text, keyword) {
   
 }
 
-
 # Plotting ----
 
 #' Define ggplot theme
@@ -704,7 +703,6 @@ standard_theme3 <- function () {
       axis.text.y = ggplot2::element_text(colour="black")
     )
 }
-
 
 #' Make a richness extrapolation plot
 #'
@@ -740,21 +738,8 @@ make_inext_plot <- function(inext_out) {
 #'
 plot_rbcL_tree <- function(phy, ppgi, outfile) {
   
-  # Extract tips into tibble and add taxonomy
-  tips <-
-    tibble(tip = phy$tip.label) %>%
-    mutate(
-      species = sp_name_only(tip, sep = "_"),
-      genus = genus_name_only(tip, sep = "_")) %>%
-    left_join(dplyr::select(ppgi, genus, family, class), by = "genus") 
-  
-  # Identify lycophyte tips for rooting
-  lycos <- tips %>% filter(class == "Lycopodiopsida") %>% pull(tip)
-  
-  # Root on lycophytes
-  phy <-
-    ape::root(phy, outgroup = lycos) %>%
-    ape::ladderize(right = FALSE)
+  # Re-root tree on lycophytes and ladderize
+  phy <- root_on_lycos(phy, ppgi)
   
   # Reformat tip labels now that tip order has changed
   new_tips <-
@@ -1030,6 +1015,89 @@ identify_outgroup <- function(phy, ppgi, ...) {
   tips %>% filter(...) %>% pull(tip)
 }
 
+#' Root tree on lycophytes
+#'
+#' Also ladderize
+#'
+#' @param tree Phylogenetic tree
+#' @param ppgi PPGI taxonomic system
+#'
+#' @return Rooted tree
+root_on_lycos <- function(tree, ppgi) {
+  
+  # Extract tips into tibble and add taxonomy
+  tips_for_rooting <-
+    tibble(tip = tree$tip.label) %>%
+    mutate(
+      species = sp_name_only(tip, sep = "_"),
+      genus = genus_name_only(tip, sep = "_")) %>%
+    assert(not_na, genus) %>%
+    left_join(dplyr::select(ppgi, genus, class), by = "genus") %>%
+    assert(not_na, class)
+  
+  # Identify lycophyte tips for rooting
+  lycos <- tips_for_rooting %>% filter(class == "Lycopodiopsida") %>% pull(tip)
+  
+  # Root on lycophytes
+  ape::root(tree, outgroup = lycos) %>%
+    ape::ladderize(right = FALSE)
+  
+}
+
+#' Get formatted node support value for the most
+#' recent common ancestor (MRCA) of a set of
+#' tips from phylogeny output by IQTREE
+#'
+#' @param tree Phylogeny made with IQTREE
+#' @param tips Character vector of tips
+#'
+#' @return String
+#' 
+get_node_support <- function (tree, tips) {
+  
+  # Make a tibble to match and extract full tip names from input
+  tip_df <- tibble(tip = tree$tip.label)
+  
+  # Match up tip names to input (could just be the species name)
+  tips <- filter(tip_df, str_detect(tip, paste(tips, collapse = "|"))) %>%
+    # Make sure we don't match more tip labels than input
+    verify(nrow(.) == length(tips)) %>%
+    pull(tip)
+  
+  # Make sure the tips specified are in the tree
+  assertthat::assert_that(all(tips %in% tree$tip.label))
+  
+  # Get the MRCA
+  mrca_node <- ape::getMRCA(phy = tree, tip = tips)
+  
+  # Get the node label corresponding to the MRCA
+  # https://stackoverflow.com/questions/51696837/r-phylo-object-how-to-connect-node-label-and-node-number
+  node_label <- tree$node.label[mrca_node - ape::Ntip(tree)]
+  
+  # Extract support value and make it pretty
+  tibble(node_label = node_label) %>%
+    # Since this is a IQTree, we have SH-aLRT and UFboot support
+    # values separated by a slash.
+    # Split these up
+    separate(node_label, into = c("SHaLRT", "UFboot"), sep = "\\/") %>%
+    mutate_all(as.numeric) %>%
+    # Convert values less than 50% to '<50'
+    mutate(SHaLRT = case_when(
+      SHaLRT < 50 ~ "<50",
+      TRUE ~ as.character(SHaLRT)
+    )) %>%
+    mutate(UFboot = case_when(
+      UFboot < 50 ~ "<50",
+      TRUE ~ as.character(UFboot)
+    )) %>%
+    # Format final printed output
+    mutate(
+      val = glue::glue("SH-aLRT {SHaLRT}%; UFboot {UFboot}%")
+    ) %>%
+    mutate(val = as.character(val)) %>%
+    pull(val)
+}
+
 # MS rendering ----
 
 #' Render a number with SI units
@@ -1128,4 +1196,3 @@ check_citation_order <- function(rmd_file, cap_type) {
     unique
   
 }
-
