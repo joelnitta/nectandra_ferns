@@ -396,7 +396,8 @@ Missing data codes: Missing or non-applicable data have no values
 (nothing entered between commas in the CSV file).
 
 Specialized formats or other abbreviations used: Herbaria codes follow
-Index Herbariorum [@Thiers2020].
+Index Herbariorum [@Thiers2020], except for "Nectandra", which indicates
+the private herbarium at the Nectandra Cloud Forest Reserve.
 
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 
