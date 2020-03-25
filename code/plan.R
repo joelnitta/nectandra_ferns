@@ -10,6 +10,15 @@ plan <- drake_plan(
   nectandra_specimens_path = target("data/nectandra_specimens.csv", format = "file"),
   nectandra_specimens = readr::read_csv(nectandra_specimens_path),
   
+  # The "nectandra_specimens" list actually includes two samples not from
+  # Nectandra (species whose Nectandra samples failed DNA sequencing, so
+  # specimens from other areas were used instead). Also create a "strict"
+  # version of the Nectandra specimens list without these for counting
+  # number of samples at Nectandra, species collection curve, etc.
+  nectandra_specimens_strict = dplyr::filter(
+    nectandra_specimens, 
+    locality == "Nectandra Cloud Forest Preserve"),
+  
   # Load Nectandra DNA accession data
   nectandra_dna_path = target("data/nectandra_DNA_accessions.csv", format = "file"),
   nectandra_dna = readr::read_csv(nectandra_dna_path),
@@ -84,7 +93,7 @@ plan <- drake_plan(
   
   # Make species checklist, write out as SI
   checklist = make_checklist(
-    specimens = nectandra_specimens, 
+    specimens = nectandra_specimens_strict, 
     taxonomy = ppgi) %>% 
     write_csv(file_out("results/table_S1.csv")),
   
@@ -94,7 +103,7 @@ plan <- drake_plan(
   # using number of sampling days as the sampling unit
   # set endpoint (maximum number of collection days) to 150
   richness_estimate = estimate_richness_by_date(
-    specimens = nectandra_specimens,
+    specimens = nectandra_specimens_strict,
     endpoint = 150),
   
   # Align Nectandra sequences ----

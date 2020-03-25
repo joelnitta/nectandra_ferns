@@ -187,7 +187,6 @@ rename_japan_rbcL_sexdip <- function (japan_rbcL, japan_taxa, japan_repro_data) 
 make_checklist <- function (specimens, taxonomy) {
   
   specimens %>%
-    filter(locality == "Nectandra Cloud Forest Preserve") %>%
     assert(not_na, genus) %>%
     left_join(taxonomy, by = "genus") %>%
     assert(not_na, family) %>%
@@ -229,7 +228,6 @@ make_checklist <- function (specimens, taxonomy) {
 estimate_richness_by_date <- function (specimens, endpoint = 150) {
 
   specimens %>%
-    filter(locality == "Nectandra Cloud Forest Preserve") %>%
     assert(not_na, date_collected) %>%
     # Convert to presence-absence matrix of species x dates
     select(taxon, date_collected) %>%
@@ -239,6 +237,7 @@ estimate_richness_by_date <- function (specimens, endpoint = 150) {
                 values_fill = list(abun = 0)) %>%
     column_to_rownames("taxon") %>% 
     as.matrix %>%
+    # Run iNEXT on incidence data
     iNEXT(datatype = "incidence_raw", endpoint = endpoint)
 
   }
