@@ -233,8 +233,8 @@ Specialized formats or other abbreviations used: none.
 
 cyatheaceae_rbcL.fasta: Aligned rbcL sequences of family Cyatheaceae from the
 Nectandra Cloud Forest Reserve, Costa Rica and all available sequences on
-GenBank in FASTA format. Sequences aligned using MAFFT [@Katoh2002]. Species
-from Nectandra in family Dicksoniaceae included as outgroup. Numbers after
+GenBank in FASTA format. Species from Nectandra in family Dicksoniaceae included 
+as outgroup. Sequences aligned using MAFFT [@Katoh2002]. Numbers after
 species names are GenBank accession numbers for sequences downloaded from
 GenBank or J. H. Nitta specimen collection numbers for sequences newly
 obtained by this study. `r dim(cyatheaceae_seqs)[[1]]` sequences;
@@ -245,8 +245,8 @@ parsimony-informative sites.
 
 cyatheaceae_rbcL.tre: Phylogenetic tree of family Cyatheaceae from the
 Nectandra Cloud Forest Reserve, Costa Rica and all available rbcL sequences
-on GenBank in Newick format. Tree inferred using FastTree [@Price2009;
-@Price2010] and rooted on species from Nectandra in family Dicksoniaceae.
+on GenBank in Newick format. Species from Nectandra in family Dicksoniaceae 
+included as outgroup. Tree inferred using FastTree [@Price2009; @Price2010].
 Numbers after species names are GenBank accession numbers for sequences
 downloaded from GenBank or J. H. Nitta specimen collection numbers for
 sequences newly obtained by this study. Numbers at nodes indicate local
@@ -269,9 +269,9 @@ parsimony-informative sites.
 
 grammitidoideae_rbcL.tre: Phylogenetic tree of subfamily Grammitidoideae from
 the Nectandra Cloud Forest Reserve, Costa Rica and all available rbcL
-sequences on GenBank in Newick format. Tree inferred using FastTree
-[@Price2009; @Price2010] and rooted on species from Nectandra in subfamily
-Polypodioideae. Numbers after species names are GenBank accession numbers for
+sequences on GenBank in Newick format. Species from Nectandra in subfamily
+Polypodioideae included as outgroup. Tree inferred using FastTree
+[@Price2009; @Price2010]. Numbers after species names are GenBank accession numbers for
 sequences downloaded from GenBank or J. H. Nitta specimen collection numbers
 for sequences newly obtained by this study. Numbers at nodes indicate local
 support values computed with the Shimodaira–Hasegawa test.
