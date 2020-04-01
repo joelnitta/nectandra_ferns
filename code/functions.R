@@ -437,44 +437,63 @@ align_nectandra_rbcL <- function (nectandra_rbcL_raw, genbank_rbcL_raw) {
 #' @param aln DNA alignment (list of class DNAbin)
 #' @return tibble
 get_min_inter_dist <- function (aln) {
+  # Calculate raw pairwise-distances, excluding pairwise missing bases (pairwise.deletion = TRUE)
   ape::dist.dna(aln, model = "raw", pairwise.deletion = TRUE) %>%
+    # Convert to tibble
     broom::tidy() %>%
+    # Check that there are no self-matches
+    assertr::verify(item1 != item2) %>%
     dplyr::mutate_at(dplyr::vars(item1, item2), as.character) %>%
-    tidyr::gather(side, taxon, -distance) %>%
+    # Convert to long format (one distance per taxon per row)
+    tidyr::pivot_longer(-distance, names_to = "side", values_to = "taxon") %>%
+    # Add species (collapses varieties)
     mutate(species = sp_name_only(taxon, sep = "_")) %>%
+    # Filter to single smallest distance per species (not including multiples for ties)
     dplyr::group_by(species) %>%
     dplyr::arrange(distance) %>%
     dplyr::slice(1) %>%
     dplyr::select(-side) %>%
-    dplyr::ungroup()
+    dplyr::ungroup() %>%
+    # Final checks
+    assertr::assert(assertr::not_na, distance, taxon, species) %>%
+    assertr::assert(assertr::is_uniq, species) %>%
+    assertr::assert(assertr::within_bounds(0,1), distance)
 }
 
 #' Bin minimum interspecific distances, with special bin for zeros
 #'
 #' @param data Tibble of minimum interspecific distances;
 #' output of get_min_inter_dist()
-#' @param width Bin width
+#' @param width Bin width (default 0.5%)
 #'
 #' @return Tibble
 #' 
 bin_min_inter_dist <- function (data, width = 0.005) {
   
+  # Count zero-distances and separate from the rest of the data
   zeros <- data %>% filter(distance == 0) %>% nrow %>%
     tibble(range = 0, n = .)
   
   non_zeroes <-  data %>% filter(distance > 0)
   
-  cut_width(non_zeroes$distance, width = width, boundary = width, closed = "left") %>%
-    table %>%
-    tidy %>%
-    set_names(c("range", "n")) %>%
+  # Bin distances
+  ggplot2::cut_width(x = non_zeroes$distance, width = width, boundary = width, closed = "left") %>%
+    table() %>%
+    broom::tidy() %>%
+    purrr::set_names(c("range", "n")) %>%
+    # Label bins by the right side (upper bound)
     mutate(range = str_split(range, ",") %>% 
              map_chr(2) %>% 
-             str_remove("\\)") %>% str_remove("]")) %>% 
-    mutate(range = as.numeric(range)) %>%
+             str_remove("\\)") %>% parse_number) %>% 
+    # Add zeros to end
     bind_rows(zeros) %>%
+    arrange(range) %>%
     mutate(is_zero = case_when(range == 0 ~ TRUE, TRUE ~ FALSE)) %>%
-    mutate(percent = n / sum(n))
+    mutate(percent = n / sum(n)) %>%
+    # Final checks
+    assert(not_na, everything()) %>%
+    assert(is_uniq, range) %>%
+    assert(within_bounds(0, 1), percent)
   
 }
 
@@ -485,14 +504,17 @@ bin_min_inter_dist <- function (data, width = 0.005) {
 #' @param dataset_select The dataset to use to calculate
 #' minimum interspecific distances
 bin_min_inter_dist_by_dataset <- function(full_aln, dataset_select) {
+  # Subset the full alignment to only the selected dataset
   full_aln[str_detect(rownames(full_aln), paste0("_", dataset_select, "$")),] %>%
+    # Get the minimum interspecific distance for each species
     get_min_inter_dist %>%
+    # Bin the distances
     bin_min_inter_dist %>%
+    # Add a dataset column
     mutate(dataset = dataset_select)
 }
 
-#' Calculate minimum interspecific distances across three
-#' rbcL datasets
+#' Align all rbcL datasets
 #'
 #' @param nectandra_rbcL rbcL sequences of pteridophytes of Nectandra
 #' @param moorea_rbcL rbcL sequences of pteridophytes of Moorea
@@ -500,15 +522,28 @@ bin_min_inter_dist_by_dataset <- function(full_aln, dataset_select) {
 #' @param japan_rbcL_sexdip rbcL sequences of pteridophytes of Japan,
 #' sexual diploids only
 #'
-#' @return Tibble
+#' @return Tibble DNA alignment. Sequences from each dataset will have codes
+#' appended to end of name as identifiers: "CR" (Costa Rica, i.e. Nectandra), 
+#' "FP" (French Polynesia, i.e. Moorea), 
+#' "JA" (Japan), "JAsexdip" (Japan, sexual-diploids only).
 #' 
-analyze_min_dist <- function(nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL_sexdip) {
+align_all_rbcL <- function(nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL_sexdip) {
   
   # Add "_CR" to end of name of Nectandra sequences
   nectandra_rbcL <- nectandra_rbcL %>% 
     as.list %>%
     set_names(., paste0(names(.), "_CR"))
   
+  # Make sure that all datasets are labeled correctly
+  assertthat::assert_that(all(str_detect(names(japan_rbcL), "_JA")))
+  assertthat::assert_that(all(str_detect(names(japan_rbcL), "_FP|_CR|JAsexdip", negate = TRUE)))
+  assertthat::assert_that(all(str_detect(names(moorea_rbcL), "_FP")))
+  assertthat::assert_that(all(str_detect(names(moorea_rbcL), "_JA|_CR|JAsexdip", negate = TRUE)))
+  assertthat::assert_that(all(str_detect(names(nectandra_rbcL), "_CR")))
+  assertthat::assert_that(all(str_detect(names(nectandra_rbcL), "_JA|_FP|JAsexdip", negate = TRUE)))
+  assertthat::assert_that(all(str_detect(names(japan_rbcL_sexdip), "_JAsexdip")))
+  assertthat::assert_that(all(str_detect(names(japan_rbcL_sexdip), "_JA$|_FP|_CR", negate = TRUE)))
+
   # Combine all rbcL sequences
   rbcL_combined <- c(japan_rbcL, moorea_rbcL, nectandra_rbcL, japan_rbcL_sexdip)
   
@@ -516,12 +551,8 @@ analyze_min_dist <- function(nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL
   rbcL_aln <- mafft(rbcL_combined, exec = "/usr/bin/mafft")
   
   # Trim ends
-  rbcL_aln <- trimEnds(rbcL_aln, nrow(rbcL_aln) * 0.5)
+  trimEnds(rbcL_aln, nrow(rbcL_aln) * 0.5)
   
-  # Calculate minimum interspecific distances for each
-  # dataset separately and combine these into a single dataframe
-  map_df(c("CR", "FP", "JA", "JAsexdip"), 
-         ~bin_min_inter_dist_by_dataset(full_aln = rbcL_aln, dataset_select = .))
 }
 
 # GenBank accession table ----
@@ -718,14 +749,14 @@ make_inext_plot <- function(inext_out) {
   # make plot
   ggplot (inext_out$iNextEst, aes(x=t, y=qD)) +
     geom_ribbon(aes(ymin = qD.LCL, ymax = qD.UCL), fill = "grey70", alpha=0.2) +
-    geom_line(aes(linetype=method), size=0.8) +
-    scale_linetype_manual(values=c("dotted", "solid", "solid")) +
-    geom_point(data=observed_data, size=2.5) +
+    geom_line(aes(linetype = method), size=0.8) +
+    scale_linetype_manual(values = c("dotted", "solid", "solid")) +
+    geom_point(data = observed_data, size=2.5) +
     scale_y_continuous("Richness (no. spp.)") +
     scale_x_continuous("Sampling units (days)") +
     standard_theme3() +
-    theme(legend.position="none", 
-          legend.title=element_blank())
+    theme(legend.position = "none", 
+          legend.title = element_blank())
 }
 
 #' Print rbcL tree to pdf
@@ -736,7 +767,7 @@ make_inext_plot <- function(inext_out) {
 #'
 #' @return Nothing; externally, the tree will be written as a pdf
 #'
-plot_rbcL_tree <- function(phy, ppgi, outfile) {
+plot_nectandra_rbcL_tree <- function(phy, ppgi, outfile) {
   
   # Re-root tree on lycophytes and ladderize
   phy <- root_on_lycos(phy, ppgi)
@@ -788,7 +819,7 @@ plot_rbcL_tree <- function(phy, ppgi, outfile) {
   tree2 <- ggtree(phy) + 
     scale_x_reverse() + 
     # Add scale
-    geom_treescale(x = -0.1, y = 150, offset = 5) +
+    geom_treescale(x = -0.1, y = 150, offset = 2) +
     # Make sure margins are set same on both trees so tips line up
     theme(plot.margin = margin(t=0,l=0,b=0,r=0, unit = "in"))
   
@@ -810,7 +841,7 @@ plot_rbcL_tree <- function(phy, ppgi, outfile) {
 #'
 #' @return Nothing; externally, the tree will be written as a pdf
 #'
-plot_rbcL_tree_families <- function(rbcL_tree, ppgi, outfile) {
+plot_family_rbcL_tree <- function(rbcL_tree, ppgi, outfile) {
   
   # Extract tips into tibble and add taxonomy
   tips <-
@@ -867,10 +898,11 @@ plot_rbcL_tree_families <- function(rbcL_tree, ppgi, outfile) {
 #' @param phy Phylogenetic tree
 #' @param outgroup Character vector; tips to use as the outgroup
 #' @param outfile Name of file to use to save tree pdf
+#' @param nodelab_size Font size to use for node labels
 #'
 #' @return Nothing; externally, the tree will be written as a pdf
 #'
-plot_broad_rbcL_tree <- function(phy, outgroup, outfile) {
+plot_broad_rbcL_tree <- function(phy, outgroup, outfile, nodelab_size = 1) {
   
   # Root tree and ladderize
   phy <-
@@ -891,15 +923,38 @@ plot_broad_rbcL_tree <- function(phy, outgroup, outfile) {
   
   phy$node.label <- node_labels_tibble$new_lab
   
+  # Make data frame of data for annotation
+  # (just indicating if taxon is a "focus" taxon,
+  # i.e, a Nitta collection in the ingroup)
+  annotation_data <- tibble(id = phy$tip.label) %>%
+    mutate(
+      focus_taxon = case_when(
+        id %in% outgroup ~ "no",
+        str_detect(id, "Nitta") ~ "yes",
+        TRUE ~ "no"
+      )
+    )
+  
   #### Plot using ggtree
   
   # Left side: tree without branch lengths, 
   # include support values and tip labels
-  tree1 <- ggtree(phy, branch.length="none") +
-    geom_nodelab(hjust = 0, size = 1*.pt) + 
+  tree1 <- ggtree(phy, branch.length="none") %<+% 
+    # Merge with data for annotation with special ggtree `%<+%` operator
+    annotation_data +
+    # First make layer of "labels" at each tip that are just
+    # empty boxes highlighted for focus taxon
+    geom_tiplab(geom = "label", aes(fill = focus_taxon, color = focus_taxon)) +
+    scale_fill_manual(values = c("yes" = "yellow", "no" = "transparent")) +
+    scale_color_manual(values = c("yes" = "transparent", "no" = "transparent")) +
+    # Add the node labels
+    geom_nodelab(hjust = 0, size = nodelab_size*.pt) + 
+    # Add the tip labels
     geom_tiplab() +
     # Need some extra space for long tip names
-    theme(plot.margin = margin(t=0,l=0,b=0,r=3.5, unit = "in")) +  
+    theme(
+      plot.margin = margin(t=0,l=0,b=0,r=3.5, unit = "in"),
+      legend.position = "none") +  
     coord_cartesian(clip = "off")
   
   # Right side: tree with branch lengths, reversed, 

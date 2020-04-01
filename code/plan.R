@@ -84,6 +84,7 @@ plan <- drake_plan(
     japan_taxa = japan_taxa),
   
   # Also make an alignment of Japan sexual-diploids only
+  # (also add "_JAsexdip" to end of name)
   japan_rbcL_sexdip = rename_japan_rbcL_sexdip(
     japan_rbcL = japan_rbcL_raw, 
     japan_taxa = japan_taxa, 
@@ -106,7 +107,7 @@ plan <- drake_plan(
     specimens = nectandra_specimens_strict,
     endpoint = 150),
   
-  # Align Nectandra sequences ----
+  # Nectandra rbcL alignment ----
   
   # Get list of missing Nectandra taxa
   # (taxa that couldn't be successfully sequenced)
@@ -143,17 +144,28 @@ plan <- drake_plan(
   
   # Barcode analysis ----
   
-  # Calculate minimum interspecific distances for the three
-  # rbcL datasets and bin them by 0.05% sequence divergence
-  min_distance_table = analyze_min_dist(
-    nectandra_rbcL = nectandra_rbcL, 
-    moorea_rbcL = moorea_rbcL, 
-    japan_rbcL = japan_rbcL, 
-    japan_rbcL_sexdip = japan_rbcL_sexdip),
+  # Combine the four rbcL datasets into a single alignment.
+  # Differentiate datasets by code appended to each species name.
+  combined_rbcL = align_all_rbcL(
+    nectandra_rbcL = nectandra_rbcL, # _CR
+    moorea_rbcL = moorea_rbcL, # _FP
+    japan_rbcL = japan_rbcL, # _JA
+    japan_rbcL_sexdip = japan_rbcL_sexdip # _JAsexdip
+    ),
   
-  # Phylogenetic analysis ----
+  # Calculate minimum interspecific distances for each
+  # dataset separately, bin them by 0.05% sequence divergence,
+  # and combine these into a single dataframe
+  min_distance_table = purrr::map_df(
+    c("CR", "FP", "JA", "JAsexdip"), 
+    ~bin_min_inter_dist_by_dataset(
+      full_aln = combined_rbcL, 
+      dataset_select = .)
+  ),
   
-  # Write out alignment for submission to Dryad
+  # Nectandra rbcL tree ----
+  
+  # Write out rbcL alignment for submission to Dryad
   rbcL_aln_out = phangorn::write.phyDat(
     x = nectandra_rbcL,
     file = file_out("results/nectandra_rbcL.phy"),
@@ -190,7 +202,7 @@ plan <- drake_plan(
   iqtree_log = readr::read_lines(file_in("iqtree_analysis/nectandra_rbcL.log")),
   
   # Print out tree for SI
-  rbcL_tree_out = plot_rbcL_tree(
+  rbcL_tree_out = plot_nectandra_rbcL_tree(
     phy = rbcL_tree,
     ppgi = ppgi,
     outfile = file_out("results/Fig_S1.pdf")
@@ -205,7 +217,7 @@ plan <- drake_plan(
     nectandra_rbcL_aligned = nectandra_rbcL) %>% 
     write_csv(file_out("results/table_S2.csv")),
   
-  # Other trees for SI ----
+  # Other rbcL trees----
   
   # - Cyatheaceae: download sequences from GenBank and make alignment, write out for Dryad
   cyatheaceae_seqs = make_broad_alignment(
@@ -263,10 +275,11 @@ plan <- drake_plan(
   grammitid_rbcL_tree_pdf = plot_broad_rbcL_tree(
     phy = grammitid_tree,
     outgroup = grammitid_outgroup,
+    nodelab_size = 0.8,
     outfile = file_out("results/Fig_S3.pdf")
   ),
   
-  # Render manuscript ----
+  # Manuscript rendering ----
   
   # First render to PDF, keeping the latex
   ms_pdf = render_tracked(
