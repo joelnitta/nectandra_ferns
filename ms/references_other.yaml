@@ -41,3 +41,24 @@ references:
   title: 'A taxonomic revision of the fern genus *Campyloneurum* (Polypodiaceae)'
   genre: 'Ph.D. Thesis'
   publisher: 'Aarhus University'
+  
+- type: webpage
+  id: Nitta2020b
+  author:
+  - family: Nitta
+    given: Joel
+    middle: H.
+  - family: Ebihara
+    given: Atsushi
+  - family: Smith
+    given: Alan
+    middle: R.
+  issued:
+    year: 2020
+  accessed:
+    year: 2020
+    month: 03
+    day: 01
+  title: 'Data from: A taxonomic and molecular survey of the pteridophytes of the Nectandra Cloud Forest Reserve, Costa Rica'
+  container-title: 'Dryad Digital Repository'
+  URL: http://doi.org/XXX

@@ -158,7 +158,8 @@ Accordingly, primary taxonomy is an important part of biological research in Cos
 In addition to taxonomic diversity, measures of phylogenetic diversity (PD) provide another important perspective on biodiversity and should be taken into consideration for setting conservation priorities [@Faith1992].
 Therefore, surveys documenting both species richness and molecular phylogenetic diversity are needed.
 Furthermore, the use of a standard molecular marker as a DNA "barcode" is useful for species identification and taxonomic revision [@Hebert2003b].
-For example, DNA barcoding surveys have revealed hidden biodiversity in the form of cryptic species in butterflies in Costa Rica [@Hajibabaei2006] and have been used to identify cryptic life-cycle stages in ferns [@Nitta2017].
+For example, DNA barcoding surveys have revealed hidden biodiversity in the form of cryptic species in butterflies in Costa Rica [@Hajibabaei2006] and have been used to identify cryptic life-cycle stages in ferns [@Nitta2017; @Ebihara2013]. 
+DNA barcodes are being increasingly integrated into biological surveys to document biodiversity at unprecedented scale, rate, and resolution [\eg, @Janzen2009; @Janzen2016; @Delrieu-Trottin2019; @Telfer2015].
 
 Pteridophytes (\ie, ferns and lycophytes) are an important group of plants to study because many new species are still being discovered in the Neotropics [@Almeida2016a] and they play important ecological roles in many ecosystems [\eg, @George1999; @Coomes2005; @Schuettpelz2006c; @Mueller-Dombois2013].
 The pteridophytes of Costa Rica comprise \circa{ }`r si(1200, "spp.")`, accounting for one-quarter to one-third of the estimated richness of the Neotropics (\circa{ }`r si(3000, "spp.")` to `r si(4500, "spp.")`) [@Almeida2016a].
@@ -239,7 +240,7 @@ All analyses were carried out using R v 3.6.1 [@RCoreTeam2019].
 
 Code to replicate all analyses, figures, and this manuscript is available at https://github.com/joelnitta/nectandra_ferns.
 A Docker image is available to run the code at https://hub.docker.com/r/joelnitta/nectandra_ferns.
-Data are available from the Dryad repository at http://doi.org/XXX.
+Data are available from the Dryad repository [@Nitta2020b].
 Newly generated sequences have been deposited in GenBank (`r s_table("genbank")`).
 Photos of voucher specimens are available on the Ferns of the World website (https://www.fernsoftheworld.com/florulas/XXX).
 
@@ -512,7 +513,7 @@ This study was supported by the Japan Society for the Promotion of Science (Kake
 
 **`r s_table_full("genbank")`** All specimens from the Nectandra Cloud Forest Reserve, Alajuela Province, Costa Rica, except for Nitta 2012 (*Abrodictyum rigidum* (Sw.) Ebihara & Dubuisson) from Palmira, Alajuela Province, Costa Rica and Nitta 169 (*Hymenophyllum trapezoidale* Liebm.) from San Gerardo de Dota, San José Province, Costa Rica
 
-**`r s_table_full("checklist")`** All voucher specimens deposited in UC with duplicates at CR, GH, and TNS.
+**`r s_table_full("checklist")`** All voucher specimens deposited in UC with duplicates when available at CR, GH, and TNS. For additional data on each voucher specimen, see Dryad repository [@Nitta2020b].
 
 **`r s_figure_full("tree")`** Tree rooted on lycophytes.
 Numbers at nodes indicate SH-aLRT support (%) / UFboot support (%); values less than 50% shown with "-"; values of 100% shown with "\*".
@@ -522,16 +523,19 @@ Numbers after species name are J. H. Nitta specimen collection numbers of specim
 **`r s_figure_full("cyatheaceae-tree")`** Tree rooted on species from Nectandra in family Dicksoniaceae.
 Numbers at nodes indicate local support values computed with the Shimodaira–Hasegawa test; values less than 50% not shown.
 For phylogram on right side, scale bar shows expected number of changes per site.
-Numbers after species names are GenBank accession numbers for sequences downloaded from GenBank or J. H. Nitta specimen collection numbers for sequences newly obtained by this study.
+Numbers after species names are GenBank accession numbers for sequences downloaded from GenBank or J. H. Nitta specimen collection numbers for sequences newly obtained by this study. 
+Newly obtained ingroup sequences highlighted in yellow.
 
 **`r s_figure_full("grammitid-tree")`** Tree rooted on species from Nectandra in subfamily Polypodioideae.
 Numbers at nodes indicate local support values computed with the Shimodaira–Hasegawa test; values less than 50% not shown.
 For phylogram on right side, scale bar shows expected number of changes per site.
-Numbers after species names are GenBank accession numbers for sequences downloaded from GenBank or J. H. Nitta specimen collection numbers for sequences newly obtained by this study.
+Numbers after species names are GenBank accession numbers for sequences downloaded from GenBank or J. H. Nitta specimen collection numbers for sequences newly obtained by this study. 
+Newly obtained ingroup sequences highlighted in yellow.
 
 \clearpage
 
 ```{r map, fig.height = 7.25, fig.width = 7.5, fig.cap = figure_cap("map")}
+# Make Nectandra map figure
 
 # Download altitude data for Costa Rica
 dem.raster <- getData("alt", country = "CR")
@@ -569,10 +573,15 @@ photo <- ggdraw() + draw_image(here("images/P1070534.jpg"))
 blank <- patchwork::plot_spacer()
 
 # The top part of the plot is just the Costa Rica map
-top <- plot_grid(costa_rica_map, labels = "a")
+top <- plot_grid(costa_rica_map, labels = "a", label_fontface = "plain")
 
 # The bottom is Nectandra map and photo
-bottom <- plot_grid(nectandra_map, blank, photo, nrow = 1, labels = c("b", "", "c"), rel_widths = c(54.75, 0.5, 54.75))
+bottom <- plot_grid(
+  nectandra_map, blank, photo, 
+  nrow = 1, 
+  labels = c("b", "", "c"), 
+  rel_widths = c(54.75, 0.5, 54.75),
+  label_fontface = "plain")
 
 # Put them together
 plot_grid(top, bottom, nrow = 2, ncol = 1)
@@ -584,67 +593,126 @@ ggsave(filename = here("results/Fig1.tiff"), height = 7.25, width = 7.5, units =
 \clearpage
 
 ```{r richness-cr, fig.height = 3, fig.width = 5, fig.cap = figure_cap("richness-cr")}
+# Make Costa Rica pteridophyte richness figure
 
+# Part a: raw richness
 a <-
   cr_richness %>%
   mutate(name = fct_reorder(name, richness)) %>%
   ggplot(aes(x = name, y = richness)) +
   geom_col(fill = "grey40") +
+  scale_y_continuous(expand = expand_scale(mult = c(0, .05))) +
   standard_theme3() +
   coord_flip() +
-  labs(y = "No. spp.", x = "Site", subtitle = "a")
+  labs(y = "No. spp.", x = "Site", subtitle = "a") +
+  # Use only thin vertical gridlines
+  theme(
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.major.x = element_line(size = rel(0.5))
+    )
 
+# Part b: richness per hectare
 b <-
   cr_richness %>%
   mutate(sp_per_hectare = richness / area_ha) %>%
   mutate(name = fct_reorder(name, sp_per_hectare)) %>%
   ggplot(aes(x = name, y = sp_per_hectare)) +
   geom_col(fill = "grey40") +
+  scale_y_continuous(expand = expand_scale(mult = c(0, .05))) +
   standard_theme3() +
   coord_flip() +
-  labs(y = "No. spp. per hectare", x = "", subtitle = "b")
+  labs(y = "No. spp. per hectare", x = "", subtitle = "b") +
+  # Use only thin vertical gridlines
+  theme(
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.major.x = element_line(size = rel(0.5))
+    )
 
+
+# Combine subplots
 a + b
 
 ggsave(filename = here("results/Fig2.eps"), height = 3, width = 5, units = "in", device = cairo_ps_high_res)
-
 ```
 
 \clearpage
 
 ```{r richness-inext, fig.height = 3, fig.width = 3, fig.cap = figure_cap("richness-inext")}
+# Make species collection curve
 make_inext_plot(richness_estimate)
 
 ggsave(filename = here("results/Fig3.eps"), height = 3, width = 3, units = "in", device = cairo_ps_high_res)
-
 ```
 
 \clearpage
 
 ```{r min-dist, fig.height = 4.5, fig.width = 7, fig.cap = figure_cap("min-dist")}
+# Make barcode distances histogram
 
+# Format min. intersp. distances for plotting:
+# add facet labels
+min_distance_plot_data <-
 min_distance_table %>%
-  mutate(dataset = case_when(
+  mutate(
+    facet_label = case_when(
     dataset == "CR" ~ "a",
     dataset == "FP" ~ "b",
     dataset == "JA" ~ "c",
     dataset == "JAsexdip" ~ "d"
+  ) %>% as.factor()
+  )
+  
+# Make separate df of label data to add
+# dataset labels to each subplot
+min_distance_label_data <- 
+  min_distance_plot_data %>%
+  # Make inset labels
+  mutate(part_label = case_when(
+    dataset == "CR" ~ "Nectandra",
+    dataset == "FP" ~ "Moorea and Tahiti",
+    dataset == "JA" ~ "Japan",
+    dataset == "JAsexdip" ~ "Japan (sex. dip.)"
   )) %>%
-  ggplot(aes(range, percent, fill = is_zero)) +
+  select(facet_label, part_label) %>%
+  unique
+
+# Make plot
+ggplot(min_distance_plot_data, aes(range, percent, fill = is_zero)) +
+  # Main geom: columns
   geom_col() +
-  scale_fill_manual(values = c("grey40", "#de2d26")) +
-  scale_x_continuous(labels = scales::percent) +
+  # Add dataset labels in upper-right
+  geom_label(
+    data = min_distance_label_data,
+    aes(label = part_label), 
+    x = Inf, y = Inf, 
+    hjust = "inward",
+    vjust = "inward", 
+    fill = "white",
+    label.size = 0,
+    size = 9/ggplot2::.pt) +
+  # Color zero distances red
+  scale_fill_manual(values = c("FALSE" = "grey40", "TRUE" = "#de2d26")) +
+  # Shrink the auto expand scaling
+  scale_x_continuous(labels = scales::percent, expand = c(0.01, 0)) +
   scale_y_continuous(labels = scales::percent) +
-  standard_theme2() +
+  standard_theme3() +
   theme(legend.position = "none") +
-  facet_wrap(vars(dataset), ncol = 1) +
   labs(x = "Genetic distance", y = "Relative frequency") +
   theme(
+    # Use only thin horizontal gridlines
+    panel.grid.minor.x = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_line(size = rel(0.5)),
+    # Set facet labels to left side, no box
     strip.text = element_text(hjust = 0),
-    strip.background = element_blank())
+    strip.background = element_blank()
+  ) +
+  # Wrap by dataset
+  facet_wrap(vars(facet_label), ncol = 1)
 
 ggsave(filename = here("results/Fig4.eps"), height = 4.5, width = 7, units = "in", device = cairo_ps_high_res)
-
 ```
 
 \clearpage
