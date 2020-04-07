@@ -20,14 +20,14 @@
     <category citation-format="numeric"/>
     <category field="science"/>
     <summary>Vancouver for PLoS Journals as of January 2015</summary>
-    <updated>2020-03-23T07:28:00+00:00</updated>
+    <updated>2020-04-07T08:14:33+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
     <date form="text" delimiter=" ">
-      <date-part name="day"/>
-      <date-part name="month" form="short" strip-periods="true"/>
       <date-part name="year"/>
+      <date-part name="month" form="short" strip-periods="true"/>
+      <date-part name="day"/>
     </date>
     <terms>
       <term name="presented at">presented at</term>
@@ -108,9 +108,9 @@
   <macro name="accessed-date">
     <choose>
       <if variable="URL">
-        <group prefix="[" suffix="]" delimiter=" ">
+        <group delimiter=" " prefix="[" suffix="]">
           <text term="cited" text-case="lowercase"/>
-          <date variable="accessed" form="text"/>
+          <date form="text" variable="accessed"/>
         </group>
       </if>
     </choose>
@@ -312,10 +312,10 @@
       </group>
       <group delimiter=" " suffix=". ">
         <text macro="editor"/>
+        <text macro="date" suffix="."/>
         <text macro="container-title"/>
         <text macro="publisher"/>
         <group>
-          <text macro="date"/>
           <text macro="journal-location"/>
           <text macro="pages"/>
         </group>
