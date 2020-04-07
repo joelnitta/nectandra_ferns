@@ -5,7 +5,7 @@ figure_full <- captioner::captioner(prefix = "Fig", suffix = ".")
 figure_full(name = "map", caption = 'Location of the Nectandra Cloud Forest Reserve ("Nectandra").')
 figure_full(name = "richness-cr", caption = "Species richness of pteridophytes at protected areas in Costa Rica.")
 figure_full(name = "richness-inext", caption = "Interpolation (solid line) and extrapolation (dashed line) of species richness of pteridophytes at Nectandra Cloud Forest Reserve, Costa Rica.")
-figure_full(name = "min-dist", caption = "Minimum interspecific distances for selected pteridophyte floras.")
+figure_full(name = "min-dist", caption = "Minimum interspecific *rbcL* distances for selected pteridophyte floras.")
 
 # - Tables
 # table_full <- captioner::captioner(prefix = "Table")
