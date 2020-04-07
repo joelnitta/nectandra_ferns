@@ -3,12 +3,14 @@
 library(jntools)
 library(tidyverse)
 
-make_ref_list(
-  rmd_file = "ms/nectandra_pteridos.Rmd", 
-  raw_bib = "ms/references_raw.bib",
-  final_bib = "ms/references.bib",
-  strip_fields = "abstract",
-  exclude = c("Thiers2020", "oet2019", "Leon1992"))
+# Clean bibliography and write out.
+clean_bib(
+  "ms/references_raw.bib", 
+  strip_fields = c("abstract", "file", "keywords", 
+                   "publisher", 
+                   "url", "issn",
+                   "isbn", "month", "number")) %>%
+  write_lines("ms/references.bib")
 
 # Make some manual fixes to authors in SI bibliography
 # (these are institutions, so need double brackets to
@@ -31,3 +33,4 @@ read_lines("ms/references.bib") %>%
 # Download to the 'ms' folder:
 read_lines("https://csl.mendeley.com/styles/25428611/plos-jhn-2") %>%
   write_lines("ms/plos-one.csl")
+
