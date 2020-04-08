@@ -3,12 +3,12 @@
 # - Figures
 figure_full <- captioner::captioner(prefix = "Fig", suffix = ".")
 figure_full(name = "map", caption = 'Location of the Nectandra Cloud Forest Reserve ("Nectandra").')
-figure_full(name = "richness-cr", caption = "Species richness of pteridophytes at protected areas in Costa Rica.")
 figure_full(name = "richness-inext", caption = "Interpolation (solid line) and extrapolation (dashed line) of species richness of pteridophytes at Nectandra Cloud Forest Reserve, Costa Rica.")
 figure_full(name = "min-dist", caption = "Minimum interspecific *rbcL* distances for selected pteridophyte floras.")
 
 # - Tables
-# table_full <- captioner::captioner(prefix = "Table")
+table_full <- captioner::captioner(prefix = "Table")
+table_full(name = "richness-cr", caption = "Species richness of pteridophytes at protected areas in Costa Rica.")
 
 # - SI figures
 s_figure_full <- captioner::captioner(prefix = "S", auto_space = FALSE, suffix = " Fig. ")
@@ -24,13 +24,13 @@ s_table_full(name = "checklist", "A checklist of fern and lycophyte species obse
 # Make short versions of citation functions
 # - Just the number
 figure <- pryr::partial(figure_full, display = "cite")
-# table <- pryr::partial(table_full, display = "cite")
+table <- pryr::partial(table_full, display = "cite")
 s_figure <- function(x) {s_figure_full(x) %>% stringr::str_match("(S[0-9] Fig)") %>% magrittr::extract(,2)}
 s_table <- function(x) {s_table_full(x) %>% stringr::str_match("(S[0-9] Table)") %>% magrittr::extract(,2)}
 
 # - Just the caption
 figure_cap <- function(x) {figure_full(x) %>% stringr::str_match("Fig [0-9]+\\. (.*)$") %>% magrittr::extract(,2)}
-# table_cap <- function(x) {table_full(x) %>% stringr::str_match("Table [0-9]+ (.*)$") %>% magrittr::extract(,2)}
+table_cap <- function(x) {table_full(x) %>% stringr::str_match("Table [0-9]+ (.*)$") %>% magrittr::extract(,2)}
 
 # Optional:
 # Check the order of figure and table citations in the Rmd file.

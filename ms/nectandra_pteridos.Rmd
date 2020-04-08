@@ -179,7 +179,7 @@ Two permanent streams and four seasonal drainages pass through the reserve and e
 Most of the surrounding land is used for cattle pasture or other agriculture.
 It has a rich herpetofauna [@Rovito2015] and is home to at least `r si(188, "spp.")` of bryophytes [@Norris2017].
 
-**`r figure_full("map")`** (a) Map of Costa Rica, showing location of Nectandra and other protected areas that have been surveyed for pteridophytes.
+**`r figure_full("map")`** (a) Map of Costa Rica, showing location of Nectandra (yellow diamond) and other protected areas that have been surveyed for pteridophytes.
 Other protected areas include Alberto Manuel Brenes Biological Reserve, La Selva Biological Station, Monteverde Cloud Forest Reserve, the upper watershed of the Savegre River in the Los Santos Forest Reserve, and San Luis Biological Reserve.
 (b) Aerial photo of Nectandra (\circa{ }1995).
 Nectandra consists of three parcels of land: the original parcel is in white (\circa{ }80% primary forest), with areas added later in red ("Ocotea" parcel, primary forest) and blue ("Persea" parcel, secondary forest).
@@ -317,14 +317,62 @@ top_2_sp_per_hec_site_name <- cr_sp_per_hec %>% arrange(desc(sp_per_hectare)) %>
 top_2_sp_per_hec <- cr_sp_per_hec %>% arrange(desc(sp_per_hectare)) %>% slice(2) %>% pull(sp_per_hectare)
 ```
 
-Our literature survey identified five other protected areas in mainland Costa Rica that have been surveyed for pteridophytes [@oet2019; @Haber1990; Kappelle2000; @Rojas2008; @Jimenez2016] (`r figure("map")`).
-The site with the highest species richness is `r top_1_site_name` (`r top_1_site_rich`), with `r top_3_site_name` (`r top_3_site_rich`) the third-highest after `r top_2_site_name` (`r top_2_site_rich`; `r figure("richness-cr")`a).
-`r top_1_sp_per_hec_site_name` has by far the most species per hectare (`r top_1_sp_per_hec`), with `r top_2_sp_per_hec_site_name` second-highest (`r top_2_sp_per_hec` species per hectare; `r figure("richness-cr")`b).
+Our literature survey identified five other protected areas in mainland Costa Rica that have been surveyed for pteridophytes [@Bigelow1991; @oet2019; @Kappelle2000; @Rojas2008; @Jimenez2016] (`r figure("map")`).
+The site with the highest species richness is `r top_1_site_name` (`r top_1_site_rich`), with `r top_3_site_name` (`r top_3_site_rich`) the third-highest after `r top_2_site_name` (`r top_2_site_rich`; `r table("richness-cr")`).
+`r top_1_sp_per_hec_site_name` has by far the most species per hectare (`r top_1_sp_per_hec`), with `r top_2_sp_per_hec_site_name` second-highest (`r top_2_sp_per_hec` species per hectare; `r table("richness-cr")`).
 
-**`r figure_full("richness-cr")`** 
-(a) number of species.
-(b) number of species per hectare.
-For full names of protected areas, see `r figure("map")`.
+**`r table_full("richness-cr")`**
+
+```{r richness-cr, results = "asis"}
+# Format and output richness table
+cr_richness %>%
+  mutate_at(vars(min_el_m, max_el_m), ~scales::number(., big.mark = ",")) %>%
+  mutate(elevation = case_when(
+    !is.na(min_el_m) & !is.na(max_el_m) ~ glue::glue("{min_el_m}–{max_el_m}"),
+    is.na(min_el_m) ~ glue::glue("ca. {max_el_m}"),
+    is.na(max_el_m) ~ glue::glue("ca. {min_el_m}")
+  )) %>%
+  mutate(richness_per_ha = richness / area_ha) %>%
+  mutate(holdridge_type = str_to_sentence(holdridge_type)) %>%
+  mutate_at(vars(area_ha, richness), ~scales::number(., big.mark = ",")) %>%
+  mutate(richness_per_ha = jntools::round_t(richness_per_ha, 2)) %>%
+  mutate(citation = str_remove_all(citation, "@")) %>%
+  arrange(full_name) %>%
+  select(full_name, 
+         `Elevation (m)` = elevation, 
+         `Life zone type\\textsuperscript{a}` = holdridge_type, 
+         `Area (ha)` = area_ha, 
+         `Richness (no. spp.)` = richness, 
+         `Richness per area (no. spp. per ha)` = richness_per_ha, 
+         Reference = citation) %>%
+  column_to_rownames("full_name") %>%
+  knitr::kable(format = "latex", booktabs = TRUE, escape = FALSE) %>%
+  kableExtra::kable_styling() %>%
+  kableExtra::column_spec(1, width = "8em") %>%
+  kableExtra::column_spec(3, width = "8em") %>%
+  kableExtra::column_spec(5, width = "8em") %>%
+  kableExtra::column_spec(6, width = "6em")
+  
+# \\textsuperscript{a}
+ #  gt(rowname_col = "full_name") %>%
+ #  cols_label(
+ #    elevation = "Elevation (m)",
+ #    area_ha = "Area (ha)",
+ #    richness = "Richness (no. spp.)",
+ #    richness_per_ha = "Richness per area (no. spp. per ha)",
+ #    holdridge_type = "Life zone type(a)",
+ #    citation = "Reference"
+ #  ) %>%
+ #  fmt_number(
+ #    columns = vars(area_ha, richness, richness_per_ha),
+ #    drop_trailing_zeros = TRUE
+ #  ) %>% 
+ # as_latex
+
+
+```
+
+^a^Life zones follow scheme of @Holdridge1967.
 
 The collection curve did not reach an asymptote (`r figure("richness-inext")`).
 Extrapolation of the curve indicates that the true species richness may approach `r si(est_rich$estimator, "spp.")` (95% confidence interval `r si(est_rich$x95_percent_lower, "spp.")` to `r si(est_rich$x95_percent_upper, "spp.")`).
@@ -449,7 +497,7 @@ We place our results in a regional and global context by comparing this flora wi
 
 ### Taxonomic diversity
 
-Nectandra has the third-highest species richness of protected areas in Costa Rica with data available for ferns and lycophytes, and by far the greatest number of species per hectare (`r figure("richness-cr")`).
+Nectandra has the third-highest species richness of protected areas in Costa Rica with data available for ferns and lycophytes, and by far the greatest number of species per hectare (`r table("richness-cr")`).
 While the number of species per hectare is not a fair measure of biodiversity per se as the species-area curve is not linear [@Arrhenius1921], it is useful to assess the effectiveness of a given protected area.
 Clearly, Nectandra is highly effective at protecting a large number of pteridophyte species given its area.
 Furthermore, the collection curve indicates that additional, unsampled species may be present (`r figure("richness-inext")`), adding to the value of this conservation area.
@@ -611,53 +659,6 @@ plot_grid(top, bottom, nrow = 2, ncol = 1)
 
 # Save the file for submission
 ggsave(filename = here("results/Fig1.tiff"), height = 7.25, width = 7.5, units = "in", dpi = 300)
-```
-
-\clearpage
-
-```{r richness-cr, fig.height = 3, fig.width = 5, fig.cap = figure_cap("richness-cr")}
-# Make Costa Rica pteridophyte richness figure
-
-# Part a: raw richness
-a <-
-  cr_richness %>%
-  mutate(name = fct_reorder(name, richness)) %>%
-  ggplot(aes(x = name, y = richness)) +
-  geom_col(fill = "grey40") +
-  scale_y_continuous(expand = expand_scale(mult = c(0, .05))) +
-  standard_theme3() +
-  coord_flip() +
-  labs(y = "No. spp.", x = "Site", subtitle = "a") +
-  # Use only thin vertical gridlines
-  theme(
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.major.x = element_line(size = rel(0.5))
-    )
-
-# Part b: richness per hectare
-b <-
-  cr_richness %>%
-  mutate(sp_per_hectare = richness / area_ha) %>%
-  mutate(name = fct_reorder(name, sp_per_hectare)) %>%
-  ggplot(aes(x = name, y = sp_per_hectare)) +
-  geom_col(fill = "grey40") +
-  scale_y_continuous(expand = expand_scale(mult = c(0, .05))) +
-  standard_theme3() +
-  coord_flip() +
-  labs(y = "No. spp. per hectare", x = "", subtitle = "b") +
-  # Use only thin vertical gridlines
-  theme(
-    panel.grid.minor.y = element_blank(),
-    panel.grid.major.y = element_blank(),
-    panel.grid.major.x = element_line(size = rel(0.5))
-    )
-
-
-# Combine subplots
-a + b
-
-ggsave(filename = here("results/Fig2.eps"), height = 3, width = 5, units = "in", device = cairo_ps_high_res)
 ```
 
 \clearpage
