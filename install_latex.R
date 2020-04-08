@@ -7,7 +7,19 @@
 tinytex::tlmgr_update()
 
 latex_packages <- c(
+  "colortbl",
+  "environ",
+  "makecell",
+  "multirow",
   "setspace",
-  "siunitx")
+  "siunitx",
+  "tabu",
+  "threeparttable",
+  "threeparttablex",
+  "trimspaces",
+  "ulem",
+  "varwidth",
+  "wrapfig",
+  "xcolor")
 
 tinytex::tlmgr_install(latex_packages)
