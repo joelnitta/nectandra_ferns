@@ -547,28 +547,42 @@ Newly obtained ingroup sequences highlighted in yellow.
 # Make Nectandra map figure
 
 # Download altitude data for Costa Rica
-dem.raster <- getData("alt", country = "CR")
-dem.m  <-  rasterToPoints(dem.raster)
-dem.df <-  data.frame(dem.m)
+dem.raster <- getData("alt", country = "CR", path = tempdir())
+dem.m  <- rasterToPoints(dem.raster)
+dem.df <- data.frame(dem.m)
 colnames(dem.df) = c("lon", "lat", "alt")
 
 # Make Costa Rica map showing location of conservation areas
-costa_rica_map <-
-ggplot() +
+costa_rica_map <- ggplot() +
   geom_raster(data = dem.df, aes(lon, lat, fill = alt)) +
-  scale_fill_scico(palette = "nuuk") +
-  geom_point(data = cr_richness, aes(x =  longitude, y = latitude, shape = name), size = 2) +
+  scale_fill_scico(palette = "lajolla", end = 0.9) +
+  # (alternate color scheme)
+  # scale_fill_gradientn(colours = terrain.colors(10)) +
+  geom_text_repel(
+    data = cr_richness,
+    aes(x = longitude, y = latitude, label = name),
+    size = 3
+  ) +
+  geom_point(
+    data = cr_richness %>% filter(name != "Nectandra"), 
+    aes(x = longitude, y = latitude), 
+    shape = "circle filled", fill = "black", size = 1.5) +
+  geom_point(
+    data = cr_richness %>% filter(name == "Nectandra"), 
+    aes(x = longitude, y = latitude), 
+    shape = "diamond filled", fill = "yellow", size = 2.0) +
+  scale_y_continuous(labels = scales::label_number(suffix = "\u00b0N", accuracy = 1)) +
+  scale_x_continuous(labels = scales::label_number(suffix = "\u00b0W", accuracy = 1, scale = -1)) +
   labs(
     fill = "Elevation (m)",
     shape = "Site"
   ) +
-  scale_y_continuous(labels = scales::label_number(suffix = "\u00b0N", accuracy = 1)) +
-  scale_x_continuous(labels = scales::label_number(suffix = "\u00b0W", accuracy = 1, scale = -1)) +
   coord_quickmap() +
   standard_theme3() +
   theme(
     axis.title.x = element_blank(),
-    axis.title.y = element_blank()
+    axis.title.y = element_blank(),
+    panel.background = element_rect(fill = "grey80")
   )
 
 # Load Nectandra map created with Inkscape
