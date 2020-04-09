@@ -589,17 +589,10 @@ Newly obtained ingroup sequences highlighted in yellow.
 \clearpage
 
 ```{r map, fig.height = 7.25, fig.width = 7.5, fig.cap = figure_cap("map")}
-# Make Nectandra map figure
-
-# Download altitude data for Costa Rica
-dem.raster <- getData("alt", country = "CR", path = tempdir())
-dem.m  <- rasterToPoints(dem.raster)
-dem.df <- data.frame(dem.m)
-colnames(dem.df) = c("lon", "lat", "alt")
-
 # Make Costa Rica map showing location of conservation areas
 costa_rica_map <- ggplot() +
-  geom_raster(data = dem.df, aes(lon, lat, fill = alt)) +
+  # costa_rica_el is elevation data with lat, long, and altitude (in m)
+  geom_raster(data = costa_rica_el, aes(lon, lat, fill = alt)) +
   scale_fill_scico(palette = "lajolla", end = 0.9) +
   # (alternate color scheme)
   # scale_fill_gradientn(colours = terrain.colors(10)) +
@@ -655,7 +648,7 @@ bottom <- plot_grid(
 plot_grid(top, bottom, nrow = 2, ncol = 1)
 
 # Save the file for submission
-ggsave(filename = here("results/Fig1.tiff"), height = 7.25, width = 7.5, units = "in", dpi = 300)
+ggsave(filename = fig_path("map", ".tiff"), height = 7.25, width = 7.5, units = "in", dpi = 300)
 ```
 
 \clearpage
@@ -664,7 +657,7 @@ ggsave(filename = here("results/Fig1.tiff"), height = 7.25, width = 7.5, units =
 # Make species collection curve
 make_inext_plot(richness_estimate)
 
-ggsave(filename = here("results/Fig3.eps"), height = 3, width = 3, units = "in", device = cairo_ps_high_res)
+ggsave(filename = fig_path("richness-inext", ".eps"), height = 3, width = 3, units = "in", device = cairo_ps_high_res)
 ```
 
 \clearpage
@@ -733,7 +726,7 @@ ggplot(min_distance_plot_data, aes(range, percent, fill = is_zero)) +
   # Wrap by dataset
   facet_wrap(vars(facet_label), ncol = 1)
 
-ggsave(filename = here("results/Fig4.eps"), height = 4.5, width = 7, units = "in", device = cairo_ps_high_res)
+ggsave(filename = fig_path("min-dist", ".eps"), height = 4.5, width = 7, units = "in", device = cairo_ps_high_res)
 ```
 
 \clearpage

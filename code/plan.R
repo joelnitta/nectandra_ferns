@@ -90,13 +90,16 @@ plan <- drake_plan(
     japan_taxa = japan_taxa, 
     japan_repro_data = japan_repro_data),
   
+  # Download elevation data for Costa Rica (for map)
+  costa_rica_el = download_country_el("CRI"),
+  
   # Checklist ----
   
   # Make species checklist, write out as SI
   checklist = make_checklist(
     specimens = nectandra_specimens_strict, 
     taxonomy = ppgi) %>% 
-    write_csv(file_out("results/table_S1.csv")),
+    write_csv(s_table_path("checklist", ".csv")),
   
   # Collection curve ----
   
@@ -151,7 +154,7 @@ plan <- drake_plan(
     moorea_rbcL = moorea_rbcL, # _FP
     japan_rbcL = japan_rbcL, # _JA
     japan_rbcL_sexdip = japan_rbcL_sexdip # _JAsexdip
-    ),
+  ),
   
   # Calculate minimum interspecific distances for each
   # dataset separately, bin them by 0.05% sequence divergence,
@@ -205,7 +208,7 @@ plan <- drake_plan(
   rbcL_tree_out = plot_nectandra_rbcL_tree(
     phy = rbcL_tree,
     ppgi = ppgi,
-    outfile = file_out("results/Fig_S1.pdf")
+    outfile = s_fig_path("tree", ".pdf")
   ),
   
   # Write out GenBank accession numbers for SI
@@ -215,7 +218,7 @@ plan <- drake_plan(
     specimens = nectandra_specimens,
     genbank_rbcL_metadata = genbank_rbcL_raw$metadata,
     nectandra_rbcL_aligned = nectandra_rbcL) %>% 
-    write_csv(file_out("results/table_S2.csv")),
+    write_csv(s_table_path("genbank", ".csv")),
   
   # Other rbcL trees----
   
@@ -245,7 +248,7 @@ plan <- drake_plan(
   cyatheaceae_rbcL_tree_pdf = plot_broad_rbcL_tree(
     phy = cyatheaceae_tree,
     outgroup = cyatheaceae_outgroup,
-    outfile = file_out("results/Fig_S2.pdf")
+    outfile = s_fig_path("cyatheaceae-tree", ".pdf")
   ),
   
   # - Grammitids: download sequences from GenBank and make alignment
@@ -276,7 +279,7 @@ plan <- drake_plan(
     phy = grammitid_tree,
     outgroup = grammitid_outgroup,
     nodelab_size = 0.8,
-    outfile = file_out("results/Fig_S3.pdf")
+    outfile = s_fig_path("grammitid-tree", ".pdf")
   ),
   
   # Manuscript rendering ----

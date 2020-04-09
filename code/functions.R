@@ -1251,3 +1251,61 @@ check_citation_order <- function(rmd_file, cap_type) {
     unique
   
 }
+
+#' Make a path to write out a figure
+#' 
+#' Will save to results folder with the file extension,
+#' replacing spaces with underscores
+#'
+#' @param fig_key String; figure name set in captions.R
+#' @param ext String; file extension
+#'
+#' @return String; file path
+#'
+#' @examples
+#' source("ms/captions.R")
+#' fig_path("map", ".tiff")
+fig_path <- function (fig_key, ext) {
+  
+  figure(fig_key) %>% 
+    str_replace_all(" ", "_") %>%
+    here("results", .) %>%
+    fs::path_ext_set(ext)
+  
+}
+
+#' Make a path to write out a supplemental figure
+#' 
+#' Will save to results folder with the file extension,
+#' replacing spaces with underscores
+#'
+#' @param fig_key String; figure name set in captions.R
+#' @param ext String; file extension
+#'
+#' @return String; file path
+s_fig_path <- function (fig_key, ext) {
+  
+  s_figure(fig_key) %>% 
+    str_replace_all(" ", "_") %>%
+    here("results", .) %>%
+    fs::path_ext_set(ext)
+  
+}
+
+#' Make a path to write out a supplemental table
+#' 
+#' Will save to results folder with the file extension,
+#' replacing spaces with underscores
+#'
+#' @param fig_key String; table name set in captions.R
+#' @param ext String; file extension
+#'
+#' @return String; file path
+s_table_path <- function (fig_key, ext) {
+  
+  s_table(fig_key) %>% 
+    str_replace_all(" ", "_") %>%
+    here("results", .) %>%
+    fs::path_ext_set(ext)
+  
+}
