@@ -53,6 +53,7 @@ loadd(
 # Define helper functions:
 
 # Extract the top genus and families with most species
+# use ... to rank by 'genus' or 'family'
 top_taxon <- function (df, rank, ...) {
   df %>% arrange(desc(n)) %>% slice(rank) %>% pull(...)
 }
@@ -80,13 +81,15 @@ barcode_fail_percent <- function(df, dataset_select) {
 <!-- Don't indent -->
 \setlength{\parindent}{0ex}
 
-Joel H. Nitta^1^*, Atsushi Ebihara^2^, and Alan R. Smith^3^
+Joel H. Nitta^1^*, Atsushi Ebihara^2^, Freddy Castillo^3^, and Alan R. Smith^4^
 
 ^1^Department of Biological Sciences, Graduate School of Science, University of Tokyo, Bunkyo-ku, Tokyo, Japan
 
 ^2^Department of Botany, National Museum of Nature and Science, Tsukuba, Ibaraki, Japan
 
-^3^The University Herbarium, University of California, Berkeley, Berkeley, California, United States of America
+^3^Nectandra Institute, San Ramon, Costa Rica
+
+^4^The University Herbarium, University of California, Berkeley, Berkeley, California, United States of America
 
 *Corresponding author  
 E-mail: joelnitta@gmail.com (JHN)
@@ -294,25 +297,54 @@ Families with the most species were `r top_taxon(family_count, 1, family)` (`r t
 Three taxa could not be matched to any known species: *Polyphlebium* sp1 (*Nitta 123* and *Nitta 2378*), *Campyloneurum* sp1 (*Nitta 2308*), and *Megalastrum* sp1 (*Nitta 727*).
 
 ```{r top-sites}
+# Define helper functions to extract sites with highest species richness
+
+# - shorten a site name to just "Nectandra"
+short_nec_name <- function (x) {
+  if(str_detect(x, "Nectandra")) return ("Nectandra")
+  x
+}
+
+# Rank sites by a criterion (rank_by) 
+# and select the top 'n' site (rank)
+top_site_name <- function (df, rank, rank_by) {
+  
+  rank_by <- enquo(rank_by)
+  
+  df %>% 
+    arrange(desc(!!rank_by)) %>% 
+    slice(rank) %>% 
+    pull(full_name) %>% 
+    short_nec_name
+}
+
+# Rank sites by a criterion (rank_by) 
+# and return the value of the criterion used for ranking
+top_site_num <- function (df, rank, rank_by) {
+  
+  rank_by <- enquo(rank_by)
+  
+  df %>% 
+    arrange(desc(!!rank_by)) %>% 
+    slice(rank) %>% 
+    pull(!!rank_by)
+}
+
+
 # Obtain the site names and species richness of the top three most pteridophyte-rich
 # protected areas in Costa Rica
-top_1_site_name <- cr_richness %>% arrange(desc(richness)) %>% slice(1) %>% pull(full_name)
-top_1_site_rich <- cr_richness %>% arrange(desc(richness)) %>% slice(1) %>% pull(richness) %>% si("spp.")
-top_2_site_name <- cr_richness %>% arrange(desc(richness)) %>% slice(2) %>% pull(full_name)
-top_2_site_rich <- cr_richness %>% arrange(desc(richness)) %>% slice(2) %>% pull(richness) %>% si("spp.")
-top_3_site_name <- cr_richness %>% arrange(desc(richness)) %>% slice(3) %>% pull(full_name)
-top_3_site_rich <- cr_richness %>% arrange(desc(richness)) %>% slice(3) %>% pull(richness) %>% si("spp.")
+top_1_site_name <- top_site_name(cr_richness, 1, richness)
+top_1_site_rich <- top_site_num(cr_richness, 1, richness) %>% si("spp.")
+top_2_site_name <- top_site_name(cr_richness, 2, richness)
+top_2_site_rich <- top_site_num(cr_richness, 2, richness) %>% si("spp.")
+top_3_site_name <- top_site_name(cr_richness, 3, richness)
+top_3_site_rich <- top_site_num(cr_richness, 3, richness) %>% si("spp.")
 
 # Also do top two by species per hectare
-cr_sp_per_hec <-
-cr_richness %>%
-  mutate(sp_per_hectare = richness / area_ha) %>%
-  mutate(sp_per_hectare = round(sp_per_hectare, 2))
-
-top_1_sp_per_hec_site_name <- cr_sp_per_hec %>% arrange(desc(sp_per_hectare)) %>% slice(1) %>% pull(full_name)
-top_1_sp_per_hec <- cr_sp_per_hec %>% arrange(desc(sp_per_hectare)) %>% slice(1) %>% pull(sp_per_hectare)
-top_2_sp_per_hec_site_name <- cr_sp_per_hec %>% arrange(desc(sp_per_hectare)) %>% slice(2) %>% pull(full_name)
-top_2_sp_per_hec <- cr_sp_per_hec %>% arrange(desc(sp_per_hectare)) %>% slice(2) %>% pull(sp_per_hectare)
+top_1_sp_per_hec_site_name <- top_site_name(cr_richness, 1, richness_per_ha)
+top_1_sp_per_hec <- top_site_num(cr_richness, 1, richness_per_ha) %>% round_t(2)
+top_2_sp_per_hec_site_name <- top_site_name(cr_richness, 2, richness_per_ha)
+top_2_sp_per_hec <- top_site_num(cr_richness, 2, richness_per_ha) %>% round_t(2)
 ```
 
 Our literature survey identified five other protected areas in mainland Costa Rica that have been surveyed for pteridophytes [@Bigelow1991; @oet2019; @Kappelle2000; @Rojas2008; @Jimenez2016] (`r figure("map")`).
@@ -321,8 +353,11 @@ The site with the highest species richness is `r top_1_site_name` (`r top_1_site
 
 **`r table_full("richness-cr")`**
 
+\singlespacing
+
 ```{r richness-cr, results = "asis"}
 # Format and output richness table
+# Be sure to check references numbers to make sure they match final version!
 cr_richness %>%
   mutate_at(vars(min_el_m, max_el_m), ~scales::number(., big.mark = ",")) %>%
   mutate(elevation = case_when(
@@ -330,7 +365,6 @@ cr_richness %>%
     is.na(min_el_m) ~ glue::glue("ca. {max_el_m}"),
     is.na(max_el_m) ~ glue::glue("ca. {min_el_m}")
   )) %>%
-  mutate(richness_per_ha = richness / area_ha) %>%
   mutate(holdridge_type = str_to_sentence(holdridge_type)) %>%
   mutate_at(vars(area_ha, richness), ~scales::number(., big.mark = ",")) %>%
   mutate(richness_per_ha = jntools::round_t(richness_per_ha, 2)) %>%
@@ -342,35 +376,20 @@ cr_richness %>%
          `Area (ha)` = area_ha, 
          `Richness (no. spp.)` = richness, 
          `Richness per area (no. spp. per ha)` = richness_per_ha, 
-         Reference = citation) %>%
+         Reference = citation_number) %>%
   column_to_rownames("full_name") %>%
   knitr::kable(format = "latex", booktabs = TRUE, escape = FALSE) %>%
-  kableExtra::kable_styling() %>%
+  kableExtra::kable_styling(latex_options = "striped") %>%
+  kableExtra::row_spec(0, bold = TRUE) %>%
   kableExtra::column_spec(1, width = "8em") %>%
   kableExtra::column_spec(3, width = "8em") %>%
-  kableExtra::column_spec(5, width = "8em") %>%
+  kableExtra::column_spec(5, width = "6em") %>%
   kableExtra::column_spec(6, width = "6em")
-  
-# \\textsuperscript{a}
- #  gt(rowname_col = "full_name") %>%
- #  cols_label(
- #    elevation = "Elevation (m)",
- #    area_ha = "Area (ha)",
- #    richness = "Richness (no. spp.)",
- #    richness_per_ha = "Richness per area (no. spp. per ha)",
- #    holdridge_type = "Life zone type(a)",
- #    citation = "Reference"
- #  ) %>%
- #  fmt_number(
- #    columns = vars(area_ha, richness, richness_per_ha),
- #    drop_trailing_zeros = TRUE
- #  ) %>% 
- # as_latex
-
-
 ```
 
 ^a^Life zones follow scheme of @Holdridge1967.
+
+\doublespacing
 
 The collection curve did not reach an asymptote (`r figure("richness-inext")`).
 Extrapolation of the curve indicates that the true species richness may approach `r si(est_rich$estimator, "spp.")` (95% confidence interval `r si(est_rich$x95_percent_lower, "spp.")` to `r si(est_rich$x95_percent_upper, "spp.")`).
@@ -566,14 +585,15 @@ This study was supported by the Japan Society for the Promotion of Science (Kake
 
 ## Supporting information
 
-**`r s_table_full("genbank")`** All specimens from the Nectandra Cloud Forest Reserve, Alajuela Province, Costa Rica, except for Nitta 2012 (*Abrodictyum rigidum* (Sw.) Ebihara & Dubuisson) from Palmira, Alajuela Province, Costa Rica and Nitta 169 (*Hymenophyllum trapezoidale* Liebm.) from San Gerardo de Dota, San José Province, Costa Rica
+**`r s_table_full("genbank")`** All specimens from the Nectandra Cloud Forest Reserve, Alajuela Province, Costa Rica, except for *Abrodictyum rigidum* (Sw.) Ebihara & Dubuisson (*Nitta 2012*, Palmira, Alajuela Province, Costa Rica), *Hymenophyllum trapezoidale* Liebm. (*Nitta 169*, San Gerardo de Dota, San José Province, Costa Rica), *Radiovittaria remota* (Fée) E.H. Crane (*R. Moran 3180a*, Costa Rica), and *Trichomanes polypodiodes* L. (*M. Kessler 8808*, Bolivia).
 
 **`r s_table_full("checklist")`** All voucher specimens deposited in UC with duplicates when available at CR, GH, and TNS. For additional data on each voucher specimen, see Dryad repository [@Nitta2020b].
 
 **`r s_figure_full("tree")`** Tree rooted on lycophytes.
 Numbers at nodes indicate SH-aLRT support (%) / UFboot support (%); values less than 50% shown with "-"; values of 100% shown with "\*".
 For phylogram on right side, scale bar shows expected number of changes per site.
-Numbers after species name are J. H. Nitta specimen collection numbers of specimens from Nectandra, except for *Trichomanes polypodiodes* L. (*M. Kessler 8808*, Bolivia) and *Radiovittaria remota* (Fée) E.H. Crane (*R. Moran 3180a*, Costa Rica), which could not be sequenced successfully, so GenBank sequences were used instead (accessions AY175795 and U21289, respectively).
+Numbers after species name are J. H. Nitta specimen collection numbers except for *Trichomanes polypodiodes* (*M. Kessler 8808*, Bolivia) and *Radiovittaria remota* (*R. Moran 3180a*, Costa Rica), which could not be sequenced successfully, so GenBank sequences were used instead (accessions AY175795 and U21289, respectively). 
+All J. H. Nitta specimens from Nectandra except for *Abrodictyum rigidum* (*Nitta 2012*, Palmira, Alajuela Province, Costa Rica) and *Hymenophyllum trapezoidale* (*Nitta 169*, San Gerardo de Dota, San José Province, Costa Rica).
 
 **`r s_figure_full("cyatheaceae-tree")`** Tree rooted on species from Nectandra in family Dicksoniaceae.
 Numbers at nodes indicate local support values computed with the Shimodaira-Hasegawa test; values less than 50% not shown.
