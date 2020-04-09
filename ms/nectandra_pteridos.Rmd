@@ -49,9 +49,6 @@ loadd(
     "rbcL_tree"),
   cache = nectandra_cache)
 
-# Load captions
-source(here::here("ms/captions.R"))
-
 # Define helper functions:
 
 # Extract the top genus and families with most species

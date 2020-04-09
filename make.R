@@ -17,18 +17,16 @@ source("code/packages.R")
 # Update drake settings
 pkgconfig::set_config("drake::strings_in_dots" = "literals")
 
-# Load functions and plans
+# Load functions
 source("code/functions.R")
+# Load plan
 source("code/plan.R")
+# Load captions
+source("ms/captions.R")
 
 # Set cache
 nectandra_cache = new_cache("nectandra_cache")
 options(rstudio_drake_cache = nectandra_cache)
 
-# Specify non-global environment
-# to get around captioner modifying global env
-# (cf https://github.com/ropensci/drake/issues/749)
-envir <- new.env(parent = globalenv())
-
 # Run analyses
-make(plan, cache = nectandra_cache, envir = envir) 
+make(plan, cache = nectandra_cache)
