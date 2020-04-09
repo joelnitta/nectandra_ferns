@@ -40,6 +40,7 @@ loadd(
     "nectandra_specimens_strict",
     "ppgi",
     "cr_richness",
+    "costa_rica_el",
     "nectandra_dna",
     "nectandra_rbcL",
     "nectandra_rbcL_raw",

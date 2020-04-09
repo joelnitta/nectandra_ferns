@@ -174,6 +174,30 @@ rename_japan_rbcL_sexdip <- function (japan_rbcL, japan_taxa, japan_repro_data) 
   japan_rbcL
 }
 
+#' Download altitude data for a country
+#'
+#' To see list of 3-letter ISO codes, run
+#' raster::getData('ISO3')
+#'
+#' @param country Country name specified by 3-letter ISO code.
+#' Default = "CRI" (Costa Rica)
+#'
+#' @return Dataframe. Columns:
+#' - lat: latitidue
+#' - lon: longitude
+#' - alt: altitude (in m)
+#'
+download_country_el <- function(country = "CRI") {
+  
+  dem.raster <- raster::getData("alt", country = country, path = tempdir())
+  dem.m  <- raster::rasterToPoints(dem.raster)
+  dem.df <- data.frame(dem.m)
+  colnames(dem.df) = c("lon", "lat", "alt")
+  
+  tibble::as_tibble(dem.df)
+  
+}
+
 # Checklist ----
 
 #' Make a species checklist of pteridophytes at Nectandra
@@ -478,7 +502,7 @@ bin_min_inter_dist <- function (data, width = 0.005) {
   
   # Bin distances
   ggplot2::cut_width(x = non_zeroes$distance, width = width, boundary = width, closed = "left") %>%
-    table() %>%
+    base::table() %>%
     broom::tidy() %>%
     purrr::set_names(c("range", "n")) %>%
     # Label bins by the right side (upper bound)
