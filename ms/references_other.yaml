@@ -62,3 +62,16 @@ references:
   title: 'Data from: A taxonomic and molecular survey of the pteridophytes of the Nectandra Cloud Forest Reserve, Costa Rica'
   container-title: 'Dryad Digital Repository'
   URL: http://doi.org/XXX
+
+- id: RCoreTeam2019
+  type: book
+  author:
+  - literal: R Core Team
+  issued:
+  - year: 2019
+  title: 'R: A language and environment for statistical computing'
+  title-short: R
+  publisher: R Foundation for Statistical Computing
+  publisher-place: Vienna, Austria
+  URL: https://www.R-project.org/
+  

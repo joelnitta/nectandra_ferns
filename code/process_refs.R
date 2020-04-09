@@ -1,9 +1,9 @@
-# Make clean bib files for each Rmd file that only includes cited references
+### Set up bibliography and citation style files ###
 
 library(jntools)
 library(tidyverse)
 
-# Clean bibliography and write out.
+# Clean bibliography exported from Mendely and write it out.
 clean_bib(
   "ms/references_raw.bib", 
   strip_fields = c("abstract", "file", "keywords", 
@@ -12,16 +12,13 @@ clean_bib(
                    "isbn", "month", "number")) %>%
   write_lines("ms/references.bib")
 
-# Make some manual fixes to authors in SI bibliography
+# Make some manual fixes to authors
 # (these are institutions, so need double brackets to
 # avoid latex thinking they have first and last names)
 read_lines("ms/references.bib") %>%
   str_replace(
     "Pteridophyte Phylogeny Group I",
     "\\{Pteridophyte Phylogeny Group I\\}") %>%
-  str_replace(
-    "R Core Team",
-    "\\{R Core Team\\}") %>%
   str_replace(
     "CBOL Plant Working Group",
     "\\{CBOL Plant Working Group\\}") %>%
