@@ -99,8 +99,8 @@ rename_japan_rbcL <- function (japan_rbcL, japan_taxa) {
     assert(is_uniq, scientific_name) %>%
     assert(not_na, scientific_name) %>%
     left_join(
-      parse_names_batch(.$scientific_name) %>% 
-        select(scientific_name = b, taxon = c),
+      taxastand::parse_names_batch(.$scientific_name) %>% 
+        select(scientific_name = query, taxon),
       by = "scientific_name"
     ) %>%
     assert(is_uniq, taxon) %>%
@@ -151,8 +151,8 @@ rename_japan_rbcL_sexdip <- function (japan_rbcL, japan_taxa, japan_repro_data) 
     assert(not_na, scientific_name) %>%
     assert(is_uniq, scientific_name) %>%
     left_join(
-      parse_names_batch(.$scientific_name) %>% 
-        select(scientific_name = b, taxon = c),
+      taxastand::parse_names_batch(.$scientific_name) %>% 
+        select(scientific_name = query, taxon),
       by = "scientific_name"
     ) %>%
     assert(not_na, taxon) %>%
@@ -447,7 +447,7 @@ get_min_inter_dist <- function (aln) {
     # Convert to long format (one distance per taxon per row)
     tidyr::pivot_longer(-distance, names_to = "side", values_to = "taxon") %>%
     # Add species (collapses varieties)
-    mutate(species = sp_name_only(taxon, sep = "_")) %>%
+    mutate(species = taxastand::sp_name_only(taxon, sep = "_")) %>%
     # Filter to single smallest distance per species (not including multiples for ties)
     dplyr::group_by(species) %>%
     dplyr::arrange(distance) %>%
@@ -596,107 +596,6 @@ make_genbank_accession_table <- function (nectandra_rbcL_raw, DNA_accessions, sp
 }
 
 # Etc ----
-
-#' Parse species names in batch
-#' 
-#' Runs much faster for a large number of names.
-#' 
-#' Requires gnparser to be installed and on $PATH
-#'
-#' @param names Character vector of species names. 
-#' May include author, variety, etc. All names must be
-#' unique, with no NAs.
-#' @param check Logical; should a check be made that the
-#' results original name match the names of the input?
-#'
-#' @return Tibble
-#'
-#' @examples
-#' parse_names_batch("Amaurorhinus bewichianus (Wollaston,1860) (s.str.)")
-parse_names_batch <- function (names, check = TRUE) {
-  
-  assertthat::assert_that(is.character(names))
-  assertthat::assert_that(all(assertr::not_na(names)))
-  assertthat::assert_that(all(assertr::is_uniq(names)))
-  
-  temp_file <- fs::file_temp() %>% fs::path_ext_set("txt")
-  
-  temp_dir <- fs::path_dir(temp_file)
-  
-  temp_txt <- fs::path_file(temp_file)
-  
-  readr::write_lines(names, temp_file)
-  
-  args = c(
-    "-f",
-    "simple",
-    "-j",
-    "20",
-    temp_txt
-  )
-  
-  results <- 
-    processx::run(
-      command = "gnparser", args, wd = temp_dir) %>%
-    magrittr::extract("stdout") %>%
-    unlist() %>%
-    read_lines() %>%
-    stringr::str_split("\\|") %>% 
-    # Need to figure out what each column actually means
-    purrr::map(~purrr::set_names(., letters[1:7])) %>%
-    do.call(bind_rows, .) %>%
-    select(b:g)
-  
-  if (isTRUE(check)) {
-    # b contains the original name. Sometimes these can get out of order.
-    # Make sure they are in the same order as the input.
-    results <-
-      arrange(results, match(b,names)) %>%
-      assertr::verify(all(.$b == names))
-  }
-  
-  results
-  
-}
-
-
-#' Extract only the species name from a longer name.
-#' 
-#' It is assumed that the first two parts of the name are genus then
-#' specific epithet. No checking is done for this.
-#'
-#' @param taxon_name Taxon name, e.g. "Crepidomanes minutum var minutum".
-#' @param sep Character separating parts of the name.
-#'
-#' @return The first two parts of the name separated by space.
-#' @examples
-#' sp_name_only("Crepidomanes minutum var minutum")
-sp_name_only <- function (taxon_name, sep = " ") {
-  
-  assertthat::assert_that(is.character(taxon_name))
-  
-  str_split(taxon_name, sep) %>% 
-    map_chr(., ~magrittr::extract(., 1:2) %>% jntools::paste3(collapse = sep))
-}
-
-#' Extract only the genus name from a longer name.
-#' 
-#' It is assumed that the first part of the name is the genus.
-#' No checking is done for this.
-#'
-#' @param taxon_name Taxon name, e.g. "Crepidomanes minutum var minutum".
-#' @param sep Character separating parts of the name.
-#'
-#' @return The first two parts of the name separated by space.
-#' @examples
-#' genus_name_only("Crepidomanes minutum var minutum")
-genus_name_only <- function (taxon_name, sep = " ") {
-  
-  assertthat::assert_that(is.character(taxon_name))
-  
-  str_split(taxon_name, sep) %>% 
-    map_chr(., ~magrittr::extract(., 1))
-}
 
 # Extract a numeric value preceding a keyword in a text string.
 get_number <- function(text, keyword) {
@@ -847,8 +746,8 @@ plot_family_rbcL_tree <- function(rbcL_tree, ppgi, outfile) {
   tips <-
     tibble(tip = rbcL_tree$tip.label) %>%
     mutate(
-      species = sp_name_only(tip, sep = "_"),
-      genus = genus_name_only(tip, sep = "_")) %>%
+      species = taxastand::sp_name_only(tip, sep = "_"),
+      genus = taxastand::genus_name_only(tip, sep = "_")) %>%
     left_join(select(ppgi, genus, family, class))
   
   # Identify lycophyte tips for rooting
@@ -864,8 +763,8 @@ plot_family_rbcL_tree <- function(rbcL_tree, ppgi, outfile) {
   tips <-
     tibble(tip = rbcL_tree$tip.label) %>%
     mutate(
-      species = sp_name_only(tip, sep = "_"),
-      genus = genus_name_only(tip, sep = "_")) %>%
+      species = taxastand::sp_name_only(tip, sep = "_"),
+      genus = taxastand::genus_name_only(tip, sep = "_")) %>%
     left_join(select(ppgi, genus, family, class))
   
   rbcL_tree$tip.label <- tips$family
@@ -1062,8 +961,8 @@ identify_outgroup <- function(phy, ppgi, ...) {
   tips <-
     tibble(tip = phy$tip.label) %>%
     mutate(
-      species = sp_name_only(tip, sep = "_"),
-      genus = genus_name_only(tip, sep = "_")) %>%
+      species = taxastand::sp_name_only(tip, sep = "_"),
+      genus = taxastand::genus_name_only(tip, sep = "_")) %>%
     left_join(ppgi, by = "genus") 
   
   # Identify outgroup taxa for rooting
@@ -1084,8 +983,8 @@ root_on_lycos <- function(tree, ppgi) {
   tips_for_rooting <-
     tibble(tip = tree$tip.label) %>%
     mutate(
-      species = sp_name_only(tip, sep = "_"),
-      genus = genus_name_only(tip, sep = "_")) %>%
+      species = taxastand::sp_name_only(tip, sep = "_"),
+      genus = taxastand::genus_name_only(tip, sep = "_")) %>%
     assert(not_na, genus) %>%
     left_join(dplyr::select(ppgi, genus, class), by = "genus") %>%
     assert(not_na, class)
