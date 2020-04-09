@@ -50,7 +50,7 @@ specimens_raw <- read_csv(here("data_raw/specimens.csv")) %>%
 
 # Read in and clean up taxonomic data
 sci_names <-
-read_csv(here("data_raw/taxonomy.csv")) %>%
+  read_csv(here("data_raw/taxonomy.csv")) %>%
   clean_names() %>%
   rename(specific_epithet = species) %>%
   mutate(taxon = paste3(genus, specific_epithet, infrasp_name)) %>%
@@ -69,7 +69,7 @@ read_csv(here("data_raw/taxonomy.csv")) %>%
 
 # Format final specimen data
 nectandra_specimens <-
-specimens_raw %>%
+  specimens_raw %>%
   # Manipulate columns
   mutate(coll_num = paste3(collection_number, subcollection_number, sep = "")) %>%
   mutate(specimen = paste3(collector_lastname, coll_num)) %>%
@@ -194,7 +194,13 @@ costa_rica_richness <-
   mutate(richness = case_when(
     name == "La Selva" ~ n_distinct(la_selva_pteridos_alt$taxon),
     name == "Nectandra" ~ n_distinct(nectandra_specimens$species),
-    TRUE ~ richness))
+    TRUE ~ richness)) %>%
+  mutate(richness_per_ha = richness / area_ha) %>%
+  select(name, full_name, 
+         min_el_m, max_el_m, area_ha, 
+         richness,  richness_per_ha, 
+         holdridge_type, citation, citation_number,
+         latitude, longitude)
 
 # Write out final richness data
 write_csv(costa_rica_richness, "data/costa_rica_richness.csv")

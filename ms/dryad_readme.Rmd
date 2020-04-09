@@ -213,12 +213,14 @@ Variable list:
   - area_ha: Area of site in hectares.
 
   - richness: Number of species occurring at the site.
+  
+  - richness_per_ha: Number of species per hectare occurring at the site.
 
   - holdridge_type: @Holdridge1967 life-zone type.
 
   - citation: Reference for data.
-
-  - notes: Miscellaneous notes.
+  
+  - citation_number: Reference number in manuscript.
 
   - latitude: Latitude in decimal-degrees.
 
