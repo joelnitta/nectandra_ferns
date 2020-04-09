@@ -4,20 +4,6 @@
 % This version is designed to be easy to convert to .doc 
 % by copying the pdf text and pasting into Word.
 
-% FOR CONVERSION TO MS WORD ONLY:
-% Use Times New Roman font because it preserves formatting when copying from PDF.
-% Comment-out if you don't have Times New Roman installed.
-% \usepackage{fontspec}
-% \setmainfont{Times New Roman} 
-
-% Add "S" to supplemental figure and table labels
-\newcommand{\beginsupplement}{
-  \setcounter{table}{0}  
-  \renewcommand{\thetable}{S\arabic{table}} 
-  \setcounter{figure}{0} 
-  \renewcommand{\thefigure}{S\arabic{figure}}
-}
-
 % Set margins
 \usepackage[margin=1in]{geometry}
 
