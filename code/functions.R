@@ -594,6 +594,17 @@ align_all_rbcL <- function(nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL_s
 #' 
 make_genbank_accession_table <- function (nectandra_rbcL_raw, DNA_accessions, specimens, genbank_rbcL_metadata, nectandra_rbcL_aligned) {
   
+  # Add scientific name to genbank metadata
+  genbank_rbcL_metadata <-
+  genbank_rbcL_metadata %>% 
+    left_join(
+      specimens %>%
+        select(taxon, scientific_name) %>%
+        unique,
+      by = "taxon"
+    ) %>%
+    assert(not_na, everything())
+  
   # Format table of newly sequenced sequences
   tibble(genomic_id = names(nectandra_rbcL_raw)) %>%
     left_join(select(DNA_accessions, genomic_id, specimen_id), by = "genomic_id") %>%
