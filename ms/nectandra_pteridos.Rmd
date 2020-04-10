@@ -573,9 +573,9 @@ We hope our study will lead to more molecular ecological research incorporating 
 
 ## Acknowledgments
 
-The authors are very grateful to Evelyne and David Lennette for allowing us to study the pteridophytes of Nectandra over multiple field seasons and for providing logistical and financial support.
-Freddy Castillo provided assistance with fieldwork.
+The authors are grateful to Evelyne and David Lennette for allowing us to study the pteridophytes of Nectandra over multiple field seasons and for providing logistical and financial support.
 This study was supported by the Japan Society for the Promotion of Science (Kakenhi grant no. 15K07204).
+This study is dedicated in memory of Álvaro Ulgade, father of the Costa Rican national park system, friend of Nectandra, and an inspiration to all those who seek to understand and protect biodiversity.
 
 ## References
 <!-- Insert <div id="refs"></div> to place the refs here instead of at the end -->
@@ -611,23 +611,43 @@ Newly obtained ingroup sequences highlighted in yellow.
 
 ```{r map, fig.height = 7.25, fig.width = 7.5, fig.cap = figure_cap("map")}
 # Make Costa Rica map showing location of conservation areas
+
+# First add column to map data for whether site is in the "central"
+# part of the country (used to color lines when repelling labels)
+cr_richness_for_map <-
+cr_richness %>%
+  mutate(site_type = case_when(
+    name %in% c("Monteverde", "San Luis", "Alberto Brenes", "Nectandra") ~ "central",
+    TRUE ~ "outer"
+  ))
+
 costa_rica_map <- ggplot() +
   # costa_rica_el is elevation data with lat, long, and altitude (in m)
   geom_raster(data = costa_rica_el, aes(lon, lat, fill = alt)) +
   scale_fill_scico(palette = "lajolla", end = 0.9) +
-  # (alternate color scheme)
-  # scale_fill_gradientn(colours = terrain.colors(10)) +
+  # min.segment.length isn't an aesthetic, but segment.color is.
+  # So we can use segment.color to hide lines that don't need to be plotted.
   geom_text_repel(
-    data = cr_richness,
-    aes(x = longitude, y = latitude, label = name),
-    size = 3
+    data = cr_richness_for_map,
+    aes(x = longitude, y = latitude, label = name, segment.color = site_type),
+    size = 3, # text size
+    seed = 9130,
+    min.segment.length = 0,
+    color = "white",     # text color
+    bg.color = "grey10", # shadow color
+    bg.r = 0.10 # shadow radius
   ) +
+  scale_fill_manual(
+    aesthetics = "segment.colour",
+    values = c(central = "black", other = "transparent"),
+    guide = FALSE
+    ) +
   geom_point(
-    data = cr_richness %>% filter(name != "Nectandra"), 
+    data = cr_richness_for_map %>% filter(name != "Nectandra"), 
     aes(x = longitude, y = latitude), 
     shape = "circle filled", fill = "black", size = 1.5) +
   geom_point(
-    data = cr_richness %>% filter(name == "Nectandra"), 
+    data = cr_richness_for_map %>% filter(name == "Nectandra"), 
     aes(x = longitude, y = latitude), 
     shape = "diamond filled", fill = "yellow", size = 2.0) +
   scale_y_continuous(labels = scales::label_number(suffix = "\u00b0N", accuracy = 1)) +
