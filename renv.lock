@@ -3,24 +3,8 @@
     "Version": "3.6.1",
     "Repositories": [
       {
-        "Name": "BioCsoft",
-        "URL": "https://bioconductor.org/packages/3.10/bioc"
-      },
-      {
-        "Name": "BioCann",
-        "URL": "https://bioconductor.org/packages/3.10/data/annotation"
-      },
-      {
-        "Name": "BioCexp",
-        "URL": "https://bioconductor.org/packages/3.10/data/experiment"
-      },
-      {
-        "Name": "BioCworkflows",
-        "URL": "https://bioconductor.org/packages/3.10/workflows"
-      },
-      {
         "Name": "CRAN",
-        "URL": "https://cran.rstudio.com"
+        "URL": "https://mran.microsoft.com/snapshot/2019-12-12"
       }
     ]
   },
@@ -495,10 +479,16 @@
     },
     "ggrepel": {
       "Package": "ggrepel",
-      "Version": "0.8.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "61257084e976294d3c97de988469d019"
+      "Version": "0.9.0",
+      "Source": "GitHub",
+      "Remotes": "github::tidyverse/ggplot2",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "ggrepel",
+      "RemoteUsername": "slowkow",
+      "RemoteRef": "master",
+      "RemoteSha": "3941cf1558cec1cbee7c533cc7216c4cd72e0433",
+      "Hash": "45bfa6e9cf187e9d9ea5fd1ac769ebbb"
     },
     "ggridges": {
       "Package": "ggridges",
@@ -1195,8 +1185,8 @@
       "RemoteRepo": "taxastand",
       "RemoteUsername": "joelnitta",
       "RemoteRef": "master",
-      "RemoteSha": "f92634cf6872c2eca169c0363417faa90af627bf",
-      "Hash": "f867ca8cce0d4edbb57c18ac0de5e8f2"
+      "RemoteSha": "1973c323fa212e6088c62a8e55a6cac28e9266b4",
+      "Hash": "75641a56e95b6a273ed1f54df0a5a9d9"
     },
     "taxize": {
       "Package": "taxize",
