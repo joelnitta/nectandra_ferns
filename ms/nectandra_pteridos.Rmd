@@ -81,15 +81,13 @@ barcode_fail_percent <- function(df, dataset_select) {
 <!-- Don't indent -->
 \setlength{\parindent}{0ex}
 
-Joel H. Nitta^1^*, Atsushi Ebihara^2^, Freddy Castillo^3^, and Alan R. Smith^4^
+Joel H. Nitta^1^*, Atsushi Ebihara^2^, and Alan R. Smith^3^
 
 ^1^Department of Biological Sciences, Graduate School of Science, University of Tokyo, Bunkyo-ku, Tokyo, Japan
 
 ^2^Department of Botany, National Museum of Nature and Science, Tsukuba, Ibaraki, Japan
 
-^3^Nectandra Institute, San Ramon, Costa Rica
-
-^4^The University Herbarium, University of California, Berkeley, Berkeley, California, United States of America
+^3^The University Herbarium, University of California, Berkeley, Berkeley, California, United States of America
 
 *Corresponding author  
 E-mail: joelnitta@gmail.com (JHN)
@@ -574,6 +572,7 @@ We hope our study will lead to more molecular ecological research incorporating 
 ## Acknowledgments
 
 The authors are grateful to Evelyne and David Lennette for allowing us to study the pteridophytes of Nectandra over multiple field seasons and for providing logistical and financial support.
+Freddy Castillo Arroyo helped with fieldwork.
 This study was supported by the Japan Society for the Promotion of Science (Kakenhi grant no. 15K07204).
 This study is dedicated in memory of Álvaro Ulgade, father of the Costa Rican national park system, friend of Nectandra, and an inspiration to all those who seek to understand and protect biodiversity.
 
