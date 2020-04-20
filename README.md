@@ -20,7 +20,7 @@ docker-compose up -d
 Enter the container:
 
 ```
-docker exec -it nectandra_analysis_1 bash
+docker exec -it nectandra_ferns_analysis_1 bash
 ```
 
 Inside the container, run `make.R`:
