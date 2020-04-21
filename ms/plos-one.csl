@@ -20,7 +20,7 @@
     <category citation-format="numeric"/>
     <category field="science"/>
     <summary>Vancouver for PLoS Journals as of January 2015</summary>
-    <updated>2020-04-07T08:14:33+00:00</updated>
+    <updated>2020-04-21T04:57:15+00:00</updated>
     <rights license="http://creativecommons.org/licenses/by-sa/3.0/">This work is licensed under a Creative Commons Attribution-ShareAlike 3.0 License</rights>
   </info>
   <locale xml:lang="en">
@@ -312,9 +312,9 @@
       </group>
       <group delimiter=" " suffix=". ">
         <text macro="editor"/>
-        <text macro="date" suffix="."/>
         <text macro="container-title"/>
         <text macro="publisher"/>
+        <text macro="date" suffix="."/>
         <group>
           <text macro="journal-location"/>
           <text macro="pages"/>
