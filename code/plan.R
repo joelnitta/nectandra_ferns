@@ -286,16 +286,16 @@ plan <- drake_plan(
   
   # First render to PDF, keeping the latex
   ms_pdf = render_tracked(
-    knitr_in("ms/nectandra_pteridos.Rmd"),
+    knitr_in("ms/nectandra_ferns.Rmd"),
     quiet = TRUE,
     output_dir = here::here("results"),
-    tracked_output = file_out(here::here("results/nectandra_pteridos.tex"))
+    tracked_output = file_out(here::here("results/nectandra_ferns.tex"))
   ),
   
   # Next use the latex to convert to docx with pandoc
   ms_docx = latex2docx(
-    latex = file_in(here::here("results/nectandra_pteridos.tex")),
-    docx = file_out(here::here("results/nectandra_pteridos.docx")),
+    latex = file_in(here::here("results/nectandra_ferns.tex")),
+    docx = file_out(here::here("results/nectandra_ferns.docx")),
     template = file_in(here::here("ms/plos-one.docx")),
     wd = here::here("results")
   ),
