@@ -2,7 +2,7 @@
 
 Code repostitory to run analyses and generate figures and manuscript for Nitta et al. "A taxonomic and molecular survey of the pteridophytes of the Nectandra Reserve, Costa Rica".
 
-All code is in [R](https://cran.r-project.org/). The [drake package](https://ropensci.github.io/drake/) is used to manage the workflow. To run all analyses and generate the manuscript, simply [clone this repository](https://git-scm.com/book/en/v2/Git-Basics-Getting-a-Git-Repository) and run `make.R`.
+All code is in [R](https://cran.r-project.org/). The [drake package](https://ropensci.github.io/drake/) is used to manage the workflow. To run all analyses and generate the manuscript, [clone this repository](https://git-scm.com/book/en/v2/Git-Basics-Getting-a-Git-Repository) and run `make.R`.
 
 ## NCBI Entrez API key
 
@@ -35,7 +35,7 @@ Inside the container, run `make.R`:
 Rscript make.R
 ```
 
-You will see the targets being built by `drake`, and the final manuscript should be compiled at the end as `manuscript.pdf` in the `ms` folder. Other figure pdfs, tables (in rich-text format), and the SI (.doc format) will also be compiled.
+You will see the targets being built by `drake`, and the final manuscript should be compiled at the end as `nectandra_ferns.pdf` and `nectandra_ferns.docx` in the `results` folder. Other figure and table files will also be compiled.
 
 When it's finished, exit the container and take it down:
 
