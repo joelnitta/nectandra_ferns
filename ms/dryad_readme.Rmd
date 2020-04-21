@@ -10,8 +10,9 @@ editor_options:
 ```{r setup, include=FALSE}
 # TO CONVERT TO PLAIN TEXT:
 # 1. Copy the contents of the rtf file, paste to txt.
-# 2. Replace all single line breaks with double line breaks (in TextWrangler)
+# 2. Replace all single line breaks with double line breaks (in Atom search-replace with grep: \n for \n\n)
 # 3. Hard-wrap all text at 80 characters (in Atom with autoflow: cmd-alt-q)
+# 4. Save as "dryad_readme.txt"
 
 knitr::opts_chunk$set(
   echo = FALSE, message = FALSE,
@@ -36,7 +37,7 @@ loadd(
 
 ```
 
-This README.txt file was generated on format `r format(Sys.time(), '%d %B, %Y')` by Joel Nitta
+This README.txt file was generated on `r format(Sys.time(), '%d %B, %Y')` by Joel Nitta
 
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\- GENERAL INFORMATION \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 
@@ -47,8 +48,9 @@ Author Information
 
 Principal Investigator: Joel H. Nitta
 
-Department of Botany, National Museum of Natural History, Smithsonian
-Institution, Washington, D.C., 20013, U.S.A. joelnitta@gmail.com
+Department of Biological Sciences, Graduate School of Science, 
+University of Tokyo, 1-1-1 Yayoi, Bunkyo-ku, Tokyo 113-0032, Japan 
+joelnitta@gmail.com
 
 Associate or Co-investigator: Atsushi Ebihara  
 
@@ -90,7 +92,7 @@ pteridophytes of the Nectandra Cloud Forest Reserve, Costa Rica. PLoS ONE.
 FIXME: ADD DOI WHEN AVAILABLE
 
 Code for analyzing the data is available on github:
-https://github.com/joelnitta/nectandra
+https://github.com/joelnitta/nectandra_ferns
 
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 
@@ -101,43 +103,64 @@ DATA & FILE OVERVIEW
 File list (filenames, directory structure (for zipped files) and brief
 description of all data files):
 
-  - costa_rica_richness.csv: Data on species richness of pteridophytes in protected
-areas in Costa Rica.
+  - costa_rica_richness.csv: Data on species richness of pteridophytes in
+    protected areas in Costa Rica.
 
-  - cyatheaceae_rbcL.fasta: Aligned rbcL sequences of family Cyatheaceae from the Nectandra Cloud Forest Reserve, Costa Rica and all available sequences on GenBank in FASTA format.
+  - cyatheaceae_rbcL.fasta: Aligned rbcL sequences of family Cyatheaceae from
+    the Nectandra Cloud Forest Reserve, Costa Rica and all available sequences
+    on GenBank in FASTA format.
 
-  - cyatheaceae_rbcL.tre: Phylogenetic tree of family Cyatheaceae from the Nectandra Cloud Forest Reserve, Costa Rica and all available rbcL sequences on GenBank in Newick format.
+  - cyatheaceae_rbcL.tre: Phylogenetic tree of family Cyatheaceae from the
+    Nectandra Cloud Forest Reserve, Costa Rica and all available rbcL sequences
+    on GenBank in Newick format.
 
-  - grammitidoideae_rbcL.fasta: Aligned rbcL sequences of subfamily Grammitidoideae from the Nectandra Cloud Forest Reserve, Costa Rica and all available sequences on GenBank in FASTA format.
+  - grammitidoideae_rbcL.fasta: Aligned rbcL sequences of subfamily
+    Grammitidoideae from the Nectandra Cloud Forest Reserve, Costa Rica and all
+    available sequences on GenBank in FASTA format.
 
-  - grammitidoideae_rbcL.tre: Phylogenetic tree of subfamily Grammitidoideae from the Nectandra Cloud Forest Reserve, Costa Rica and all available rbcL sequences on GenBank in Newick format.
+  - grammitidoideae_rbcL.tre: Phylogenetic tree of subfamily Grammitidoideae
+    from the Nectandra Cloud Forest Reserve, Costa Rica and all available rbcL
+    sequences on GenBank in Newick format.
 
-  - nectandra_DNA_accessions.csv: DNA accession numbers and specimen accession numbers
-of pteridophytes from the Nectandra Cloud Forest Reserve, Costa Rica.
+  - JNG4254.fasta: DNA sequence in FASTA format of rbcL gene from Amauropelta
+    atrovirens (C. Chr.) Salino & T.E. Almeida (Nitta 2237). 
 
-  - nectandra_rbcL.fasta: Newly generated rbcL sequences of pteridophytes from the Nectandra Cloud Forest Reserve, Costa Rica in FASTA format.
+  - nectandra_DNA_accessions.csv: DNA accession numbers and specimen accession
+    numbers of pteridophytes from the Nectandra Cloud Forest Reserve, Costa
+    Rica.
 
-  - nectandra_rbcL.phy: Aligned rbcL sequences of pteridophytes from the Nectandra Cloud Forest Reserve, Costa Rica in PHYLIP format.
+  - nectandra_rbcL.fasta: Newly generated rbcL sequences of pteridophytes from
+    the Nectandra Cloud Forest Reserve, Costa Rica in FASTA format.
 
-  - nectandra_rbcL.treefile: Phylogenetic tree of pteridophytes from the Nectandra Cloud Forest Reserve, Costa Rica in Newick format.
+  - nectandra_rbcL.phy: Aligned rbcL sequences of pteridophytes from the
+    Nectandra Cloud Forest Reserve, Costa Rica in PHYLIP format.
 
-  - nectandra_specimens.csv: Specimen data of pteridophytes from the Nectandra Cloud Forest Reserve, Costa Rica collected by Joel Nitta.
+  - nectandra_rbcL.treefile: Phylogenetic tree of pteridophytes from the
+    Nectandra Cloud Forest Reserve, Costa Rica in Newick format.
 
-  - ppgi_taxonomy.csv: Taxonomic system of Pteridophyte Phylogeny Group I (2016) for
-pteridophytes at the genus level and above.
+  - nectandra_specimens.csv: Specimen data of pteridophytes from the Nectandra
+    Cloud Forest Reserve, Costa Rica collected by Joel Nitta.
+
+  - ppgi_taxonomy.csv: Taxonomic system of Pteridophyte Phylogeny Group I (2016)
+    for pteridophytes at the genus level and above.
 
 Additional related data collected that was not included in the current data
 package:
 
-  - rbcL_clean_sporos.fasta: rbcL sequences of pteridophytes of Moorea, French Polynesia [@Nitta2017; https://doi.org/10.5061/dryad.df59g].
+  - rbcL_clean_sporos.fasta: rbcL sequences of pteridophytes of Moorea, French
+    Polynesia [@Nitta2017; https://doi.org/10.5061/dryad.df59g].
 
-  - ESM1.csv: A list of native fern and lycophyte taxa (species, subspecies and varieties; 721 taxa total) in Japan [@Ebihara2019b; https://doi.org/10.5061/dryad.4362p32].
+  - ESM1.csv: A list of native fern and lycophyte taxa (species, subspecies and
+    varieties; 721 taxa total) in Japan [@Ebihara2019b;
+    https://doi.org/10.5061/dryad.4362p32].
 
-  - FernGreenListV1.01E.xls: List of Japanese ferns and lycophytes species including
-scientific name, endemic status, conservation status, and other taxonomic data [@Ebihara2019b; https://doi.org/10.5061/dryad.4362p32].
+  - FernGreenListV1.01E.xls: List of Japanese ferns and lycophytes species
+    including scientific name, endemic status, conservation status, and other
+    taxonomic data [@Ebihara2019b; https://doi.org/10.5061/dryad.4362p32].
 
   - rbcl_mrbayes.nex: NEXUS file used for phylogenetic analysis of Japanese fern
-and lycophyte taxa with MrBayes [@Ebihara2019b; https://doi.org/10.5061/dryad.4362p32].
+    and lycophyte taxa with MrBayes [@Ebihara2019b;
+    https://doi.org/10.5061/dryad.4362p32].
 
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 
@@ -278,6 +301,11 @@ sequences downloaded from GenBank or J. H. Nitta specimen collection numbers
 for sequences newly obtained by this study. Numbers at nodes indicate local
 support values computed with the Shimodaira–Hasegawa test.
 `r ape::Ntip(grammitid_tree)` tips; `r ape::Nnode(grammitid_tree)` internal nodes.
+
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+JNG4254.fasta: DNA sequence in FASTA format of rbcL gene from Amauropelta atrovirens (C. Chr.) 
+Salino & T.E. Almeida (Nitta 2237). 
 
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 
