@@ -90,7 +90,7 @@ Joel H. Nitta^1^*, Atsushi Ebihara^2^, and Alan R. Smith^3^
 ^3^The University Herbarium, University of California at Berkeley, Berkeley, California, United States of America
 
 *Corresponding author  
-E-mail: joelnitta@gmail.com (JHN)
+E-mail: \textnormal{joelnitta@gmail.com} (JHN)
 
 \clearpage
 
