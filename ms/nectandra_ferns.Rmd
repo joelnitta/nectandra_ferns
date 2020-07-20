@@ -34,6 +34,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, results = 
 # Load objects build during analysis from drake cache
 loadd(
   list = c(
+    "checklist",
     "richness_estimate",
     "min_distance_table",
     "nectandra_specimens",
@@ -203,19 +204,23 @@ Spores of selected taxa were observed with a standard compound light microscope.
 
 ### Taxonomy
 
-We consulted relevant floras for species identification [@Moran1995; @Lellinger1989].
+We consulted relevant floras and monographs for species identification [@Moran1995; @Lellinger1989; @Mickel2004; @Hirai2011; @Moran2010b; @Sundue2014a; @Gonzales-Rocabado2011; @Kessler2011b; @Moran2018a; @Rojas-Alvarado2017a].
 Genus-level and higher taxonomy follows Pteridophyte Phylogeny Group I [@PteridophytePhylogenyGroupI2016].
 
 ### DNA sequencing and phylogenetic analysis
 
 DNA was extracted with the DNEasy Plant Mini kit following the manufacturer's protocol (Qiagen).
-We generally sampled one species per taxon from Nectandra for morphologically distinct taxa, and up to five specimens per taxon for taxa that are more difficult to identify using standard keys [@Moran1995; @Lellinger1989].
+We generally sampled one species per taxon from Nectandra for morphologically distinct taxa, and up to five specimens per taxon for taxa that are more difficult to identify using standard keys [@Moran1995; @Lellinger1989] (\eg, *Megalastrum*, *Didymoglossum*).
 In a small number of cases, we used samples from other areas in Costa Rica if the sample from Nectandra could not be successfully sequenced.
-We amplified the plastid *rbcL* gene using PCR primers and thermocycler settings of @Schuettpelz2007 and verified amplification success by gel electrophoresis in 1% TAE.
+We selected the plastid *rbcL* gene as a barcode marker because it has universal primers available for ferns [@Schuettpelz2007] and has performed relatively well for species identification in ferns relative to other candidate barcode loci [@Li2011; @Ebihara2010; @Nitta2017].
+We amplified *rbcL* using PCR primers and thermocycler settings of @Schuettpelz2007 and verified amplification success by gel electrophoresis in 1% TAE.
 We purified PCR products with Exo-STAR (GE Healthcare) and conducted cycle sequencing using the Big Dye Terminator v3.1 Cycle Sequencing Kit (ThermoFisher) with two internal primers, ESRBCL654R and ESRBCL628F [@Schuettpelz2007], in addition to the amplification primers.
 We imported the resulting AB1 trace files into Geneious [@Kearse2012], assembled contigs, and exported the consensus sequences in FASTA format.
 We downloaded *rbcL* sequences from GenBank if available for any remaining taxa that could not be successfully sequenced (`r s_table("genbank")`).
-We generated an alignment using MAFFT [@Katoh2002] and inferred a tree using IQ-TREE with automatic model selection [@Nguyen2015].
+We generated an alignment using MAFFT [@Katoh2002].
+For phylogenetic analysis by maximum likelihood, all sites were included in a single partition (no partitioning was specified).
+We evaluated models of DNA sequence evolution with IQ-TREE [@Nguyen2015] ("-m TEST"), which is similar to the model selection process implemented in jModelTest [@Posada2008].
+The Bayesian Information Criterion (BIC) was used to select the best model (IQ-TREE default setting), which was then used by IQ-TREE to infer the tree.
 Node support was assessed with `r si(1000)` ultra-fast bootstrap (UFboot) [@Nguyen2015] and `r si(1000)` Shimodaira-Hasegawa-like approximate likelihood ratio test (SH-aLRT) replicates [@Guindon2010] in IQ-TREE.
 For a small number of genera that were not supported as monophyletic in the original phylogenetic analysis, we also downloaded all available *rbcL* sequences for closely related taxa (at the family or subfamily level) from GenBank, aligned these in combination with the newly generated sequences from Nectandra with MAFFT, and inferred a tree using FastTree on default settings [@Price2009; @Price2010].
 Molecular analysis was authorized by Convenio Marco de CONAGEBIO R-CM-RN-001-2014-OT.
@@ -285,9 +290,77 @@ richness_estimate[["AsyEst"]] %>%
   janitor::clean_names() %>%
   filter(metric == "Species Richness") %>%
   mutate_if(is.numeric, round)
+
+total_taxa <- n_distinct(nectandra_specimens_strict$taxon)
+
+# Summarize number of taxa in each class
+class_data <- nectandra_specimens_strict %>%
+  assert(not_na, genus) %>%
+  left_join(ppgi, by = "genus") %>%
+  assert(not_na, class, genus, species) %>%
+  select(species, class) %>%
+  unique() %>%
+  count(class) %>%
+  mutate(percent = n %>% magrittr::divide_by(total_taxa) %>% scales::percent(accuracy = 0.1)) %>%
+  mutate(n = map_chr(n, ~si(., "spp."))) %>%
+  mutate(label = glue::glue("{n} ({percent})"))
+  
+n_ferns <- class_data %>% filter(class == "Polypodiopsida") %>% pull(label)
+n_lycos <- class_data %>% filter(class == "Lycopodiopsida") %>% pull(label)
+
+# Summarize growth habit data from checklist
+habit_data <-
+checklist %>%
+  select(scientific_name, habit) %>%
+  tidyr::separate_rows(habit, sep = ",") %>%
+  mutate(habit = str_trim(habit) %>% str_to_lower()) %>%
+  # Combine climbing and clambering
+  mutate(habit = str_replace_all(habit, "climbing|clambering", "climbing or clambering")) %>%
+  count(habit) %>%
+  mutate(percent = n %>% magrittr::divide_by(total_taxa) %>% scales::percent(accuracy = 0.1)) %>%
+  mutate(label = glue::glue("{n} ({percent})")) %>%
+  mutate(label_2 = glue::glue("*n* = {n}; {percent}"))
+  
+n_epiphytic <- habit_data %>% filter(habit == "epiphytic") %>% pull(label_2)
+n_terrestrial <- habit_data %>% filter(habit == "terrestrial") %>% pull(label_2)
+
+# Count number of species with multiple varieties
+n_mult_vars <-
+nectandra_specimens_strict %>% filter(!is.na(infraspecific_rank)) %>%
+  select(species, infraspecific_name) %>%
+  unique %>%
+  count(species) %>%
+  filter(n > 1) %>%
+  # Verify that there are exactly 2 species with 2 varieties each
+  verify(nrow(.) == 2) %>%
+  verify(all(n == 2))
 ```
 
-Our surveys resulted in `r taxa_count %>% pull(specimen)` individuals representing `r taxa_count %>% pull(species) %>% si("spp.")`, `r taxa_count %>% pull(genus)` genera, and `r taxa_count %>% pull(family)` families of pteridophytes from Nectandra (`r s_table("checklist")`).
+Our surveys resulted in `r taxa_count %>% pull(specimen)` individuals representing `r taxa_count %>% pull(species) %>% si("spp.")`, `r taxa_count %>% pull(genus)` genera, and `r taxa_count %>% pull(family)` families of pteridophytes (`r s_table("checklist")`).
+Two species included multiple varieties (two each).
+`r n_ferns` are ferns and `r n_lycos` are lycophytes.
+Most taxa are either epiphytic (`r n_epiphytic`) or terrestrial (`r n_terrestrial`) (`r table("growth-habit")`).
+
+**`r table_full("growth-habit")`** Count includes taxa at the species and infraspecies (variety or subspecies) levels (*n* = `r total_taxa` total).
+
+\singlespacing
+
+```{r growth-habit, results = "asis"}
+# Format growth habit summary as table
+habit_data %>%
+  mutate(habit = str_to_sentence(habit)) %>%
+  # need to escape percent sign by adding a single backslash
+  # (that equates to four backslashes here)
+  mutate(label = str_replace(label, "%", "\\\\%")) %>%
+  column_to_rownames("habit") %>%
+  select(`\\textit{n} (percent of total\\textsuperscript{a})` = label) %>%
+  knitr::kable(format = "latex", booktabs = TRUE, escape = FALSE) %>%
+  kableExtra::kable_styling(latex_options = "striped")
+```
+
+^a^Percentages do not sum to 100% because some taxa have multiple growth habits.
+
+\doublespacing
 
 The genera with the most species were *`r top_taxon(genus_count, 1, genus)`* (`r top_taxon_rich(genus_count, 1)`), *`r top_taxon(genus_count, 2, genus)`* (`r top_taxon_rich(genus_count, 2)`), *`r top_taxon(genus_count, 3, genus)`* (`r top_taxon_rich(genus_count, 3)`), and *`r top_taxon(genus_count, 4, genus)`* (`r top_taxon_rich(genus_count, 4)`).
 Families with the most species were `r top_taxon(family_count, 1, family)` (`r top_taxon_rich(family_count, 1)`), `r top_taxon(family_count, 2, family)` (`r top_taxon_rich(family_count, 2)`), and `r top_taxon(family_count, 3, family)` (`r top_taxon_rich(family_count, 3)`).
@@ -355,7 +428,7 @@ The site with the highest species richness is `r top_1_site_name` (`r top_1_site
 
 ```{r richness-cr, results = "asis"}
 # Format and output richness table
-# Be sure to check references numbers to make sure they match final version!
+# FIXME: Be sure to check references numbers to make sure they match final version!
 cr_richness %>%
   mutate_at(vars(min_el_m, max_el_m), ~scales::number(., big.mark = ",")) %>%
   mutate(elevation = case_when(
@@ -458,6 +531,33 @@ best_mod_basis <-
   str_match("according to (.+)$") %>%
   magrittr::extract(,2)
 
+# In this case, the same model was selected by all three selection criteria. Verify this is so.
+best_mod_aic <- 
+  magrittr::extract(
+    iqtree_log, 
+    iqtree_log %>% str_detect("^Akaike Information Criterion:")) %>%
+  str_match("^Akaike Information Criterion:(.+)$") %>%
+  magrittr::extract(,2) %>%
+  str_trim()
+
+best_mod_aicc <- 
+  magrittr::extract(
+    iqtree_log, 
+    iqtree_log %>% str_detect("^Corrected Akaike Information Criterion:")) %>%
+  str_match("^Corrected Akaike Information Criterion:(.+)$") %>%
+  magrittr::extract(,2) %>%
+  str_trim()
+
+best_mod_bic <- 
+  magrittr::extract(
+    iqtree_log, 
+    iqtree_log %>% str_detect("^Bayesian Information Criterion:")) %>%
+  str_match("^Bayesian Information Criterion:(.+)$") %>%
+  magrittr::extract(,2) %>%
+  str_trim()
+  
+assertthat::assert_that(isTRUE(all.equal(best_mod_aic, best_mod_aicc, best_mod_bic)))
+
 # Re-root tree to extract support values
 rbcL_tree_rooted <- root_on_lycos(rbcL_tree, ppgi)
 
@@ -478,7 +578,7 @@ Of the taxa that we were unable to newly sequence, sequences of two taxa from sp
 In total, our *rbcL* sampling included `r n_taxa_rbcL_seqs` taxa (`r coverage_taxa_rbcL_seqs`) of pteridophytes occurring at Nectandra.
 
 The *rbcL* alignment was `r get_number(align_stats, "columns") %>% si("bp")` long including `r get_number(align_stats, "informative sites") %>% si` parsimony-informative sites and `r get_number(align_stats, "sequences") %>% si` sequences.
-The `r best_mod` model was selected for ML phylogenetic analysis according to `r best_mod_basis`.
+The `r best_mod` model was selected for ML phylogenetic analysis according to `r best_mod_basis` (the same model was also selected by AIC and corrected AIC).
 
 The *rbcL* phylogeny (`r s_figure("tree")`) was in generally good agreement with recently published plastid phylogenies [@Pryer2004a; @Schuettpelz2007; @Lehtonen2011; @Testo2016a] at the family level and above, and families *sensu* PPGI [@PteridophytePhylogenyGroupI2016] were monophyletic.
 One exception was Osmundaceae sister to Gleicheniaceae (`r get_node_support(rbcL_tree_rooted, c("Osmunda_regalis", "Sticherus_retroflexus"))`), which may be due to poor sampling; we could obtain only a `r si(osmunda_raw_length, "bp")` *rbcL* fragment from the sole osmundaceous species at our study site.

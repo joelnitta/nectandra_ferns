@@ -8,6 +8,7 @@ figure_full(name = "min-dist", caption = "Minimum interspecific *rbcL* distances
 
 # - Tables
 table_full <- captioner::captioner(prefix = "Table")
+table_full(name = "growth-habit", caption = "Growth habits of ferns and lycophytes at the Nectandra Cloud Forest Reserve, Costa Rica.")
 table_full(name = "richness-cr", caption = "Species richness of pteridophytes at protected areas in Costa Rica.")
 
 # - SI figures
@@ -19,7 +20,7 @@ s_figure_full(name = "grammitid-tree", "Maximum-likelihood phylogenetic tree of 
 # - SI tables
 s_table_full <- captioner::captioner(prefix = "S", auto_space = FALSE, suffix = " Table. ")
 s_table_full(name = "genbank", "GenBank accession numbers of sequences analyzed in this study.")
-s_table_full(name = "checklist", "A checklist of fern and lycophyte species observed at the Nectandra Cloud Forest Reserve, Costa Rica.")
+s_table_full(name = "checklist", "A checklist of ferns and lycophytes observed at the Nectandra Cloud Forest Reserve, Costa Rica.")
 
 # Make short versions of citation functions
 # - Just the number
