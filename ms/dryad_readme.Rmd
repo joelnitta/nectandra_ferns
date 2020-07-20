@@ -83,8 +83,8 @@ Universal (CC0 1.0)
 
 Recommended citation for the data: Nitta JH, Ebihara A, Smith AR (2020) Data
 from: A taxonomic and molecular survey of the pteridophytes of the Nectandra
-Cloud Forest Reserve, Costa Rica. Dryad Digital Repository. FIXME: ADD DOI
-WHEN AVAILABLE
+Cloud Forest Reserve, Costa Rica. Dryad Digital Repository.
+https://doi.org/10.5061/dryad.bnzs7h477
 
 Citation for and links to publications that cite or use the data: Nitta JH,
 Ebihara A, Smith AR (2020) A taxonomic and molecular survey of the
