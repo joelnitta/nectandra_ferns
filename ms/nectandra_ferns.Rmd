@@ -634,8 +634,8 @@ Of the unidentified taxa, two are likely hybrids between distinct species.
 *Polyphlebium* sp1 has 32 spores per sporangium, a condition that often indicates asexual reproduction via apogamy [@Braithwaite1964].
 This may allow it to reproduce by spores despite not being able to complete normal meiosis.
 To our knowledge, a count of 32 spores per sporangium has not been previously reported from *Polyphlebium*, and more detailed study is needed to confirm the reproductive mode of this taxon.
-*Campyloneurum* sp1 (*Nitta 2308*) matches in *rbcL* exactly with *Campyloneurum angustifolium* (Sw.) Fée, but differs in morphology from *C. angustifolium* at Nectandra (*Nitta 782*): it has wider fronds (\ca 1.5 cm. vs. \ca 0.75 cm in *C. angustifolium*) and more rows of sori between the costa and the margin (3--4 vs. 1--2 in *C. angustifolium*).
-*Campyloneurum* sp1 has clear, misshappen spores, whereas *C. angustifolium* is a sexual diploid (2*n* = 72) with oblong spores [@Leon1992].
+*Campyloneurum* sp1 (*Nitta 2308*) matches in *rbcL* exactly with *Campyloneurum angustifolium* (Sw.) Fée, but differs in morphology from *C. angustifolium* at Nectandra (*Nitta 782*): it has wider fronds (\circa 1.5 cm. vs. \circa 0.75 cm in *C. angustifolium*) and more rows of sori between the costa and the margin (3--4 vs. 1--2 in *C. angustifolium*).
+Clear, misshappen spores were observed in *Campyloneurum* sp1, whereas *C. angustifolium* is a sexual diploid (2*n* = 72) with oblong spores [@Leon1992].
 The chloroplast is generally maternally inherited in ferns [@Gastony1992; @Vogel1998; @Kuo2018a].
 Therefore, it is likely that each of these taxa is a hybrid between the species with which they share *rbcL* as the mother and another unknown species as the father.
 
