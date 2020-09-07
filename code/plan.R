@@ -147,10 +147,13 @@ plan <- drake_plan(
   
   # Barcode analysis ----
   
+  # Remove Macrothelypteris torresiana (non-native species) from Nectandra alignment
+  nectandra_rbcL_native_only = nectandra_rbcL[nectandra_rbcL %>% rownames %>% str_detect("Macrothelypteris_torresiana", negate = TRUE), ],
+  
   # Combine the four rbcL datasets into a single alignment.
   # Differentiate datasets by code appended to each species name.
   combined_rbcL = align_all_rbcL(
-    nectandra_rbcL = nectandra_rbcL, # _CR
+    nectandra_rbcL = nectandra_rbcL_native_only, # _CR
     moorea_rbcL = moorea_rbcL, # _FP
     japan_rbcL = japan_rbcL, # _JA
     japan_rbcL_sexdip = japan_rbcL_sexdip # _JAsexdip

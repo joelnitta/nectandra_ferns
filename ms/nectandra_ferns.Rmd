@@ -340,6 +340,7 @@ Our surveys resulted in `r taxa_count %>% pull(specimen)` individuals representi
 Two species included multiple varieties (two each).
 `r n_ferns` are ferns and `r n_lycos` are lycophytes.
 Most taxa are either epiphytic (`r n_epiphytic`) or terrestrial (`r n_terrestrial`) (`r table("growth-habit")`).
+All taxa are native, except for *Macrothelypteris torresiana* (Gaudich.) Ching (native to Africa and Asia; introduced in the Americas), which was excluded from the comparison of richness across sites and DNA barcode analysis.
 
 **`r table_full("growth-habit")`** Count includes taxa at the species and infraspecies (variety or subspecies) levels (*n* = `r total_taxa` total).
 
@@ -422,7 +423,7 @@ Our literature survey identified five other protected areas in mainland Costa Ri
 The site with the highest species richness is `r top_1_site_name` (`r top_1_site_rich`), with `r top_3_site_name` (`r top_3_site_rich`) the third-highest after `r top_2_site_name` (`r top_2_site_rich`; `r table("richness-cr")`).
 `r top_1_sp_per_hec_site_name` has by far the most species per hectare (`r top_1_sp_per_hec`), with `r top_2_sp_per_hec_site_name` second-highest (`r top_2_sp_per_hec` species per hectare; `r table("richness-cr")`).
 
-**`r table_full("richness-cr")`**
+**`r table_full("richness-cr")`** A single non-native species, *Macrothelypteris torresiana*, was excluded from calculations for Nectandra.
 
 \singlespacing
 

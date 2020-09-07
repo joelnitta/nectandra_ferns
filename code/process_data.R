@@ -74,7 +74,7 @@ nectandra_specimens <-
   mutate(coll_num = paste3(collection_number, subcollection_number, sep = "")) %>%
   mutate(specimen = paste3(collector_lastname, coll_num)) %>%
   mutate(collector = paste(collector_firstname, collector_lastname)) %>%
-  rename(specific_epithet = species, elevation = elevation_m, other_collectors = collectors_other) %>%
+  rename(elevation = elevation_m, other_collectors = collectors_other) %>%
   mutate(species = paste3(genus, specific_epithet)) %>%
   mutate(taxon = paste3(genus, specific_epithet, infraspecific_name)) %>%
   mutate(notes = replace_na(notes, "")) %>%
@@ -187,13 +187,16 @@ la_selva_pteridos_alt <-
 # Read in raw richness numbers for other areas from literature
 costa_rica_richness_raw <- read_csv("data_raw/costa_rica_richness_raw.csv")
 
+# Exclude non-native species from Nectandra number
+nectandra_specimens_native_only <- filter(nectandra_specimens, taxon != "Macrothelypteris torresiana")
+
 # Fill in species richness at Nectandra and La Selva
 costa_rica_richness <-
   costa_rica_richness_raw %>%
   mutate(richness = as.integer(richness)) %>%
   mutate(richness = case_when(
     name == "La Selva" ~ n_distinct(la_selva_pteridos_alt$taxon),
-    name == "Nectandra" ~ n_distinct(nectandra_specimens$species),
+    name == "Nectandra" ~ n_distinct(nectandra_specimens_native_only$species),
     TRUE ~ richness)) %>%
   mutate(richness_per_ha = richness / area_ha) %>%
   select(name, full_name, 
