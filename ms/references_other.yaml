@@ -31,17 +31,6 @@ references:
   title-short: LaSelvaFlorula
   URL: https://sura.ots.ac.cr/florula4/index.php
 
-- type: thesis
-  id: Leon1992
-  author:
-  - family: León
-    given: Blanca
-  issued:
-    year: 1992
-  title: 'A taxonomic revision of the fern genus *Campyloneurum* (Polypodiaceae)'
-  genre: 'Ph.D. Thesis'
-  publisher: 'Aarhus University'
-  
 - type: webpage
   id: Nitta2020b
   author:
@@ -62,16 +51,3 @@ references:
   title: 'Data from: A taxonomic and molecular survey of the pteridophytes of the Nectandra Cloud Forest Reserve, Costa Rica'
   container-title: 'Dryad Digital Repository'
   URL: http://doi.org/XXX
-
-- id: RCoreTeam2019
-  type: book
-  author:
-  - literal: R Core Team
-  issued:
-  - year: 2019
-  title: 'R: A language and environment for statistical computing'
-  title-short: R
-  publisher: R Foundation for Statistical Computing
-  publisher-place: Vienna, Austria
-  URL: https://www.R-project.org/
-  
