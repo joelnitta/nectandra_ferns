@@ -9,7 +9,10 @@ tinytex::tlmgr_update()
 latex_packages <- c(
   "colortbl",
   "environ",
+  "filehook",
+  "lm-math",
   "makecell",
+  "mdwtools",
   "multirow",
   "setspace",
   "siunitx",
@@ -17,7 +20,9 @@ latex_packages <- c(
   "threeparttable",
   "threeparttablex",
   "trimspaces",
+  "ucharcat",
   "ulem",
+  "unicode-math",
   "varwidth",
   "wrapfig",
   "xcolor")
