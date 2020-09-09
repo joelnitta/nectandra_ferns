@@ -657,6 +657,13 @@
       "Repository": "CRAN",
       "Hash": "796afeea047cda6bdb308d374a33eeb6"
     },
+    "magick": {
+      "Package": "magick",
+      "Version": "2.4.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "40a9efbb0418902cf6b663a1529a975a"
+    },
     "magrittr": {
       "Package": "magrittr",
       "Version": "1.5",
@@ -853,10 +860,10 @@
     },
     "remotes": {
       "Package": "remotes",
-      "Version": "2.1.1",
+      "Version": "2.2.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "57c3009534f805f0f6476ffee68483cc"
+      "Hash": "430a0908aee75b1fcba0e62857cab0ce"
     },
     "rentrez": {
       "Package": "rentrez",
@@ -867,15 +874,15 @@
     },
     "renv": {
       "Package": "renv",
-      "Version": "0.9.3-85",
+      "Version": "0.12.0-3",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "renv",
       "RemoteUsername": "rstudio",
-      "RemoteRef": "master",
-      "RemoteSha": "957ef93c9e167c3ab2616bd205a9769078608ee1",
-      "Hash": "b03d09371a069dc42e05a9d2be51f011"
+      "RemoteRef": "HEAD",
+      "RemoteSha": "2a14b518d199f569477655c600650347b0d1f12a",
+      "Hash": "ec1a7a4340b024839ecffd30a222df5c"
     },
     "reprex": {
       "Package": "reprex",
