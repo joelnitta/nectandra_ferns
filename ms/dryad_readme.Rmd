@@ -49,7 +49,7 @@ Author Information
 Principal Investigator: Joel H. Nitta
 
 Department of Biological Sciences, Graduate School of Science, 
-University of Tokyo, 1-1-1 Yayoi, Bunkyo-ku, Tokyo 113-0032, Japan 
+The University of Tokyo, 1-1-1 Yayoi, Bunkyo-ku, Tokyo 113-0032, Japan 
 joelnitta@gmail.com
 
 Associate or Co-investigator: Atsushi Ebihara  
@@ -178,7 +178,7 @@ along trails through the reserve. Epiphytes were collected from fallen trees
 or tree branches, or up to 2 m on tree trunks. Permits for collection were
 obtained from the Costa Rican government (SINAC No. 04941 and Cites 2014-CR
 1006/SJ (#S 1045)). The first set of voucher specimens was deposited at UC,
-with duplicates at CR and GH. Herbarium codes follow @Thiers2020. Leaf tissue
+with duplicates at CR, GH, and TI. Herbarium codes follow @Thiers2020. Leaf tissue
 was preserved on silica gel for DNA extraction. Spores of selected taxa were
 observed with a standard compound light microscope.
 
@@ -203,8 +203,8 @@ combination with the newly generated sequences from Nectandra with MAFFT, and
 a phylogenetic tree inferred using FastTree on default settings [@Price2009;
 @Price2010].
 
-Molecular analysis was authorized by Convenio Marco de CONAGEBIO
-R-CM-RN-001-2014-OT.
+Molecular analysis was performed under permits R-CM-RN-001-2014-OT-CONAGEBIO 
+and R-CM-RN-002-2017-OT-CONAGEBIO.
 
 For additional methodological details, see Nitta JH, Ebihara A, Smith AR
 (2020).
