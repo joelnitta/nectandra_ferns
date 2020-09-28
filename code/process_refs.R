@@ -32,12 +32,40 @@ tibble(cite_key = citations) %>%
   verify(nrow(.) == 0, success_fun = success_logical)
 
 # Filter bibliography to only cited references, write it out
-bib_filtered <- bib_df %>%
+bib_df %>%
   filter(cite_key %in% citations) %>%
+  # Filter out website references 
+  # (treated separately in references_other.yaml)
+  filter(bibtype != "Online") %>%
+  # Set URL to NA for articles
+  mutate(url = case_when(
+    bibtype == "Article" ~ NA_character_,
+    TRUE ~ url
+  )) %>%
+  # Select only needed columns
+  select(
+    cite_key, bibtype, type, doi,
+    title, author, date, 
+    journaltitle, volume, issue, number, pages, # article info
+    booktitle, editor, publisher, edition, location, address, # book info
+    pagetotal, institution, # thesis info
+    url # website info
+    ) %>%
   # RefManageR::as.BibEntry() needs rownames to be citation keys
   column_to_rownames("cite_key") %>%
   RefManageR::as.BibEntry() %>%
   RefManageR::WriteBib(file = "ms/references.bib")
+
+# Fix accents over vowels, which somehow got mangled by RefManageR
+read_lines("ms/references.bib") %>%
+  str_replace_all("\\{\\\\a'a\\}", "\\{\\\\'{a}}") %>%
+  str_replace_all("\\{\\\\a'e\\}", "\\{\\\\'{e}}") %>%
+  str_replace_all("\\{\\\\a'i\\}", "\\{\\\\'{i}}") %>%
+  str_replace_all("\\{\\\\a'i\\}", "\\{\\\\'{i}}") %>%
+  str_replace_all("\\{\\\\a'\\\\i\\}", "\\{\\\\'{i}}") %>%
+  str_replace_all("\\{\\\\a'o\\}", "\\{\\\\'{o}}") %>%
+  str_replace_all("\\{\\\\a'u\\}", "\\{\\\\'{u}}") %>%
+  write_lines("ms/references.bib")
 
 # Download edited PLoS ONE citation style ----
 
