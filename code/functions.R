@@ -370,7 +370,7 @@ fetch_gb_seqs <- function (nectandra_rbcL_missing_taxa, acc_keep) {
     tidy_genbank_metadata %>%
     rename(specimen = specimen_voucher) %>%
     # Manually add data where missing
-    mutate(specimen = str_remove_all(specimen, "\\(UC\\)|M\\. ") %>% str_trim("both")) %>% 
+    mutate(specimen = str_remove_all(specimen, "\\(UC\\)|M\\.|\\(Duke\\)|J\\.-Y\\.") %>% str_trim("both")) %>% 
     mutate(country = case_when(
       species == "Radiovittaria remota" ~ "Costa Rica",
       TRUE ~ country
@@ -710,7 +710,9 @@ plot_nectandra_rbcL_tree <- function(phy, ppgi, outfile) {
   new_tips <-
     tibble(new_tip = phy$tip.label) %>%
     # Remove "Nitta" and country names from tips
-    mutate(new_tip = str_remove_all(new_tip, "Nitta_|_Costa_Rica|_Bolivia"))
+    mutate(
+      new_tip = str_remove_all(new_tip, "Nitta_|_Costa_Rica|_Bolivia|_Venezuela") %>%
+        str_replace_all("Abrodictyum_rigidum_Dubuisson_HV_1997-3", "Abrodictyum_rigidum_Dubuisson_HV-1997-3"))
   
   phy$tip.label <- new_tips$new_tip
   
@@ -745,7 +747,7 @@ plot_nectandra_rbcL_tree <- function(phy, ppgi, outfile) {
     geom_nodelab(hjust = 0, size = 1*.pt) + 
     geom_tiplab() +
     # Need some extra space for long tip names
-    theme(plot.margin = margin(t=0,l=0,b=0,r=2.5, unit = "in")) +  
+    theme(plot.margin = margin(t=0,l=0,b=0,r=2.2, unit = "in")) +  
     coord_cartesian(clip = "off")
   
   # Right side: tree with branch lengths, reversed, 
@@ -755,7 +757,10 @@ plot_nectandra_rbcL_tree <- function(phy, ppgi, outfile) {
     # Add scale
     geom_treescale(x = -0.1, y = 150, offset = 2) +
     # Make sure margins are set same on both trees so tips line up
-    theme(plot.margin = margin(t=0,l=0,b=0,r=0, unit = "in"))
+    theme(
+      plot.margin = margin(t=0,l=0,b=0,r=0, unit = "in"),
+      plot.background = element_blank(),
+      panel.background = element_blank())
   
   # Combine left and right sides
   final_plot <- tree1 + tree2 + plot_layout(widths = c(2,1))
@@ -1123,7 +1128,7 @@ cairo_ps_high_res <- function(...) {
 }
 
 # Dummy function to track arbitary output from rmarkdown::render()
-render_tracked <- function (tracked_output, ...) {
+render_tracked <- function (tracked_output, dep1 = NULL, dep2 = NULL, ...) {
   rmarkdown::render(...)
 }
 

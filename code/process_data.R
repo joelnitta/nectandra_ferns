@@ -96,10 +96,8 @@ nectandra_specimens <-
   filter(is_gametophyte == 0) %>%
   # Filter out specimens that are missing vouchers
   filter(str_detect(notes, "MISSING", negate = TRUE)) %>%
-  # Filter to only Nectandra plus two exceptions:
-  # - Nitta 2012 is Abrodictyum rigidum from Palmira
-  # - Nitta 169 is Hymenophyllum trapezoidale from San Gerardo de Dota
-  filter(locality == "Nectandra Cloud Forest Preserve" | specimen %in% c("Nitta 2012", "Nitta 169")) %>% 
+  # Filter to only Nectandra
+  filter(locality == "Nectandra Cloud Forest Preserve") %>% 
   # Remove one Didymoglossum specimen that was separated out from a single collection and
   # may or may not be a distinct species pending additional study.
   filter(taxon != "Didymoglossum sp") %>%
@@ -127,7 +125,6 @@ write_csv(nectandra_specimens, "data/nectandra_specimens.csv")
 
 # This includes DNA accession data of all J. Nitta collections (and more).
 # Filter this down to just the relevant columns for sporophytes from Nectandra.
-# AND two extra specimens that are not from Nectandra but were used for DNA sequencing.
 dna_raw <- read_csv(here("data_raw/DNA_accessions.csv")) %>%
   clean_names
 

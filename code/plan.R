@@ -10,15 +10,6 @@ plan <- drake_plan(
   nectandra_specimens_path = target("data/nectandra_specimens.csv", format = "file"),
   nectandra_specimens = readr::read_csv(nectandra_specimens_path),
   
-  # The "nectandra_specimens" list actually includes two samples not from
-  # Nectandra (species whose Nectandra samples failed DNA sequencing, so
-  # specimens from other areas were used instead). Also create a "strict"
-  # version of the Nectandra specimens list without these for counting
-  # number of samples at Nectandra, species collection curve, etc.
-  nectandra_specimens_strict = dplyr::filter(
-    nectandra_specimens, 
-    locality == "Nectandra Cloud Forest Preserve"),
-  
   # Load Nectandra DNA accession data
   nectandra_dna_path = target("data/nectandra_DNA_accessions.csv", format = "file"),
   nectandra_dna = readr::read_csv(nectandra_dna_path),
@@ -97,7 +88,7 @@ plan <- drake_plan(
   
   # Make species checklist, write out as SI
   checklist = make_checklist(
-    specimens = nectandra_specimens_strict, 
+    specimens = nectandra_specimens, 
     taxonomy = ppgi) %>% 
     write_csv(s_table_path("checklist", ".csv")),
   
@@ -107,7 +98,7 @@ plan <- drake_plan(
   # using number of sampling days as the sampling unit
   # set endpoint (maximum number of collection days) to 150
   richness_estimate = estimate_richness_by_date(
-    specimens = nectandra_specimens_strict,
+    specimens = nectandra_specimens,
     endpoint = 150),
   
   # Nectandra rbcL alignment ----
@@ -125,7 +116,9 @@ plan <- drake_plan(
     acc_keep = c(
       "KM008147", # Pteris altissima
       "AY175795", # Trichomanes polypodioides
-      "U21289")   # Radiovittaria remota
+      "U21289",   # Radiovittaria remota
+      "AY095108"  # Abrodictyum ridigum
+      )  
   ),
   
   # For now combine JNG4254 with other Nectandra seqs, but
@@ -287,12 +280,18 @@ plan <- drake_plan(
   
   # Manuscript rendering ----
   
+  # Track bibliography files
+  refs = target("ms/references.bib", format = "file"),
+  refs_other = target("ms/references_other.yaml", format = "file"),
+  
   # First render to PDF, keeping the latex
   ms_pdf = render_tracked(
-    knitr_in("ms/nectandra_ferns.Rmd"),
+    input = knitr_in("ms/nectandra_ferns.Rmd"),
     quiet = TRUE,
     output_dir = here::here("results"),
-    tracked_output = file_out(here::here("results/nectandra_ferns.tex"))
+    tracked_output = file_out(here::here("results/nectandra_ferns.tex")),
+    dep1 = refs,
+    dep2 = refs_other
   ),
   
   # Next use the latex to convert to docx with pandoc
@@ -305,7 +304,7 @@ plan <- drake_plan(
   
   # Also render the data readme for Dryad
   dryad_readme = render_tracked(
-    knitr_in("ms/dryad_readme.Rmd"),
+    input = knitr_in("ms/dryad_readme.Rmd"),
     quiet = TRUE,
     output_dir = here::here("results"),
     tracked_output = file_out(here::here("results/dryad_readme.rtf"))
