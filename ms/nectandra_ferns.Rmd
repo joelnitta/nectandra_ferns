@@ -178,8 +178,10 @@ Two permanent streams and four seasonal drainages pass through the reserve and e
 Most of the surrounding land is used for cattle pasture or other agriculture.
 Previous biological surveys of Nectandra indicate that it has a rich herpetofauna [@Rovito2015] and is home to at least `r si(188, "spp.")` of bryophytes [@Norris2017].
 
-**`r figure_full("map")`** (a) Map of Costa Rica, showing location of Nectandra (yellow diamond) and other protected areas that have been surveyed for pteridophytes (black dots).
+**`r figure_full("map")`** (a) Map of Costa Rica showing location of Nectandra (yellow diamond) and other protected areas that have been surveyed for pteridophytes (black dots).
 Other protected areas include Alberto Manuel Brenes Biological Reserve, La Selva Biological Station, Monteverde Cloud Forest Reserve, San Luis Biological Reserve, and the upper watershed of the Savegre River in the Los Santos Forest Reserve.
+Elevation data downloaded from the CGIAR SRTM 90m digital elevation database [@cgiar2020] using the getData function in the R package raster [@Hijmans2020].
+Map created using ggplot2 [@Wickham2016].
 (b) Aerial photo of Nectandra (\circa{ }1992).
 Nectandra consists of three parcels of land: the original parcel is in white (\circa{ }80% primary forest), with areas added later in red ("Ocotea" parcel, primary forest) and blue ("Persea" parcel, secondary forest).
 Note extreme deforestation outside of protected areas.

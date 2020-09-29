@@ -51,3 +51,30 @@ references:
   title: 'Data from: A taxonomic and molecular survey of the pteridophytes of the Nectandra Cloud Forest Reserve, Costa Rica'
   container-title: 'Dryad Digital Repository'
   URL: http://doi.org/XXX
+
+- type: webpage
+  id: cgiar2020
+  author:
+    literal: 'Consortium for Spatial Information (CGIAR-CSI)'
+  issued:
+    year: 2020
+  accessed:
+    year: 2020
+    month: 09
+    day: 01
+  title: 'SRTM Data'
+  container-title: 'SRTM 90m DEM Digital Elevation Database'
+  URL: http://srtm.csi.cgiar.org/srtmdata/
+
+- type: book
+  id: Wickham2016
+  author:
+  - family: Wickham
+    given: Hadley
+  issued:
+  - year: 2016
+  title: 'Ggplot2: Elegant graphics for data analysis'
+  title-short: Ggplot2
+  publisher: Springer-Verlag New York
+  URL: https://ggplot2.tidyverse.org
+  
