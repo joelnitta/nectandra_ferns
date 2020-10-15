@@ -92,6 +92,13 @@ plan <- drake_plan(
     taxonomy = ppgi) %>% 
     write_csv(s_table_path("checklist", ".csv")),
   
+  # Format checklist for fernsoftheworld.com, write out
+  fow_list = checklist %>%
+    transmute(Family = family, Species = scientific_name, Collection = voucher, `Det.` = "J. Nitta") %>%
+    separate_rows(Collection, sep = ", "),
+  
+  fow_list_out = write_csv(fow_list, "results/fow_nectandra_list.csv"),
+  
   # Collection curve ----
   
   # Run iNEXT to generate interpolated/extrapolated species richness
