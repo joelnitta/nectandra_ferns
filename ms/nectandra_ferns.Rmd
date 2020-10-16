@@ -250,11 +250,7 @@ Code to replicate all analyses, figures, and this manuscript is available at htt
 A Docker image is available to run the code at https://hub.docker.com/r/joelnitta/nectandra_ferns.
 Data are available from the Dryad repository [@Nitta2020b].
 Newly generated sequences have been deposited in GenBank (`r s_table("genbank")`).
-Photos of voucher specimens are available on the Ferns of the World website (https://www.fernsoftheworld.com/florulas/XXX).
-
-\*\*\* NOTE FOR EDITOR AND REVIEWERS: data and code will be made publicly available upon acceptance.
-During review, data and code can be downloaded from the following link  
-https://www.dropbox.com/sh/e7r0xn0onkrhu4w/AADirFYTp5iHYzL4YIXnQ92Za?dl=0. \*\*\*
+Photos of voucher specimens are available on the Ferns of the World website (https://www.fernsoftheworld.com/florulas/nectandra).
 
 ## Results
 
@@ -675,11 +671,10 @@ We hope our study will lead to more molecular ecological research incorporating 
 
 ## Acknowledgments
 
-We are grateful to Evelyne and David Lennette for allowing us to study the pteridophytes of Nectandra over multiple field seasons and for providing logistical and financial support.
+We are grateful to Evelyne and David Lennette for allowing us to study the pteridophytes of Nectandra over multiple field seasons and for providing logistical support.
 Freddy Castillo Arroyo assisted with fieldwork.
 Paulo Labiak contributed to the identification of *Lellingeria hombersleyi*.
 Paulo Labiak and Michael Sundue reviewed the manuscript.
-This study was supported by the Japan Society for the Promotion of Science (Kakenhi grant no. 15K07204).
 This study is dedicated in memory of Álvaro Ulgade, father of the Costa Rican national park system, friend of Nectandra, and an inspiration to all those who seek to understand and protect biodiversity.
 
 ## References

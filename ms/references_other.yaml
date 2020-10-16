@@ -50,7 +50,7 @@ references:
     day: 01
   title: 'Data from: A taxonomic and molecular survey of the pteridophytes of the Nectandra Cloud Forest Reserve, Costa Rica'
   container-title: 'Dryad Digital Repository'
-  URL: http://doi.org/XXX
+  URL: https://doi.org/10.5061/dryad.bnzs7h477
 
 - type: webpage
   id: cgiar2020
