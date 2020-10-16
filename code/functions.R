@@ -1248,3 +1248,306 @@ s_table_path <- function (fig_key, ext) {
     fs::path_ext_set(ext)
   
 }
+
+# GenBank submission ----
+
+#' Format sequence metadata (for submission to GenBank)
+#'
+#' @param sample_data Collection data needed for GenBank submission. Links to `dna_data` by `specimen_id`
+#' @param dna_data Genomic accession numbers (`genomic_id` and `specimen_id`)
+#' @param seqs DNA sequences to be submitted to GenBank in FASTA format. Names must match
+#' `genomic_id` in `dna_data`
+#' @param adjust_remainder: Named numeric vector with names ('0', '1', and '2'): the frameshift to use
+#' when the initial gap remainder is 0, 1, or 2. For example, `c("0" = 2, "1" = 1, "2" = 3)`
+#' @param manual_readframe Named character vector; manually-specified readframe. Name must match `genomic_id`
+#' @param notes Named character vector; notes for specific samples. Name must match `genomic_id` (not currently implemented)
+#'
+#' @return Dataframe
+#'
+format_data_for_genbank <- function(sample_data, dna_data, seqs, adjust_remainder = c("0" = 2, "1" = 1, "2" = 3), manual_readframe = NULL, notes = NULL) {
+  
+  sample_data <-
+    sample_data %>%
+    assert(not_na, specimen, specimen_id, genus, specific_epithet, herbaria, date_collected, country, locality) %>%
+    mutate(date_collected = format(date_collected, "%d-%b-%Y")) %>%
+    mutate(
+      specimen = str_replace_all(specimen, "Nitta", "J.H. Nitta"),
+      certainty = ifelse(is.na(certainty), certainty, paste0(certainty, "."))
+    ) %>%
+    transmute(
+      specimen_id = specimen_id,
+      voucher = glue::glue("{specimen} ({herbaria})"),
+      country = glue::glue("{country}: {locality}"),
+      collection_date = date_collected,
+      organism = jntools::paste3(genus, certainty, specific_epithet, infraspecific_rank, infraspecific_name, sep = " "),
+      authority = author
+    ) %>%
+    left_join(dna_data, by = "specimen_id") %>%
+    verify(all(names(seqs) %in% genomic_id)) %>%
+    filter(genomic_id %in% names(seqs))
+  
+  # Check that the adjust_remainder argument is properly formatted
+  assertthat::assert_that(all(names(adjust_remainder) == c("0", "1", "2")))
+  assertthat::assert_that(is.numeric(adjust_remainder))
+  
+  # Align sequences
+  aligned_seqs <- ips::mafft(seqs, exec = system("which mafft", intern = TRUE))
+  
+  # Get sequence lengths
+  seq_lengths <-
+    seqs %>%
+    map_dbl(length) %>% 
+    tibble(genomic_id = names(.), seq_len = .)
+  
+  # Calculate codon start position based on gap remainder 
+  # (divide number of initial gaps by 3, take remainder)
+  codon_start_positions <-
+    # Convert alignment to a dataframe with
+    # rownames as seq ID and a single column with the sequence
+    aligned_seqs %>% 
+    as.character() %>%
+    t %>%
+    as.data.frame() %>%
+    map(~paste(., collapse = "")) %>%
+    # Count initial gaps
+    map(~str_match(., "^(-*)") %>% magrittr::extract(,2)) %>%
+    map_dbl(~str_count(., "-")) %>%
+    tibble(genomic_id = names(.), num_gaps = .) %>%
+    # Get remainder after dividing by 3
+    mutate(remainder = num_gaps %% 3) %>%
+    # Add codon start position
+    mutate(codon_start = case_when(
+      remainder == 0 ~ adjust_remainder[["0"]],
+      remainder == 1 ~ adjust_remainder[["1"]],
+      remainder == 2 ~ adjust_remainder[["2"]]
+    )) %>%
+    select(genomic_id, codon_start)
+  
+  # Adjust readframe manually if needed
+  if (!(is.null(manual_readframe))) {
+    
+    # Convert input to tibble
+    manual_readframe <-
+      tibble(
+        materialSampleID = names(manual_readframe),
+        codon_start = manual_readframe
+      )
+    
+    # Replace with manual codon start position
+    codon_start_positions <-
+      codon_start_positions %>%
+      anti_join(manual_readframe, by = "materialSampleID") %>%
+      bind_rows(manual_readframe)
+  }
+  
+  # Convert notes to tibble
+  # notes <- tibble(
+  #   materialSampleID = names(notes),
+  #   note = notes
+  # )
+  
+  # Combine metadata
+  combined_sample_data <-
+    sample_data %>%
+    left_join(codon_start_positions, by = "genomic_id") %>%
+    left_join(seq_lengths, by = "genomic_id") %>%
+    # Make sure there are no duplications
+    assert(is_uniq, genomic_id) %>%
+    # Only `authority` and `notes` are allowed to be missing 
+    # (authority, in case of taxa only identified to genus)
+    assert(not_na, genomic_id, voucher, country, organism, collection_date)
+  
+  # Attach metadata to sequence names (same as `materialSampleID`)
+  tibble(genomic_id = rownames(aligned_seqs)) %>%
+    # Add collection data for all samples
+    left_join(combined_sample_data, by = "genomic_id") %>%
+    # Make sure that worked as planned
+    assert(is_uniq, genomic_id) %>%
+    assert(not_na, genomic_id, voucher, country, organism)
+  
+}
+
+#' Format FASTA sequences for submission to GenBank via tbl2asn
+#'
+#' The metadata will be inserted into the sequence header as described at
+#' https://www.ncbi.nlm.nih.gov/genbank/tbl2asn2/ and
+#' https://www.ncbi.nlm.nih.gov/Sequin/modifiers.html
+#'
+#' @param seqs_data Sequence metadata
+#' @param seqs Sequences in FASTA format
+#'
+#' @return List of class 'DNAbin'
+#'
+format_fasta_for_tbl2asn <- function (seqs_data, seqs) {
+  
+  # Define helper functions to add genbank modifiers to a variable
+  # - for a single string
+  add_genbank_modifiers_single <- function (x, mod_name) {
+    # Return NA if the input is NA
+    if(is.na(x)) return(NA)
+    glue::glue("[{mod_name}={x}]")
+  }
+  # - vectorized
+  add_genbank_modifiers <- function (x, mod_name) {
+    map_chr(x, ~add_genbank_modifiers_single(., mod_name))
+  }
+  
+  # Format names for tbl2asn
+  tbl2asn_labels_df <-
+    seqs_data %>%
+    transmute(
+      genomic_id = genomic_id,
+      voucher = add_genbank_modifiers(voucher, "specimen-voucher"),
+      country = add_genbank_modifiers(country, "country"),
+      collection_date = add_genbank_modifiers(collection_date, "collection-date"),
+      organism = add_genbank_modifiers(organism, "organism"),
+      authority = add_genbank_modifiers(authority, "authority"),
+      organelle = "[location=chloroplast]", # this will result in 'organelle="plastid:chloroplast" in the flat-file'
+      gcode = "[gcode=11]" # this will result in 'transl_table=11' in the flat-file
+    ) %>%
+    # Use jntools::paste3() to avoid NAs in the output 
+    # e.g., for some rows collection_date might be NA, but this way we won't get an "NA" in the label
+    mutate(label = jntools::paste3(
+      genomic_id, voucher, country, collection_date, organism, authority, organelle, gcode)) %>%
+    select(genomic_id, label)
+  
+  tbl2asn_labels <-
+    tibble(genomic_id = names(seqs)) %>%
+    left_join(tbl2asn_labels_df, by = "genomic_id") %>%
+    assert(not_na, label, genomic_id) %>%
+    assert(is_uniq, label, genomic_id) %>%
+    magrittr::extract2("label")
+  
+  # Rename sequences with formatted labels
+  names(seqs) <- tbl2asn_labels
+  
+  seqs
+  
+}
+
+#' Make an entry in a feature table for tbl2asn
+#'
+#' Assumes a single gene/CDS for the entire length of the sequence,
+#' with no gaps or introns
+#' 
+#' @param name Sequence name
+#' @param seq_len Sequence length
+#' @param codon_start Codon start position
+#' @param product Name of gene product
+#' (default = "ribulose-1,5-bisphosphate carboxylase/oxygenase large subunit")
+#' @param gene Name of gene
+#' (default = "rbcL")
+#' @param transl_table RNA translation table
+#' (default = 11, bacterial)
+#'
+#' @return Text formatted as an entry in a tbl2asn feature table
+#' 
+make_feature <- function (
+  name, seq_len, codon_start,
+  product = "ribulose-1,5-bisphosphate carboxylase/oxygenase large subunit",
+  gene = "rbcL",
+  transl_table = 11) {
+  
+  start = 1
+  
+  glue::glue(">Feature lcl|{name}
+<{start}\t>{seq_len}\tgene
+\t\t\tgene\t{gene}
+<{start}\t>{seq_len}\tCDS
+\t\t\tproduct\t{product}
+\t\t\tcodon_start\t{codon_start}
+\t\t\ttransl_table\t{transl_table}
+\t\t\tprotein_id\tlcl|{name}_1")
+  
+}
+
+#' Run tbl2asn
+#' 
+#' Runs tbl2asn for a set of rbcL sequences.
+#' 
+#' See https://www.ncbi.nlm.nih.gov/genbank/tbl2asn2/#src
+#' 
+#' It is tempting to use a CSV of metadata for each sample, but this fails for 
+#' certain columns ('gcode', 'location'), so encode this information in the
+#' fasta headers instead.
+#'
+#' @param genbank_template Path to GenBank template generated by filling out
+#' form and downloading from: https://submit.ncbi.nlm.nih.gov/genbank/template/submission/
+#' @param genbank_features Character vector: sequence features.
+#' (see https://www.ncbi.nlm.nih.gov/Sequin/table.html)
+#' @param seqs List of class 'DNAbin'; DNA sequences (multi-fasta). Names of each entry
+#' must contain metadata in brackets as described in tbl2asn docs.
+#' @param submission_name String; name to use for submission
+#' @param results_dir Path to directory to write output
+#' @param ... Extra arguments; not used by this function, but meant for tracking by drake
+#'
+#' @return A hash of the genbank flat-file. Externally, the following files will
+#' be written to `results_dir` (* is `submission_name`):
+#' *.sqn: GenBank sqn file
+#' *.gbf: GenBank flatfile
+#' *.val: Validation report
+#' *_discrepancy_report.txt: Discrepancy report
+#' 
+tbl2asn <- function (genbank_template_file, genbank_features, seqs, submission_name, results_dir, ...) {
+  
+  # Create temporary working directory
+  fs::dir_create(tempdir(), "tbl2asn")
+  temp_dir <- fs::path(tempdir(), "tbl2asn")  
+  
+  # Write out sequences
+  ape::write.FASTA(seqs, fs::path(temp_dir, glue::glue("{submission_name}.fsa")))
+  
+  # Copy submission template
+  fs::file_copy(genbank_template_file, fs::path(temp_dir, glue::glue("{submission_name}.sbt")))
+  
+  # Write out feature table
+  readr::write_lines(genbank_features, fs::path(temp_dir, glue::glue("{submission_name}.tbl")))
+  
+  # Setup arguments for tbl2asn
+  tbl2asn_args = c(
+    "-a", "s", # specify input as multi-fasta file 
+    "-p", ".", # all input files (.fsa, .sbt, and .src) are in working directory
+    "-V", "vb", # run verification and output flatfile
+    "-t", fs::path(temp_dir, glue::glue("{submission_name}.sbt")),
+    "-Z", glue::glue("{submission_name}_discrepancy_report.txt")
+  )
+  
+  # Run tbl2asn
+  processx::run("tbl2asn", tbl2asn_args, wd = temp_dir, echo = TRUE)
+  
+  # Report errors and warnings
+  read_lines(fs::path(temp_dir, "errorsummary.val")) %>%
+    stringr::str_trim() %>%
+    c("tbl2asn messages:", .) %>%
+    print()
+  
+  # Copy output to results directory
+  fs::file_copy(
+    fs::path(temp_dir, glue::glue("{submission_name}_discrepancy_report.txt")), 
+    fs::path(results_dir, glue::glue("{submission_name}_discrepancy_report.txt")),
+    overwrite = TRUE)
+  
+  fs::file_copy(
+    fs::path(temp_dir, glue::glue("{submission_name}.gbf")), 
+    fs::path(results_dir, glue::glue("{submission_name}.gbf")),
+    overwrite = TRUE)
+  
+  fs::file_copy(
+    fs::path(temp_dir, glue::glue("{submission_name}.sqn")), 
+    fs::path(results_dir, glue::glue("{submission_name}.sqn")),
+    overwrite = TRUE)
+  
+  fs::file_copy(
+    fs::path(temp_dir, glue::glue("{submission_name}.val")), 
+    fs::path(results_dir, glue::glue("{submission_name}.val")),
+    overwrite = TRUE)
+  
+  # Cleanup
+  hash <- digest::digest(fs::path(temp_dir, glue::glue("{submission_name}.gbf")))
+  
+  fs::dir_delete(temp_dir)
+  
+  # Return hash of gbf file
+  hash
+  
+}

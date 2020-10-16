@@ -3,11 +3,13 @@
 
 FROM rocker/verse:3.6.1
 
+# ncbi-tools-bin for tbl2asn
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
   mafft \
   iqtree \
-  fasttree
+  fasttree \
+  ncbi-tools-bin
 
 # Install R packages using Renv snapshot
 

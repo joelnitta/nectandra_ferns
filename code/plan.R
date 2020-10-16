@@ -317,4 +317,35 @@ plan <- drake_plan(
     tracked_output = file_out(here::here("results/dryad_readme.rtf"))
   ),
   
+  # GenBank submission ----
+  
+  # Format genbank metadata
+  genbank_metadata = format_data_for_genbank(
+    sample_data = nectandra_specimens, 
+    dna_data = nectandra_dna, 
+    seqs = nectandra_rbcL_raw, 
+    adjust_remainder = c("0" = 2, "1" = 1, "2" = 3), 
+    manual_readframe = NULL, 
+    notes = NULL
+  ),
+  
+  # Format fasta headers for tbl2asn.
+  # These contain all the necessary metadata for each sample
+  seqs_for_tbl2asn = format_fasta_for_tbl2asn(genbank_metadata, nectandra_rbcL_raw),
+  
+  # Make feature table (describing genes) to use for tbl2asn
+  genbank_features = genbank_metadata %>%
+    mutate(feature = make_feature(name = genomic_id, seq_len = seq_len, codon_start = codon_start)) %>%
+    pull(feature),
+  
+  # Run tbl2asn
+  genbank_template_file_path = target("data/nectandra_gb_template.sbt", format = "file"),
+  
+  tbl2asn_results = tbl2asn(
+    genbank_template_file = genbank_template_file_path,
+    genbank_features = genbank_features, 
+    seqs = seqs_for_tbl2asn, 
+    submission_name = "nectandra_ferns_rbcL", 
+    results_dir = "results/genbank_submission")
+  
 )

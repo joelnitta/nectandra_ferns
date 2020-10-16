@@ -13,6 +13,16 @@ library(conflicted)
 conflict_prefer("filter", "dplyr")
 conflict_prefer("here", "here")
 
+# Process rbcL sequences from Geneious ----
+
+# Convert '?' in DNA sequences to 'N'
+# (no effect on phylogenetic analysis, but required)
+ape::read.FASTA("data/nectandra_rbcL.fasta") %>%
+  as.character() %>% 
+  map(~str_replace_all(., "\\?", "n")) %>%
+  as.DNAbin %>%
+  ape::write.FASTA("data/nectandra_rbcL.fasta")
+
 # Process PPGI data ----
 
 # Read in original Pteridophyte Phylogeny Group I taxonomy scheme
@@ -62,7 +72,7 @@ sci_names <-
     infrasp_name,
     var_author
   )) %>%
-  select(taxon, scientific_name) %>%
+  select(taxon, scientific_name, author, var_author) %>%
   mutate(scientific_name = stringr::str_trim(scientific_name)) %>%
   assert(is_uniq, scientific_name, taxon) %>%
   assert(not_na, scientific_name, taxon)
@@ -108,7 +118,7 @@ nectandra_specimens <-
   # Select variables
   select(specimen_id, specimen, 
          genus, specific_epithet, infraspecific_rank, infraspecific_name, certainty,
-         species, taxon, scientific_name,
+         species, taxon, scientific_name, author, var_author,
          country, locality, site, observations,
          elevation, latitude, longitude,
          collector, other_collectors,
