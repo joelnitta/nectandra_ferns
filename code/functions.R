@@ -1280,7 +1280,8 @@ format_data_for_genbank <- function(sample_data, dna_data, seqs, adjust_remainde
       country = glue::glue("{country}: {locality}"),
       collection_date = date_collected,
       organism = jntools::paste3(genus, certainty, specific_epithet, infraspecific_rank, infraspecific_name, sep = " "),
-      authority = author
+      # remove accents, etc from authority, which are not allowed by genbank
+      authority = stringi::stri_trans_general(author, "Latin-ASCII"),
     ) %>%
     left_join(dna_data, by = "specimen_id") %>%
     verify(all(names(seqs) %in% genomic_id)) %>%
