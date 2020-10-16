@@ -14,7 +14,7 @@ Submit-block ::= {
         div "Department of Biological Sciences",
         city "Tokyo",
         country "Japan",
-        street "2-11-16 Yayoi Bunkyo-ku",
+        street "2-11-16 Yayoi, Bunkyo-ku",
         email "joelnitta@gmail.com",
         postal-code "113-0032"
       }
@@ -59,7 +59,7 @@ Submit-block ::= {
         div "Department of Biological Sciences",
         city "Tokyo",
         country "Japan",
-        street "2-11-16 Yayoi Bunkyo-ku",
+        street "2-11-16 Yayoi, Bunkyo-ku",
         postal-code "113-0032"
       }
     }
