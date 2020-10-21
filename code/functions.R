@@ -198,6 +198,36 @@ download_country_el <- function(country = "CRI") {
   
 }
 
+#' Load genbank accession numbers received from NCBI after
+#' submitting sequences
+#'
+#' Also adds one more accession for a sequence that
+#' was submitted separately (pacific_ferns_rbcL.sqn Nitta2237 MT657442).
+#'
+#' @param file Path to text file with accession numbers
+#'
+#' @return Dataframe
+#' 
+load_genbank_accs <- function (file) {
+  
+  # Read in seqids.txt received from GenBank after submitting sequences
+  read_tsv(file, col_names = c("seq_name", "genbank_accession")) %>%
+    # Parse genomicID field
+    separate(seq_name, c("file", "genomic_id"), sep = " ") %>%
+    select(genomic_id, genbank_accession) %>%
+    # Add one more accession that was submitted separately:
+    # JNG4254 (Nitta 2237 Amauropelta atrovirens)
+    # pacific_ferns_rbcL.sqn Nitta2237       	MT657442
+    bind_rows(
+      tibble(
+        genomic_id = "JNG4254",
+        genbank_accession = "MT657442"
+      )) %>%
+    assert(is_uniq, genomic_id, genbank_accession) %>%
+    assert(not_na, genomic_id, genbank_accession)
+  
+}
+
 # Checklist ----
 
 #' Make a species checklist of pteridophytes at Nectandra
@@ -583,6 +613,7 @@ align_all_rbcL <- function(nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL_s
 
 #' Make a table of GenBank accession numbers
 #'
+#' @param new_genbank_accs Newly assigned GenBank accession numbers for rbcL sequences from Nectandra
 #' @param nectandra_rbcL_raw Unaligned DNA sequences of newly sequenced specimens from Nectandra;
 #' named by genomic accession number ('JNG001', etc)
 #' @param DNA_accessions DNA accession numbers and corresponding specimen ID codes
@@ -592,7 +623,7 @@ align_all_rbcL <- function(nectandra_rbcL, moorea_rbcL, japan_rbcL, japan_rbcL_s
 #'
 #' @return Tibble
 #' 
-make_genbank_accession_table <- function (nectandra_rbcL_raw, DNA_accessions, specimens, genbank_rbcL_metadata, nectandra_rbcL_aligned) {
+make_genbank_accession_table <- function (new_genbank_accs, nectandra_rbcL_raw, DNA_accessions, specimens, genbank_rbcL_metadata, nectandra_rbcL_aligned) {
   
   # Add scientific name to genbank metadata
   genbank_rbcL_metadata <-
@@ -609,8 +640,8 @@ make_genbank_accession_table <- function (nectandra_rbcL_raw, DNA_accessions, sp
   tibble(genomic_id = names(nectandra_rbcL_raw)) %>%
     left_join(select(DNA_accessions, genomic_id, specimen_id), by = "genomic_id") %>%
     left_join(select(specimens, specimen_id, taxon, scientific_name, specimen), by = "specimen_id") %>% 
-    # FIXME: Add GenBank accession numbers when available
-    mutate(genbank_accession = "TBD") %>%
+    # Add GenBank accession numbers
+    left_join(new_genbank_accs, by = "genomic_id") %>%
     assert(is_uniq, genomic_id, specimen_id) %>%
     assert(not_na, genomic_id, specimen_id, taxon, specimen, genbank_accession) %>%
     # Add "tip_label" in same format as in alignment and tree to check all samples

@@ -215,7 +215,13 @@ plan <- drake_plan(
   ),
   
   # Write out GenBank accession numbers for SI
+  # - first, load new GenBank accession numbers
+  # (MW138110 - MW138295, plus MT657442 submitted separately)
+  new_genbank_accs = load_genbank_accs(file_in("data/seqids.txt")),
+  
+  # - assemble table and write it out
   genbank_accession_table = make_genbank_accession_table(
+    new_genbank_accs = new_genbank_accs,
     nectandra_rbcL_raw = nectandra_rbcL_raw_with_JNG4254, 
     DNA_accessions = nectandra_dna, 
     specimens = nectandra_specimens,
