@@ -352,6 +352,17 @@ plan <- drake_plan(
     genbank_features = genbank_features, 
     seqs = seqs_for_tbl2asn, 
     submission_name = "nectandra_ferns_rbcL", 
-    results_dir = "results/genbank_submission")
+    results_dir = "results/genbank_submission"),
+  
+  # Check that amino acid translations are correct
+  
+  # (AA seqs in GenBank submission are based on the assumption that all DNA sequences 
+  # are exactly the correct length, and translations made by shifting reading frame appropriately)
+  flatfile_path = target(
+    tracked_file("results/genbank_submission/nectandra_ferns_rbcL.gbf", tbl2asn_results),
+    format = "file"),
+  
+  # - parse translated amino acids from flatfile
+  aa_seqs = parse_aa_from_flatfile(flatfile_path)
   
 )

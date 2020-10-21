@@ -1583,3 +1583,70 @@ tbl2asn <- function (genbank_template_file, genbank_features, seqs, submission_n
   hash
   
 }
+
+tracked_file <- function (path, ...) {
+  path
+}
+
+#' Extract a translated amino acid sequence from a single entry
+#' in a genbank flatfile
+#'
+#' @param gb_entry String (character vector of length 1);
+#' single entry from a genbank flatfile
+#'
+#' @return amino acid sequence as a character vector, named
+#' for the species + voucher
+#' 
+extract_translation <- function (gb_entry) {
+  
+  translation <- 
+    gb_entry %>%
+    paste(sep = "") %>%
+    str_remove_all("\n") %>%
+    str_remove_all('\"') %>%
+    str_match('translation=(.+)ORIGIN') %>%
+    magrittr::extract(,2) %>%
+    str_remove_all(" ")
+  
+  voucher <-
+    gb_entry %>%
+    paste(sep = "") %>%
+    str_remove_all("\n") %>%
+    str_remove_all('\"') %>%
+    str_match('LOCUS +([^ ]+) +') %>%
+    magrittr::extract(,2)
+  
+  species <-
+    gb_entry %>%
+    paste(sep = "") %>%
+    str_remove_all("\n") %>%
+    str_remove_all('\"') %>%
+    str_match('ORGANISM +(.+) Unclassified') %>%
+    magrittr::extract(,2) %>%
+    stringr::str_trim(side = "both")
+  
+  names(translation) <- paste(species, voucher)
+  
+  translation
+}
+
+#' Parse a genbank file and extract all the amino acid sequences
+#'
+#' @param gbff_path Path to genbank flat file
+#'
+#' @return List of class "AAbin"
+#' 
+parse_aa_from_flatfile <- function (gbff_path) {
+  read_file(gbff_path) %>%
+    # '\\' is delimiter between entries
+    str_split("\\/\\/") %>%
+    unlist %>%
+    # Drop the last item, as it is just an empty line (after the last '\\')
+    magrittr::extract(-length(.)) %>%
+    # Extract AA sequences from each entry
+    map(extract_translation) %>%
+    # Name them as the species + voucher
+    set_names(map_chr(., names)) %>%
+    # Convert to ape format
+    ape::as.AAbin()
+}
