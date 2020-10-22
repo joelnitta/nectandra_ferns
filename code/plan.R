@@ -86,7 +86,7 @@ plan <- drake_plan(
   
   # Checklist ----
   
-  # Make species checklist, write out as SI
+  # Make species checklist, write out as manuscript SI
   checklist = make_checklist(
     specimens = nectandra_specimens, 
     taxonomy = ppgi) %>% 
@@ -97,7 +97,7 @@ plan <- drake_plan(
     transmute(Family = family, Species = scientific_name, Collection = voucher, `Det.` = "J. Nitta") %>%
     separate_rows(Collection, sep = ", "),
   
-  fow_list_out = write_csv(fow_list, "results/fow_nectandra_list.csv"),
+  fow_list_out = write_csv(fow_list, "results/other/fow_nectandra_list.csv"),
   
   # Collection curve ----
   
@@ -174,7 +174,7 @@ plan <- drake_plan(
   # Write out rbcL alignment for submission to Dryad
   rbcL_aln_out = phangorn::write.phyDat(
     x = nectandra_rbcL,
-    file = file_out("results/nectandra_rbcL.phy"),
+    file = file_out("results/dryad/nectandra_rbcL.phy"),
     format = "phylip"
   ),
   
@@ -207,19 +207,18 @@ plan <- drake_plan(
   # Read in IQTREE log file to get stats about alignment and tree
   iqtree_log = readr::read_lines(file_in("iqtree_analysis/nectandra_rbcL.log")),
   
-  # Print out tree for SI
+  # Print out tree for manuscript SI
   rbcL_tree_out = plot_nectandra_rbcL_tree(
     phy = rbcL_tree,
     ppgi = ppgi,
     outfile = s_fig_path("tree", ".pdf")
   ),
   
-  # Write out GenBank accession numbers for SI
-  # - first, load new GenBank accession numbers
+  # Load new GenBank accession numbers
   # (MW138110 - MW138295, plus MT657442 submitted separately)
   new_genbank_accs = load_genbank_accs(file_in("data/seqids.txt")),
   
-  # - assemble table and write it out
+  # Write out GenBank accession numbers table for manuscript SI
   genbank_accession_table = make_genbank_accession_table(
     new_genbank_accs = new_genbank_accs,
     nectandra_rbcL_raw = nectandra_rbcL_raw_with_JNG4254, 
@@ -239,12 +238,12 @@ plan <- drake_plan(
     genbank_group = "Cyatheaceae"
   ),
   
-  cyatheaceae_seqs_out = ape::write.FASTA(grammitid_seqs, file_out("results/cyatheaceae_rbcL.fasta")),
+  cyatheaceae_seqs_out = ape::write.FASTA(grammitid_seqs, file_out("results/dryad/cyatheaceae_rbcL.fasta")),
   
   # - Cyatheaceae: Make tree with fasttree, write out for Dryad
   cyatheaceae_tree = fasttree(cyatheaceae_seqs),
   
-  cyatheaceae_tree_out = ape::write.tree(cyatheaceae_tree, file_out("results/cyatheaceae_rbcL.tre")),
+  cyatheaceae_tree_out = ape::write.tree(cyatheaceae_tree, file_out("results/dryad/cyatheaceae_rbcL.tre")),
   
   # - Cyatheaceae: Identify outgroup sequences
   cyatheaceae_outgroup = identify_outgroup(
@@ -253,14 +252,14 @@ plan <- drake_plan(
     family == "Dicksoniaceae"
   ),
   
-  # - Cyatheaceae: Print out tree for SI
+  # - Cyatheaceae: Print out tree for manuscript SI
   cyatheaceae_rbcL_tree_pdf = plot_broad_rbcL_tree(
     phy = cyatheaceae_tree,
     outgroup = cyatheaceae_outgroup,
     outfile = s_fig_path("cyatheaceae-tree", ".pdf")
   ),
   
-  # - Grammitids: download sequences from GenBank and make alignment
+  # - Grammitids: download sequences from GenBank and make alignment, write out for Dryad
   grammitid_seqs = make_broad_alignment(
     nectandra_rbcL = nectandra_rbcL, 
     ppgi = ppgi,
@@ -269,12 +268,12 @@ plan <- drake_plan(
     exclude_list = "MH159215" # Exclude misidentified Ascogrammitis anfractuosa on GenBank
   ),
   
-  grammitid_seqs_out = ape::write.FASTA(grammitid_seqs, file_out("results/grammitidoideae_rbcL.fasta")),
+  grammitid_seqs_out = ape::write.FASTA(grammitid_seqs, file_out("results/dryad/grammitidoideae_rbcL.fasta")),
   
-  # - Grammitids: Make tree with fasttree
+  # - Grammitids: Make tree with fasttree, write out for Dryad
   grammitid_tree = fasttree(grammitid_seqs),
   
-  grammitid_tree_out = ape::write.tree(cyatheaceae_tree, file_out("results/grammitidoideae_rbcL.tre")),
+  grammitid_tree_out = ape::write.tree(cyatheaceae_tree, file_out("results/dryad/grammitidoideae_rbcL.tre")),
   
   # - Grammitids: Identify outgroup sequences
   grammitid_outgroup = identify_outgroup(
@@ -283,7 +282,7 @@ plan <- drake_plan(
     subfamily == "Polypodioideae"
   ),
   
-  # - Grammitids: Print out tree for SI
+  # - Grammitids: Print out tree for manuscript SI
   grammitid_rbcL_tree_pdf = plot_broad_rbcL_tree(
     phy = grammitid_tree,
     outgroup = grammitid_outgroup,
@@ -301,26 +300,26 @@ plan <- drake_plan(
   ms_pdf = render_tracked(
     input = knitr_in("ms/nectandra_ferns.Rmd"),
     quiet = TRUE,
-    output_dir = here::here("results"),
-    tracked_output = file_out(here::here("results/nectandra_ferns.tex")),
+    output_dir = here::here("results/ms"),
+    tracked_output = file_out(here::here("results/ms/nectandra_ferns.tex")),
     dep1 = refs,
     dep2 = refs_other
   ),
   
   # Next use the latex to convert to docx with pandoc
   ms_docx = latex2docx(
-    latex = file_in(here::here("results/nectandra_ferns.tex")),
-    docx = file_out(here::here("results/nectandra_ferns.docx")),
+    latex = file_in(here::here("results/ms/nectandra_ferns.tex")),
+    docx = file_out(here::here("results/ms/nectandra_ferns.docx")),
     template = file_in(here::here("ms/plos-one.docx")),
-    wd = here::here("results")
+    wd = here::here("results/ms")
   ),
   
   # Also render the data readme for Dryad
   dryad_readme = render_tracked(
     input = knitr_in("ms/dryad_readme.Rmd"),
     quiet = TRUE,
-    output_dir = here::here("results"),
-    tracked_output = file_out(here::here("results/dryad_readme.rtf"))
+    output_dir = here::here("results/dryad"),
+    tracked_output = file_out(here::here("results/dryad/dryad_readme.rtf"))
   ),
   
   # GenBank submission ----

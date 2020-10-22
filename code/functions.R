@@ -1224,58 +1224,61 @@ check_citation_order <- function(rmd_file, cap_type) {
 
 #' Make a path to write out a figure
 #' 
-#' Will save to results folder with the file extension,
+#' Will save to selected folder with the file extension,
 #' replacing spaces with underscores
 #'
 #' @param fig_key String; figure name set in captions.R
 #' @param ext String; file extension
+#' @param folder String; name of folder to write file
 #'
 #' @return String; file path
 #'
 #' @examples
 #' source("ms/captions.R")
 #' fig_path("map", ".tiff")
-fig_path <- function (fig_key, ext) {
+fig_path <- function (fig_key, ext, folder = "results/ms") {
   
   figure(fig_key) %>% 
     str_replace_all(" ", "_") %>%
-    here("results", .) %>%
+    here(folder, .) %>%
     fs::path_ext_set(ext)
   
 }
 
 #' Make a path to write out a supplemental figure
 #' 
-#' Will save to results folder with the file extension,
+#' Will save to selected folder with the file extension,
 #' replacing spaces with underscores
 #'
 #' @param fig_key String; figure name set in captions.R
 #' @param ext String; file extension
+#' @param folder String; name of folder to write file
 #'
 #' @return String; file path
-s_fig_path <- function (fig_key, ext) {
+s_fig_path <- function (fig_key, ext, folder = "results/ms") {
   
   s_figure(fig_key) %>% 
     str_replace_all(" ", "_") %>%
-    here("results", .) %>%
+    here(folder, .) %>%
     fs::path_ext_set(ext)
   
 }
 
 #' Make a path to write out a supplemental table
 #' 
-#' Will save to results folder with the file extension,
+#' Will save to selected folder with the file extension,
 #' replacing spaces with underscores
 #'
 #' @param fig_key String; table name set in captions.R
 #' @param ext String; file extension
+#' @param folder String; name of folder to write file
 #'
 #' @return String; file path
-s_table_path <- function (fig_key, ext) {
+s_table_path <- function (fig_key, ext, folder = "results/ms") {
   
   s_table(fig_key) %>% 
     str_replace_all(" ", "_") %>%
-    here("results", .) %>%
+    here(folder, .) %>%
     fs::path_ext_set(ext)
   
 }
