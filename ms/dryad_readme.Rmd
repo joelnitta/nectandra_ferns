@@ -451,8 +451,8 @@ the private herbarium at the Nectandra Cloud Forest Reserve.
 
 \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
 
-ppgi_taxonomy.csv: Taxonomic system of Pteridophyte Phylogeny Group I (2016) for
-pteridophytes at the genus level and above. Updated with one new genus (Hiya).
+ppgi_taxonomy.csv: Taxonomic system of @PteridophytePhylogenyGroupI2016
+for pteridophytes at the genus level and above. Updated with one new genus (Hiya).
 
 Number of variables: `r ncol(ppgi)`
 
