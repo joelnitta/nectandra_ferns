@@ -94,7 +94,7 @@ E-mail: \textnormal{joelnitta@gmail.com} (JHN)
 
 \clearpage
 
-## Abstract
+# Abstract
 
 ```{r abstract-stats}
 # Count number of taxa at Nectandra
@@ -149,7 +149,7 @@ The comparison shows that Nectandra is more similar to Japan than Tahiti, which 
 
 \clearpage
 
-## Introduction
+# Introduction
 
 Despite its small area (`r si(51100, "km^2^")`), Costa Rica is home to remarkably high biodiversity, and is ranked as one of the world's top 25 biodiversity hotspots [@Myers2000].
 It is estimated that vascular plant species richness in Costa Rica exceeds `r si(5000, "spp.")` per `r si(10000, "km^2^")` [@Barthlott2005].
@@ -167,12 +167,12 @@ While the pteridophyte floras of some sites in Costa Rica are well studied, such
 We present here the results of surveys conducted over three field seasons on the pteridophyte flora of the recently established Nectandra Cloud Forest Reserve near San Ramon, Costa Rica.
 We also characterize the phylogenetic diversity at this site and compare it with other pteridophyte floras that have recently been the focus of DNA barcoding surveys.
 
-## Materials and methods
+# Materials and methods
 
-### Study site
+## Study site
 
 The Nectandra Cloud Forest Reserve (hereafter, "Nectandra"; 10°11' N, 84°31' W) is located at `r si(1000, "m")` to `r si(1200, "m")` a.s.l. on the Atlantic slope of the Cordillera de Tilarán, Alajuela Province (`r figure("map")`a).
-It encompasses `r si(158, "ha")` of premontane rainforest (life zones follow Holdridge [@Holdridge1967]) and is an important source of water for the local community [@Lennette2011].
+It encompasses `r si(158, "ha")` of premontane rainforest (life zones follow Holdridge [@Holdridge1967]) and is managed by the Nectandra Institute, whose mission is to conserve and restore cloud forest in northern Costa Rica through grassroots outreach [@Lennette2011].
 Approximately three-quarters of Nectandra is primary forest with >98% canopy cover; the remaining area comprises naturally regenerating former coffee and *Dracaena* plantations (`r figure("map")`b, c).
 Two permanent streams and four seasonal drainages pass through the reserve and empty into the Balsa river.
 Most of the surrounding land is used for cattle pasture or other agriculture.
@@ -193,7 +193,7 @@ Climate at Nectandra is characterized by extremely high frequency of cloud cover
 Rainfall peaks during the wet season from November to February.
 Mean annual precipitation is `r si(3000, "mm yr^-1^")` to `r si(3500, "mm yr^-1^")`, with \circa{ }80% fog-saturated days.
 
-### Field survey
+## Field survey
 
 We carried out surveys of pteridophytes over three field seasons (January 2008, 2011, and 2013; `r nectandra_specimens %>% filter(!is.na(date_collected)) %>% pull(date_collected) %>% n_distinct` days of sampling total).
 Most specimens were collected along trails through the reserve.
@@ -204,13 +204,13 @@ Herbarium codes follow Thiers [@Thiers2020].
 Leaf tissue was preserved on silica gel for DNA extraction.
 Spores of selected taxa were observed with a standard compound light microscope.
 
-### Taxonomy
+## Taxonomy
 
 We consulted relevant floras [@Moran1995; @Lellinger1989; @Mickel2004] and recent monographs [\eg, @Hirai2011; @Moran2010b; @Sundue2014a; @Gonzales-Rocabado2011; @Kessler2011c; @Moran2018a; @Rojas-Alvarado2017a] for species identification.
 In some cases, we also consulted taxonomic experts on particular groups (\eg, grammitid ferns).
 Genus-level and higher taxonomy follows Pteridophyte Phylogeny Group I [@PteridophytePhylogenyGroupI2016].
 
-### DNA sequencing and phylogenetic analysis
+## DNA sequencing and phylogenetic analysis
 
 DNA was extracted with the DNEasy Plant Mini kit following the manufacturer's protocol (Qiagen).
 We generally sampled one species per taxon from Nectandra for morphologically distinct taxa, and up to five specimens per taxon for taxa that are more difficult to identify using standard keys [@Moran1995; @Lellinger1989] (\eg, *Megalastrum*, *Didymoglossum*).
@@ -227,7 +227,7 @@ Node support was assessed with `r si(1000)` ultra-fast bootstrap (UFboot) [@Nguy
 For a small number of genera that were not supported as monophyletic in the original phylogenetic analysis, we also downloaded all available *rbcL* sequences for closely related taxa (at the family or subfamily level) from GenBank, aligned these in combination with the newly generated sequences from Nectandra with MAFFT, and inferred a tree using FastTree on default settings [@Price2009; @Price2010].
 Molecular analysis was performed under permits R-CM-RN-001-2014-OT-CONAGEBIO and R-CM-RN-002-2017-OT-CONAGEBIO.
 
-### Statistical analysis
+## Statistical analysis
 
 To assess the completeness of sampling, we constructed species incidence rarefaction-extraction curves using the iNEXT package [@Chao2014b].
 Number of collection days was used as the sampling unit.
@@ -244,7 +244,7 @@ We then subset the alignment to the species in each flora and calculated minimum
 
 All analyses were carried out using R v 3.6.1 [@RCoreTeam2019].
 
-### Data accessibility
+## Data accessibility
 
 Code to replicate all analyses, figures, and this manuscript is available at https://github.com/joelnitta/nectandra_ferns.
 A Docker image is available to run the code at https://hub.docker.com/r/joelnitta/nectandra_ferns.
@@ -252,9 +252,9 @@ Data are available from the Dryad repository [@Nitta2020b].
 Newly generated sequences have been deposited in GenBank (`r s_table("genbank")`).
 Photos of voucher specimens are available on the Ferns of the World website (https://www.fernsoftheworld.com/florulas/nectandra).
 
-## Results
+# Results
 
-### Taxonomic survey
+## Taxonomic survey
 
 ```{r top-taxa}
 # Count the number of species per 
@@ -468,7 +468,7 @@ Extrapolation of the curve indicates that asymptotic species richness may approa
 Point at transition from solid to dashed line indicates observed richness. 
 Gray shading indicates 95% confidence interval.
 
-### Phylogenetic analysis
+## Phylogenetic analysis
 
 ```{r seq-stats}
 # Make table of newly generated sequences that will be submitted to GenBank
@@ -594,7 +594,7 @@ Sampling of multiple specimens per species for taxa that are morphologically dif
 *Diplazium carnosum* Christ is non-monophyletic with respect to *D. urticifolium* Christ and *D. macrophyllum* Desv., but this and most other relationships within *Diplazium* lacked support.
 *Didymoglossum ekmanii* (Wess. Boer) Ebihara & Dubuisson is nested within, and very closely related to *D. kapplerianum* (J.W. Sturm) Ebihara & Dubuisson (`r get_node_support(rbcL_tree_rooted, c("Didymoglossum_kapplerianum_Nitta_139", "Didymoglossum_ekmanii_Nitta_126", "Didymoglossum_kapplerianum_Nitta_2299A"))`).
 
-### Barcode analysis
+## Barcode analysis
 
 The pteridophyte flora of Nectandra includes `r barcode_fail_num(min_distance_table, "CR")` taxa (`r barcode_fail_percent(min_distance_table, "CR")`) that share identical *rbcL* sequences with at least one other taxon.
 This failure rate is higher than that of the pteridophytes of Moorea and Tahiti (`r barcode_fail_percent(min_distance_table, "FP")`), but lower than Japan (`r barcode_fail_percent(min_distance_table, "JA")`; `r figure("min-dist")`).
@@ -603,12 +603,12 @@ This failure rate is higher than that of the pteridophytes of Moorea and Tahiti 
 (a) Nectandra, (b) Moorea and Tahiti, (c) Japan (all species), and (d) Japan (sexual diploids only).
 Red bar indicates interspecific distance of zero, i.e., species that cannot be distinguished using *rbcL*.
 
-## Discussion
+# Discussion
 
 Here, we present to our knowledge the first combined taxonomic and molecular survey of pteridophytes of a protected area in Costa Rica.
 We place our results in a regional and global context by comparing this flora with other protected areas in Costa Rica and two other sites that have been the focus of DNA barcoding: Tahiti and Japan.
 
-### Taxonomic diversity
+## Taxonomic diversity
 
 Nectandra has the third-highest species richness of protected areas in Costa Rica with data available for ferns and lycophytes, and by far the greatest number of species per hectare (`r table("richness-cr")`).
 While the number of species per hectare is not a fair measure of biodiversity per se as the species-area curve is not linear [@Arrhenius1921], it is useful to assess the effectiveness of a given protected area.
@@ -622,7 +622,7 @@ Another possible explanation is the presence of secondary forest and reserve edg
 Nectandra has a high edge to area ratio due to its small size, and edge effects have been demonstrated for pteridophytes in Mexican montane forests [@Silva2018]. 
 While we did not collect data to specifically test this hypothesis, the number of taxa restricted to edges at Nectandra is probably no greater than \circa{ }`r si(10, "spp.")` (J. Nitta, pers. obs.), and only one non-native species (*M. torresiana*) was observed occupying disturbed areas. Furthermore, the high number of epiphytes (the most common growth form; `r table("growth-habit")`) indicates that high humidity may support large numbers of species at Nectandra. Taken together, these observations suggest effect of elevation is likely more important than edge effects.
 
-### Unidentified taxa and putative species complexes
+## Unidentified taxa and putative species complexes
 
 Of the unidentified taxa, two are likely hybrids between distinct species.
 *Polyphlebium* sp1 (*Nitta 123* and *Nitta 2378*) shares very similar *rbcL* sequences with *Polyphlebium capillaceum*  (L.) Ebihara & Dubuisson but differs from this species by having expanded laminae (vs. laminae reduced to a few cells on either side of the veins) and growing on rocks in stream beds (vs. growing epiphytically on tree ferns).
@@ -630,7 +630,7 @@ Of the unidentified taxa, two are likely hybrids between distinct species.
 This may allow it to reproduce by spores despite not being able to complete normal meiosis.
 To our knowledge, a count of 32 spores per sporangium has not been previously reported from *Polyphlebium*, and more detailed study is needed to confirm the reproductive mode of this taxon.
 *Campyloneurum* sp1 (*Nitta 2308*) matches in *rbcL* exactly with *Campyloneurum angustifolium* (Sw.) Fée, but differs in morphology from *C. angustifolium* at Nectandra (*Nitta 782*) by having wider fronds (\circa{ }1.5 cm. vs. \circa{ }0.75 cm in *C. angustifolium*) and more rows of sori between the costa and the margin (3--4 vs. 1--2 in *C. angustifolium*).
-Clear, misshappen spores were observed in *Campyloneurum* sp1, whereas *C. angustifolium* is a sexual diploid (2*n* = 72) with oblong spores [@Leon1992].
+Clear, misshapen spores were observed in *Campyloneurum* sp1, whereas *C. angustifolium* is a sexual diploid (2*n* = 72) with oblong spores [@Leon1992].
 The chloroplast is generally maternally inherited in ferns [@Gastony1992; @Vogel1998; @Kuo2018a].
 Therefore, it is likely that each of these taxa is a hybrid between the species with which they share *rbcL* as the mother and another unknown species as the father.
 
@@ -640,7 +640,7 @@ Similarly, *Diplazium* also showed a high degree of morphological diversity but 
 Further study, in particular with regards to ploidal level and reproductive mode, is needed to determine the status of *Megalastrum* and *Diplazium* at Nectandra as possible species complexes.
 Also, sequencing of nuclear genes and more variable plastid markers is needed to clarify relationships for the putative hybrids (*Polyphlebium* sp1 and *Campyloneurum* sp1) as well as these putative species complexes.
 
-### Molecular diversity and DNA barcode suitability
+## Molecular diversity and DNA barcode suitability
 
 Unlike animals, there is no single DNA barcode available for plants that works to reliably identify species across all taxonomic groups [@Group2008].
 *rbcL* has relatively high phylogenetic informativeness in ferns and lycophytes at the species level and is one of the most frequently sequenced plastid genes in molecular systematic studies of pteridophytes.
@@ -660,7 +660,7 @@ When only sexual diploids are included, the failure rate in Japan drops to `r ba
 
 The patterns identified here show that DNA barcoding strategies in different areas may need to take into account the biogeographical history of the study site. Whereas *rbcL* alone may be largely sufficient in oceanic islands like French Polynesia, a second, more variable barcode marker such as *trnLF* [@DeGroot2011a] or *matK* [@Li2011] is probably needed to improve species identification rates of recently diverged taxa in continental areas such as Japan or Costa Rica. The second marker need not have universal primers, since *rbcL* will indicate genus or family, and primers for the second marker can then be selected appropriately.
 
-## Conclusions
+# Conclusions
 
 The Nectandra Cloud Forest Reserve is clearly an important site for biodiversity of ferns and lycophytes in Costa Rica, harboring a high number of species for its relatively small area.
 Our surveys have already revealed multiple taxa that appear to be new to science, and more likely remain to be discovered.
@@ -669,15 +669,15 @@ This will enable future studies to investigate the ecology of neotropical pterid
 Other studies using *rbcL* as a DNA barcode to identify fern gametophytes to species have revealed particular clades and morphologies that tend to occur long distances from conspecific sporophytes [@Ebihara2013; @Nitta2017], but such patterns have yet to be observed in the Neotropics.
 We hope our study will lead to more molecular ecological research incorporating field observations of gametophytes and contribute to the systematics of neotropical pteridophytes.
 
-## Acknowledgments
+# Acknowledgments
 
 We are grateful to Evelyne and David Lennette for allowing us to study the pteridophytes of Nectandra over multiple field seasons and for providing logistical support.
 Freddy Castillo Arroyo assisted with fieldwork.
 Paulo Labiak contributed to the identification of *Lellingeria hombersleyi*.
 Paulo Labiak and Michael Sundue reviewed the manuscript.
-This study is dedicated in memory of Álvaro Ulgade, father of the Costa Rican national park system, friend of Nectandra, and an inspiration to all those who seek to understand and protect biodiversity.
+This study is dedicated in memory of Álvaro Ulgade, father of the Costa Rican national park system, co-founder of Nectandra, and an inspiration to all those who seek to understand and protect biodiversity.
 
-## References
+# References
 <!-- Insert <div id="refs"></div> to place the refs here instead of at the end -->
 <!-- FIXME: remove extra space before each reference in MS Word-->
 
@@ -685,14 +685,14 @@ This study is dedicated in memory of Álvaro Ulgade, father of the Costa Rican n
 
 \clearpage
 
-## Supporting information
+# Supporting information
 
-**`r s_table_full("genbank")`** All specimens from the Nectandra Cloud Forest Reserve, Alajuela Province, Costa Rica, except for *Abrodictyum rigidum* (Sw.) Ebihara & Dubuisson (*J.-Y. Dubuisson HV 1997-3*, Venezuela), *Radiovittaria remota* (Fée) E.H. Crane (*R. Moran 3180a*, Costa Rica), and *Trichomanes polypodiodes* L. (*M. Kessler 8808*, Bolivia).
+**`r s_table_full("genbank")`** All specimens from the Nectandra Cloud Forest Reserve, Alajuela Province, Costa Rica, except for *Abrodictyum rigidum* (Sw.) Ebihara & Dubuisson (*J.-Y. Dubuisson HV 1997-3*, Venezuela), *Radiovittaria remota* (Fée) E.H. Crane (*R. Moran 3180a*, Costa Rica), and *Trichomanes polypodiodes* L. (*M. Kessler 8808*, Bolivia). Accessions beginning with 'MW' were newly generated by this study.
 
 **`r s_table_full("checklist")`** All voucher specimens deposited in UC with duplicates when available at CR, GH, and TI. For additional data on each voucher specimen, see Dryad repository [@Nitta2020b].
 
 **`r s_figure_full("tree")`** Tree rooted on lycophytes.
-Numbers at nodes indicate SH-aLRT support (%) / UFboot support (%); values less than 50% shown with "-"; values of 100% shown with "\*".
+Numbers at nodes indicate SH-aLRT support (%) / UFboot support (%); values less than 50% shown with "-"; values of 100% shown with "\*"; completely blank nodes indicate identical sequences.
 For phylogram on right side, scale bar shows expected number of changes per site.
 Numbers after species name are J. H. Nitta specimen collection numbers except for *Abrodictyum rigidum* (*J.-Y. Dubuisson HV 1997-3*, Venezuela), *Trichomanes polypodiodes* (*M. Kessler 8808*, Bolivia), and *Radiovittaria remota* (*R. Moran 3180a*, Costa Rica), which could not be sequenced successfully, so GenBank sequences were used instead (accessions AY095108, AY175795, and U21289, respectively). 
 All J. H. Nitta specimens from Nectandra.
