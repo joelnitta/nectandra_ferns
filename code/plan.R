@@ -238,7 +238,7 @@ plan <- drake_plan(
     genbank_group = "Cyatheaceae"
   ),
   
-  cyatheaceae_seqs_out = ape::write.FASTA(grammitid_seqs, file_out("results/dryad/cyatheaceae_rbcL.fasta")),
+  cyatheaceae_seqs_out = ape::write.FASTA(cyatheaceae_seqs, file_out("results/dryad/cyatheaceae_rbcL.fasta")),
   
   # - Cyatheaceae: Make tree with fasttree, write out for Dryad
   cyatheaceae_tree = fasttree(cyatheaceae_seqs),
