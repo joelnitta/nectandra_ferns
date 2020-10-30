@@ -99,6 +99,25 @@ plan <- drake_plan(
   
   fow_list_out = write_csv(fow_list, "results/other/fow_nectandra_list.csv"),
   
+  # Format collection data for fernsoftheworld.com, write out
+  # - load list of accepted FOW genera
+  fow_genera_path = target("data/fow_genera.txt", format = "file"),
+  
+  fow_genera = read_lines(fow_genera_path) %>%
+    tibble(genus_with_auth = .) %>%
+    mutate(genus = str_split(genus_with_auth, " ") %>% map_chr(1)),
+  
+  # - load list of accepted FOW species
+  fow_species_path = target("data/fow_species.txt", format = "file"),
+  
+  fow_species = read_lines(fow_species_path) %>%
+    tibble(species_with_auth = .) %>%
+    taxastand::add_parsed_names(species_with_auth, species),
+  
+  fow_coll_data = format_coll_for_fow(nectandra_specimens, ppgi, fow_genera, fow_species),
+  
+  fow_coll_data_out = write_csv(fow_coll_data, "results/other/fow_nectandra_collection_data.csv"),
+  
   # Collection curve ----
   
   # Run iNEXT to generate interpolated/extrapolated species richness

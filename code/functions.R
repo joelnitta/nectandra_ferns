@@ -269,6 +269,95 @@ make_checklist <- function (specimens, taxonomy) {
   
 }
 
+
+#' Format collection data for posting on fernsoftheworld.com
+#'
+#' @param nectandra_specimens Specimen collection data including species names
+#' @param ppgi PPGI taxonomic system
+#' @param fow_genera Genera used on fernsoftheworld.com, including taxonomic authors
+#' @param fow_species Species used on fernsoftheworld.com, including taxonomic authors
+#'
+#' @return Dataframe: collection data formatted for posting on fernsoftheworld.com
+#' 
+format_coll_for_fow <- function (nectandra_specimens, ppgi, fow_genera, fow_species) {
+  
+  nectandra_specimens %>%
+    # Add higher-level taxonomy.
+    left_join(select(ppgi, class, family, genus), by = "genus") %>%
+    # FOW "Genus" includes genus author. FOW already has all of these, so use as-is.
+    left_join(fow_genera, by = "genus") %>%
+    assert(not_na, genus_with_auth) %>%
+    left_join(fow_species, by = "species") %>%
+    mutate(
+      # FOW "Species" (here called `species_with_auth`) is 
+      # genus + specific epithet + author (for the species only, not any varieties)
+      # If there is a FOW "Species" already defined, use that (prioritize FOW authors)
+      # or if not, use my data
+      species_with_auth = case_when(
+        !is.na(species_with_auth) ~ species_with_auth,
+        TRUE ~ glue::glue("{species} {author}") %>% as.character
+      ),
+      # Date must be formatted as DD-MM(roman numerals)-YYYY
+      year = lubridate::year(date_collected),
+      month = lubridate::month(date_collected) %>% as.roman,
+      day = lubridate::day(date_collected) %>% str_pad(2, "left", "0"),
+      group = case_when(
+        class == "Polypodiopsida" ~ "Ferns",
+        class == "Lycopodiopsida" ~ "Lycophytes"
+      ),
+      # Add a period to "site" if needed.
+      site = case_when(
+        is.na(site) ~ NA_character_,
+        str_detect(site, "\\.$", negate = TRUE) ~ paste0("Site: ", site, "."),
+        TRUE ~ paste("Site:", site)
+      )
+    ) %>% 
+    transmute(
+      title = paste3(genus, specific_epithet, infraspecific_rank, infraspecific_name),
+      class,
+      family,
+      genus = genus_with_auth,
+      species = species_with_auth,
+      variety = paste3(infraspecific_name, var_author),
+      common_names = NA,
+      primary_collector = "J.H. Nitta",
+      collection_number = str_extract(specimen, "[0-9]+"),
+      collection_party = other_collectors,
+      collection_date = glue::glue("{day}-{month}-{year}"),
+      gps_coordinates = case_when(
+        is.na(latitude) ~ NA_character_,
+        is.na(longitude) ~ NA_character_,
+        TRUE ~ glue::glue("N{latitude}° W{-1*longitude}°") %>% as.character),
+      gps_elevation = ifelse(!is.na(elevation), glue::glue("{elevation} m"), NA_character_),
+      # Use "general coordinates" for location of Nectandra if no GPS data available
+      general_coordinates = ifelse(!is.na(gps_coordinates), NA_character_, "N10.183° W84.516°"),
+      general_elevation = ifelse(!is.na(gps_elevation), NA_character_, "ca. 1000 m"),
+      category = glue::glue("{group}, Florula: Nectandra"),
+      general_location = locality,
+      city = "La Balsa",
+      municipality = "Alajuela",
+      state_and_province = "San Ramon",
+      country = "Costa Rica",
+      specimen_locations = herbaria,
+      habitat = "Cloud forest",
+      habit = case_when(
+        family == "Cyatheaceae" ~ "Tree fern",
+        str_detect(observations, regex("epipet", ignore_case = TRUE)) ~ "Lithophyte",
+        str_detect(observations, regex("on rocks", ignore_case = TRUE)) ~ "Lithophyte",
+        str_detect(observations, regex("hemiepiphy", ignore_case = TRUE)) ~ "Hemiepiphyte",
+        str_detect(observations, regex("hemi-epiphy", ignore_case = TRUE)) ~ "Hemiepiphyte",
+        str_detect(observations, regex("epiphy", ignore_case = TRUE)) ~ "Epiphyte",
+        str_detect(observations, regex("growing in bryophyte", ignore_case = TRUE)) ~ "Epiphyte",
+        str_detect(observations, regex("terr", ignore_case = TRUE)) ~ "Terrestrial",
+        str_detect(observations, regex("climbing", ignore_case = TRUE)) ~ "Scandent on vegetation",
+        str_detect(observations, regex("clambering", ignore_case = TRUE)) ~ "Scandent on vegetation"
+      ),
+      # There is no appropriate field for "site", so attach it to "observations"
+      observations = paste3(observations, site)
+    )
+}
+
+
 # Collection curve ----
 
 #' Estimate species richness using days of sampling as
