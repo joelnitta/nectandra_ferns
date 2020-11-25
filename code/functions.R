@@ -4,7 +4,7 @@
 #' extract needed data files.
 #' 
 #' The dryad data zip file should be downloaded from 
-#' https://datadryad.org/stash/dataset/doi:10.5061/dryad.df59g
+#' https://doi.org/10.5061/dryad.df59g
 #' (click on "Download dataset")
 #'
 #' @param dryad_zip_file Path to the data zip file downloaded from Dryad.
@@ -30,30 +30,6 @@ unzip_nitta_2017 <- function (dryad_zip_file, exdir, ...) {
   fs::file_delete(fs::path(temp_dir, "data_and_scripts.zip"))
   
   return(unzipped_files)
-  
-}
-
-#' Unzip Ebihara and Nitta 2017 Ecol Mono data zip file and 
-#' extract needed data files.
-#' 
-#' The dryad data zip file should be downloaded from 
-#' https://datadryad.org/stash/dataset/doi:10.5061/dryad.df59g
-#' (click on "Download dataset")
-#'
-#' @param dryad_zip_file Path to the data zip file downloaded from Dryad.
-#' @param unzip_path Path to directory to put the unzipped
-#' contents (will be created if needed).
-#' @param ... Extra arguments; not used by this function, but
-#' meant for tracking with drake.
-#' @return A dataframe of the unzipped files. Externally, these files will be written to `exdir`.
-#'
-unzip_ebihara_2019 <- function (dryad_zip_file, exdir, ...) {
-  
-  # Unzip only the needed files
-  unzip(dryad_zip_file, files = c("rbcl_mrbayes.nex", "FernGreenListV1.01E.xls", "ESM1.csv"), exdir = exdir, overwrite = TRUE)
- 
-  # Return dataframe of unzipped files
-  unzip(dryad_zip_file, files = c("rbcl_mrbayes.nex", "FernGreenListV1.01E.xls","ESM1.csv"), list = TRUE)
   
 }
 

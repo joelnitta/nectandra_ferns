@@ -1,70 +1,95 @@
 plan <- drake_plan(
   
-  # Data loading and cleaning ----
+  # Unzip data ----
   
-  # Load PPGI taxonomy
-  ppgi_path = target("data/ppgi_taxonomy.csv", format = "file"), # track file contents (not just path)
-  ppgi = readr::read_csv(ppgi_path),
-  
-  # Load Nectandra specimen data
-  nectandra_specimens_path = target("data/nectandra_specimens.csv", format = "file"),
-  nectandra_specimens = readr::read_csv(nectandra_specimens_path),
-  
-  # Load Nectandra DNA accession data
-  nectandra_dna_path = target("data/nectandra_DNA_accessions.csv", format = "file"),
-  nectandra_dna = readr::read_csv(nectandra_dna_path),
-  
-  # Load Nectandra unaligned rbcL sequences
-  nectandra_rbcL_raw_path = target("data/nectandra_rbcL.fasta", format = "file"),
-  nectandra_rbcL_raw = ape::read.FASTA(nectandra_rbcL_raw_path),
-  
-  # Also read in one sequence that will be submitted to GenBank separately
-  JNG4254_rbcL_raw_path = target("data/JNG4254.fasta", format = "file"),
-  JNG4254_rbcL_raw = ape::read.FASTA(JNG4254_rbcL_raw_path),
-  
-  # Load species richness and GPS locations of various protected
-  # sites in Costa Rica
-  cr_richness_path = target("data/costa_rica_richness.csv", format = "file"),
-  cr_richness = readr::read_csv(cr_richness_path),
-  
-  # Unzip French Polynesia rbcL sequences
-  # This requires doi_10.5061_dryad.df59g__v1.zip to be downloaded to data_raw/
-  # from https://datadryad.org/stash/dataset/doi:10.5061/dryad.df59g first
-  moorea_rbcL_path = target({
-    unzip_nitta_2017(
-      dryad_zip_file = "data/doi_10.5061_dryad.df59g__v1.zip", 
-      exdir = "data/nitta_2017")
-    "data/nitta_2017/rbcL_clean_sporos.fasta"},
-    format = "file"
-  ),
-  
-  # Load French Polynesia rbcL sequences
-  # (also add "_FP" to end of name)
-  moorea_rbcL = ape::read.FASTA(moorea_rbcL_path) %>%
-    purrr::set_names(., paste0(names(.), "_FP")),
-  
+  # Unzip Nectandra ferns data
+  # This requires doi_10.5061_dryad.bnzs7h477__v4.zip to be downloaded to data/
+  # from https://doi.org/10.5061/dryad.bnzs7h477 first
+  nec_ferns_data = target({
+    unzip(
+      zipfile = "data/doi_10.5061_dryad.bnzs7h477__v4.zip", 
+      files = c(
+        "costa_rica_richness.csv",
+        "JNG4254.fasta",
+        "nectandra_DNA_accessions.csv",
+        "nectandra_gb_template.sbt",
+        "nectandra_rbcL.fasta",
+        "nectandra_specimens.csv",
+        "ppgi_taxonomy.csv",
+        "seqids.txt"),
+      exdir = "data",
+      overwrite = TRUE)
+    c(
+      costa_rica_richness.csv = "data/costa_rica_richness.csv",
+      JNG4254.fasta = "data/JNG4254.fasta",
+      nectandra_DNA_accessions.csv = "data/nectandra_DNA_accessions.csv",
+      nectandra_gb_template.sbt = "data/nectandra_gb_template.sbt",
+      nectandra_rbcL.fasta = "data/nectandra_rbcL.fasta",
+      nectandra_specimens.csv = "data/nectandra_specimens.csv",
+      ppgi_taxonomy.csv = "data/ppgi_taxonomy.csv",
+      seqids.txt = "data/seqids.txt")
+  },
+  format = "file"),
+
   # Unzip Japan rbcL sequences and breeding mode data
-  # This requires doi_10.5061_dryad.4362p32__v4.zip to be downloaded to data_raw/
-  # from https://datadryad.org/stash/dataset/doi:10.5061/dryad.4362p32 first
-  ebihara_2019_data = target({
-    unzip_ebihara_2019(
-      dryad_zip_file = "data/doi_10.5061_dryad.4362p32__v4.zip", 
-      exdir = "data/ebihara_2019"
-    )
-    c(tree = "data/ebihara_2019/rbcl_mrbayes.nex", 
-      taxa = "data/ebihara_2019/FernGreenListV1.01E.xls",
-      repro_data = "data/ebihara_2019/ESM1.csv")
+  # This requires doi_10.5061_dryad.4362p32__v4.zip to be downloaded to data/
+  # from https://doi.org/10.5061/dryad.4362p32 first
+  japan_ferns_data = target({
+    unzip(
+      zipfile = "data/doi_10.5061_dryad.4362p32__v4.zip", 
+      files = c(
+        "rbcl_mrbayes.nex",
+        "FernGreenListV1.01E.xls",
+        "ESM1.csv"),
+      exdir = "data",
+      overwrite = TRUE)
+    c(
+      rbcl_mrbayes.nex = "data/rbcl_mrbayes.nex",
+      FernGreenListV1.01E.xls = "data/FernGreenListV1.01E.xls",
+      ESM1.csv = "data/ESM1.csv")
   },
   format = "file"),
   
+  # Unzip French Polynesia rbcL sequences
+  # This requires doi_10.5061_dryad.df59g__v1.zip to be downloaded to data/
+  # from https://doi.org/10.5061/dryad.df59g first
+  moorea_rbcL_path = target({
+    unzip_nitta_2017(
+      dryad_zip_file = "data/doi_10.5061_dryad.df59g__v1.zip", 
+      exdir = "data")
+    "data/rbcL_clean_sporos.fasta"},
+    format = "file"
+  ),
+  
+  # Data loading and cleaning ----
+  
+  # Load PPGI taxonomy
+  ppgi = readr::read_csv(nec_ferns_data[["ppgi_taxonomy.csv"]]),
+  
+  # Load Nectandra specimen data
+  nectandra_specimens = readr::read_csv(nec_ferns_data[["nectandra_specimens.csv"]]),
+  
+  # Load Nectandra DNA accession data
+  nectandra_dna = readr::read_csv(nec_ferns_data[["nectandra_DNA_accessions.csv"]]),
+  
+  # Load Nectandra unaligned rbcL sequences
+  nectandra_rbcL_raw = ape::read.FASTA(nec_ferns_data[["nectandra_rbcL.fasta"]]),
+  
+  # Also read in one sequence that will be submitted to GenBank separately
+  JNG4254_rbcL_raw = ape::read.FASTA(nec_ferns_data[["JNG4254.fasta"]]),
+  
+  # Load species richness and GPS locations of various protected
+  # sites in Costa Rica
+  cr_richness = readr::read_csv(nec_ferns_data[["costa_rica_richness.csv"]]),
+  
   # Load Japan rbcL data with names formatted as codes
-  japan_rbcL_raw = ape::read.nexus.data(ebihara_2019_data[["tree"]]) %>% ape::as.DNAbin(),
+  japan_rbcL_raw = ape::read.nexus.data(japan_ferns_data[["rbcl_mrbayes.nex"]]) %>% ape::as.DNAbin(),
   
   # Load table matching taxon codes to scientific names of Japanese pteridophytes
-  japan_taxa = readxl::read_excel(ebihara_2019_data[["taxa"]]) %>% tidy_japan_names(),
+  japan_taxa = readxl::read_excel(japan_ferns_data[["FernGreenListV1.01E.xls"]]) %>% tidy_japan_names(),
   
   # Load data on reproductive mode for Japanese pteridophytes
-  japan_repro_data = readr::read_csv(ebihara_2019_data[["repro_data"]]) %>%
+  japan_repro_data = readr::read_csv(japan_ferns_data[["ESM1.csv"]]) %>%
     janitor::clean_names() %>%
     mutate(taxon_id = as.character(taxon_id)),
   
@@ -80,6 +105,11 @@ plan <- drake_plan(
     japan_rbcL = japan_rbcL_raw, 
     japan_taxa = japan_taxa, 
     japan_repro_data = japan_repro_data),
+  
+  # Load French Polynesia rbcL sequences
+  # (also add "_FP" to end of name)
+  moorea_rbcL = ape::read.FASTA(moorea_rbcL_path) %>%
+    purrr::set_names(., paste0(names(.), "_FP")),
   
   # Download elevation data for Costa Rica (for map)
   costa_rica_el = download_country_el("CRI"),
@@ -235,7 +265,7 @@ plan <- drake_plan(
   
   # Load new GenBank accession numbers
   # (MW138110 - MW138295, plus MT657442 submitted separately)
-  new_genbank_accs = load_genbank_accs(file_in("data/seqids.txt")),
+  new_genbank_accs = load_genbank_accs(nec_ferns_data[["seqids.txt"]]),
   
   # Write out GenBank accession numbers table for manuscript SI
   genbank_accession_table = make_genbank_accession_table(
@@ -363,10 +393,8 @@ plan <- drake_plan(
     pull(feature),
   
   # Run tbl2asn
-  genbank_template_file_path = target("data/nectandra_gb_template.sbt", format = "file"),
-  
   tbl2asn_results = tbl2asn(
-    genbank_template_file = genbank_template_file_path,
+    genbank_template_file = nec_ferns_data[["nectandra_gb_template.sbt"]],
     genbank_features = genbank_features, 
     seqs = seqs_for_tbl2asn, 
     submission_name = "nectandra_ferns_rbcL", 
