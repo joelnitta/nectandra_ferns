@@ -21,7 +21,7 @@ key](https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-uti
 
 ## Data
 
-Data are hosted on [Data Dryad](https://datadryad.org). For each of the links below, click on "Download Dataset", then place the zipped data file (it will have a similar name to the DOI) in the `data` folder of the this repo. This must be done **before** running `make.R`. You can manually unzip the data archives if you want to see the contents, but the code needs the original zipped file in `data/` to run.
+There are two small data files included in this repo. The rest of the data are hosted on [Dryad](https://datadryad.org). For each of the links below, click on "Download Dataset", then place the zipped data file (it will have a similar name to the DOI) in the `data` folder of the this repo. This must be done **before** running `make.R`. You can manually unzip the data archives if you want to see the contents, but the code needs the original zipped file in `data/` to run.
 
 - https://doi.org/10.5061/dryad.bnzs7h477
 - https://doi.org/10.5061/dryad.4362p32
