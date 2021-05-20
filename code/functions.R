@@ -287,36 +287,37 @@ format_coll_for_fow <- function (nectandra_specimens, ppgi, fow_genera, fow_spec
         str_detect(site, "\\.$", negate = TRUE) ~ paste0("Site: ", site, "."),
         TRUE ~ paste("Site:", site)
       )
-    ) %>% 
+    ) %>%
     transmute(
       title = paste3(genus, specific_epithet, infraspecific_rank, infraspecific_name),
       class,
-      family,
-      genus = genus_with_auth,
+      families = family,
+      genera = genus_with_auth,
       species = species_with_auth,
-      variety = paste3(infraspecific_name, var_author),
-      common_names = NA,
-      primary_collector = "J.H. Nitta",
-      collection_number = str_extract(specimen, "[0-9]+"),
-      collection_party = other_collectors,
-      collection_date = glue::glue("{day}-{month}-{year}"),
-      gps_coordinates = case_when(
-        is.na(latitude) ~ NA_character_,
-        is.na(longitude) ~ NA_character_,
+      varieties = paste3(infraspecific_name, var_author),
+      primarycollectors = "J.H. Nitta",
+      fow_collection_number = str_extract(specimen, "[0-9]+"),
+      fow_collection_party = other_collectors,
+      fow_date = glue::glue("{day}-{month}-{year}"),     
+      # Use general coordinates for location of Nectandra if no GPS data available
+      fow_coordinates = case_when(
+        is.na(latitude) ~ "N10.183° W84.516°",
+        is.na(longitude) ~ "N10.183° W84.516°",
         TRUE ~ glue::glue("N{latitude}° W{-1*longitude}°") %>% as.character),
-      gps_elevation = ifelse(!is.na(elevation), glue::glue("{elevation} m"), NA_character_),
-      # Use "general coordinates" for location of Nectandra if no GPS data available
-      general_coordinates = ifelse(!is.na(gps_coordinates), NA_character_, "N10.183° W84.516°"),
-      general_elevation = ifelse(!is.na(gps_elevation), NA_character_, "ca. 1000 m"),
-      category = glue::glue("{group}, Florula: Nectandra"),
-      general_location = locality,
-      city = "La Balsa",
-      municipality = "Alajuela",
-      state_and_province = "San Ramon",
-      country = "Costa Rica",
-      specimen_locations = herbaria,
-      habitat = "Cloud forest",
-      habit = case_when(
+      latitude_geocoding = if_else(is.na(latitude), "10.183", as.character(latitude)),
+      longitude_geocoding = if_else(is.na(longitude), "84.516", as.character(longitude)),
+      fow_elevation = if_else(is.na(elevation), "ca. 1000 m", as.character(glue::glue("{elevation} m"))),
+      category_florula = "Florula",
+      category_florula_name = "Nectandra",
+      category_group = group, # 'Ferns' or 'Lycophytes'
+      generallocations = locality,
+      cities = "La Balsa",
+      municipalities = "Alajuela",
+      statesandprovinces = "San Ramon",
+      countries = "Costa Rica",
+      specimenlocations = str_remove_all(herbaria, " "),
+      habitats = "Cloud forest",
+      habits = case_when(
         family == "Cyatheaceae" ~ "Tree fern",
         str_detect(observations, regex("epipet", ignore_case = TRUE)) ~ "Lithophyte",
         str_detect(observations, regex("on rocks", ignore_case = TRUE)) ~ "Lithophyte",
@@ -329,7 +330,7 @@ format_coll_for_fow <- function (nectandra_specimens, ppgi, fow_genera, fow_spec
         str_detect(observations, regex("clambering", ignore_case = TRUE)) ~ "Scandent on vegetation"
       ),
       # There is no appropriate field for "site", so attach it to "observations"
-      observations = paste3(observations, site)
+      fow_observations = paste3(observations, site)
     )
 }
 

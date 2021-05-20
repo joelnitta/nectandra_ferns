@@ -146,7 +146,15 @@ plan <- drake_plan(
   
   fow_coll_data = format_coll_for_fow(nectandra_specimens, ppgi, fow_genera, fow_species),
   
-  fow_coll_data_out = write_csv(fow_coll_data, "results/other/fow_nectandra_collection_data.csv"),
+  # Write out data for bulk upload to FOW blog posts one year at time
+  fow_coll_data_out = fow_coll_data %>%
+    mutate(year = str_split(fow_date, "-") %>% map_chr(3)) %>%
+    assert(not_na, year) %>%
+    verify(unique(year) == c(2008, 2011, 2013)) %>%
+    group_split(year, keep = FALSE) %>%
+    walk2(
+      glue::glue("results/other/fow_nectandra_collection_data_{c(2008, 2011, 2013)}.csv"),
+      ~write_csv(.x, .y, na = "")),
   
   # Collection curve ----
   
