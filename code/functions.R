@@ -295,6 +295,7 @@ format_coll_for_fow <- function (nectandra_specimens, ppgi, fow_genera, fow_spec
       genera = genus_with_auth,
       species = species_with_auth,
       varieties = paste3(infraspecific_name, var_author),
+      det_by = glue::glue("J.H. Nitta and A.R. Smith {year}") %>% as.character(),
       primarycollectors = "J.H. Nitta",
       fow_collection_number = str_extract(specimen, "[0-9]+"),
       fow_collection_party = other_collectors,
