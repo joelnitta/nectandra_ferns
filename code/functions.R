@@ -271,7 +271,7 @@ format_coll_for_fow <- function (nectandra_specimens, ppgi, fow_genera, fow_spec
       # or if not, use my data
       species_with_auth = case_when(
         !is.na(species_with_auth) ~ species_with_auth,
-        TRUE ~ glue::glue("{species} {author}") %>% as.character
+        TRUE ~ jntools::paste3(species, author)
       ),
       # Date must be formatted as DD-MM(roman numerals)-YYYY
       year = lubridate::year(date_collected),
@@ -288,6 +288,10 @@ format_coll_for_fow <- function (nectandra_specimens, ppgi, fow_genera, fow_spec
         TRUE ~ paste("Site:", site)
       )
     ) %>%
+    # Add tags: genus, Nectandra, Costa Rica
+    rowwise() %>%
+    mutate(tags = paste(c(genus, "Nectandra", "Costa Rica"), collapse = ",")) %>%
+    ungroup() %>%
     transmute(
       title = paste3(genus, specific_epithet, infraspecific_rank, infraspecific_name),
       class,
