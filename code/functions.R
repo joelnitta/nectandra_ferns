@@ -286,8 +286,13 @@ format_coll_for_fow <- function (nectandra_specimens, ppgi, fow_genera, fow_spec
         is.na(site) ~ NA_character_,
         str_detect(site, "\\.$", negate = TRUE) ~ paste0("Site: ", site, "."),
         TRUE ~ paste("Site:", site)
-      )
+      ),
+      # Use underscores for specimen
+      specimen = str_replace_all(specimen, " ", "_"),
     ) %>%
+    # Will use specimen as unique ID, so check that it is indeed unique and non-missing
+    assert(not_na, specimen) %>%
+    assert(is_uniq, specimen) %>%
     # Add tags: genus, Nectandra, Costa Rica
     rowwise() %>%
     mutate(tags = paste(c(genus, "Nectandra", "Costa Rica"), collapse = ",")) %>%
@@ -299,6 +304,7 @@ format_coll_for_fow <- function (nectandra_specimens, ppgi, fow_genera, fow_spec
       genera = genus_with_auth,
       species = species_with_auth,
       varieties = paste3(infraspecific_name, var_author),
+      specimen = specimen, # unique ID
       det_by = glue::glue("J.H. Nitta and A.R. Smith {year}") %>% as.character(),
       primarycollectors = "J.H. Nitta",
       fow_collection_number = str_extract(specimen, "[0-9]+"),
@@ -306,11 +312,11 @@ format_coll_for_fow <- function (nectandra_specimens, ppgi, fow_genera, fow_spec
       fow_date = glue::glue("{day}-{month}-{year}"),     
       # Use general coordinates for location of Nectandra if no GPS data available
       fow_coordinates = case_when(
-        is.na(latitude) ~ "N10.183° W84.516°",
-        is.na(longitude) ~ "N10.183° W84.516°",
+        is.na(latitude) ~ "ca. N10.183° W84.516°",
+        is.na(longitude) ~ "ca. N10.183° W84.516°",
         TRUE ~ glue::glue("N{latitude}° W{-1*longitude}°") %>% as.character),
       latitude_geocoding = if_else(is.na(latitude), "10.183", as.character(latitude)),
-      longitude_geocoding = if_else(is.na(longitude), "84.516", as.character(longitude)),
+      longitude_geocoding = if_else(is.na(longitude), "-84.516", as.character(longitude)),
       fow_elevation = if_else(is.na(elevation), "ca. 1000 m", as.character(glue::glue("{elevation} m"))),
       category_florula = "Florula",
       category_florula_name = "Nectandra",
@@ -335,7 +341,9 @@ format_coll_for_fow <- function (nectandra_specimens, ppgi, fow_genera, fow_spec
         str_detect(observations, regex("clambering", ignore_case = TRUE)) ~ "Scandent on vegetation"
       ),
       # There is no appropriate field for "site", so attach it to "observations"
-      fow_observations = paste3(observations, site)
+      fow_observations = paste3(observations, site) #,
+      # Don't include tags for now
+      # tags = tags
     )
 }
 
